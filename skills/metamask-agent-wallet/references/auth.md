@@ -26,8 +26,12 @@ mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password 
 ```bash
 mm-dev init
 mm-dev init --wallet server-wallet --mode beast
-MM_MNEMONIC="word1 word2 ..." mm-dev init --wallet byok
-MM_MNEMONIC="word1 word2 ..." MM_PASSWORD="mypassword" mm-dev init --wallet byok
+export MM_MNEMONIC="word1 word2 ..."
+mm-dev init --wallet byok
+
+export MM_MNEMONIC="word1 word2 ..."
+export MM_PASSWORD="mypassword"
+mm-dev init --wallet byok
 ```
 
 ## `init show` Command
