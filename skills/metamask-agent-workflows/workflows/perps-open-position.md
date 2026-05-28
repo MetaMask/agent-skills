@@ -1,0 +1,1 @@
+/Users/ayushbherwani/consensys/mm-agentic/agent-skills/skills/metamask-agent-wallet/workflows/perps-open-position.md
