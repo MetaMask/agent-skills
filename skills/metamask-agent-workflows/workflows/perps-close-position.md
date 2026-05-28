@@ -1,0 +1,44 @@
+# Perps Close Position Workflow
+
+Use this workflow when the user wants to close a perpetual position.
+
+Reference command syntax in `references/perps.md`.
+
+## Flow
+
+1. Check open positions.
+2. Dry run the close.
+3. Confirm with the user and close.
+
+## Check Positions
+
+```bash
+mm-dev perps positions --venue hyperliquid
+```
+
+## Dry Run
+
+Preview the close before executing:
+
+```bash
+mm-dev perps close --venue hyperliquid --symbol BTC --dry-run
+```
+
+For partial close, include `--size <amount>`.
+
+## Close
+
+Remove `--dry-run` only after explicit user confirmation:
+
+```bash
+mm-dev perps close --venue hyperliquid --symbol BTC
+mm-dev perps close --venue hyperliquid --symbol BTC --size 0.005
+```
+
+`--all` closes every open position. Require explicit confirmation that the user wants all positions closed.
+
+```bash
+mm-dev perps close --venue hyperliquid --all
+```
+
+Do not add `--yes` unless the user explicitly asked for unattended execution.
