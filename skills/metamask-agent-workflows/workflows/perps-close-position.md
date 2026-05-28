@@ -23,14 +23,16 @@ mm-dev perps positions
 `--venue` defaults to `hyperliquid`. It can be omitted.
 
 ```bash
-mm-dev perps positions```
+mm-dev perps positions
+```
 
 ## Dry Run
 
 Preview the close before executing:
 
 ```bash
-mm-dev perps close --symbol BTC --dry-run```
+mm-dev perps close --symbol BTC --dry-run
+```
 
 For partial close, include `--size <amount>`.
 
@@ -39,11 +41,14 @@ For partial close, include `--size <amount>`.
 Remove `--dry-run` only after explicit user confirmation:
 
 ```bash
-mm-dev perps close --symbol BTCmm-dev perps close --symbol BTC --size 0.005```
+mm-dev perps close --symbol BTC
+mm-dev perps close --symbol BTC --size 0.005
+```
 
 `--all` closes every open position. Require explicit confirmation that the user wants all positions closed.
 
 ```bash
-mm-dev perps close --all```
+mm-dev perps close --all
+```
 
 Do not add `--yes` unless the user explicitly asked for unattended execution.

@@ -34,5 +34,5 @@ mm-dev transfer --to 0x742d...f2bD18 --amount 1.0 --chain-id 1 --token ETH --too
 ## Notes
 
 - If the chain is not mentioned by the user, ask for the chain.
-- Use `mm chains list` to discover supported chain IDs.
+- Use `mm-dev chains list` to discover supported chain IDs.
 - In server-wallet mode, transfer returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.

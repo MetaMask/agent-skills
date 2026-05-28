@@ -24,12 +24,14 @@ mm-dev perps markets
 `--venue` defaults to `hyperliquid`. It can be omitted.
 
 ```bash
-mm-dev perps balance```
+mm-dev perps balance
+```
 
 If available margin is zero or insufficient, deposit USDC before proceeding. Hyperliquid only supports deposits from Arbitrum mainnet (`eip155:42161`).
 
 ```bash
-mm-dev perps deposit --amount <amount> --asset USDC```
+mm-dev perps deposit --amount <amount> --asset USDC
+```
 
 To confirm a deposit, wait briefly and poll `mm-dev perps balance`.
 
@@ -38,7 +40,8 @@ To confirm a deposit, wait briefly and poll `mm-dev perps balance`.
 Always quote before opening:
 
 ```bash
-mm-dev perps quote --symbol BTC --side long --size 0.01 --leverage 5```
+mm-dev perps quote --symbol BTC --side long --size 0.01 --leverage 5
+```
 
 Show the user estimated entry, notional, fees, liquidation price, side, size, leverage, and venue before proceeding.
 
@@ -47,7 +50,8 @@ Show the user estimated entry, notional, fees, liquidation price, side, size, le
 Preview the order before signing:
 
 ```bash
-mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5 --dry-run```
+mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5 --dry-run
+```
 
 For limit orders, include `--type limit --limit-px <price>`.
 
@@ -58,6 +62,7 @@ For limit orders, include `--type limit --limit-px <price>`.
 Remove `--dry-run` only after explicit user confirmation:
 
 ```bash
-mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5```
+mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5
+```
 
 Do not add `--yes` unless the user explicitly asked for unattended execution.

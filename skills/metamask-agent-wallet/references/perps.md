@@ -20,17 +20,18 @@ List perpetual markets for a venue.
 ### Syntax
 
 ```bash
-mm-dev perps markets --venue <venue> [--network <network>] [--symbol <symbol>] [--symbols <list>]
+mm-dev perps markets --venue <venue> [--network <network>] [--symbol <symbol>] [--symbols <list>] [--dex <name>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
-| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
-| `--symbol` | No | Market symbol (e.g. BTC, ETH, SOL) |
+| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
+| `--symbol` | No | Filter to a single market symbol (e.g. BTC) |
 | `--symbols` | No | Comma-separated market symbols to filter (e.g. BTC,ETH,SOL) |
+| `--dex` | No | HIP-3 DEX name; omit for the main Hyperliquid DEX. Run `mm-dev perps dexs` to see options |
 
 ### Example
 
@@ -38,6 +39,7 @@ mm-dev perps markets --venue <venue> [--network <network>] [--symbol <symbol>] [
 mm-dev perps markets --venue hyperliquid
 mm-dev perps markets --venue hyperliquid --symbol BTC
 mm-dev perps markets --venue hyperliquid --symbols BTC,ETH,SOL --network testnet
+mm-dev perps markets --venue hyperliquid --dex myDex
 ```
 
 ## `perps balance` Command
@@ -232,16 +234,18 @@ Cancel a resting perps order.
 ### Syntax
 
 ```bash
-mm-dev perps cancel --venue <venue> --order-id <id> [--network <network>] [--yes] [--password <password>]
+mm-dev perps cancel --venue <venue> --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--order-id` | Yes | Venue order ID to cancel (positive integer) |
-| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
+| `--symbol` | No | Market symbol; speeds up cancel by avoiding an open-order lookup (e.g. BTC, ETH) |
+| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
+| `--dry-run` | No | Preview the cancel action without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -249,6 +253,8 @@ mm-dev perps cancel --venue <venue> --order-id <id> [--network <network>] [--yes
 
 ```bash
 mm-dev perps cancel --venue hyperliquid --order-id 12345
+mm-dev perps cancel --venue hyperliquid --order-id 12345 --symbol BTC
+mm-dev perps cancel --venue hyperliquid --order-id 12345 --dry-run
 mm-dev perps cancel --venue hyperliquid --order-id 12345 --yes
 ```
 
@@ -259,18 +265,19 @@ Deposit USDC into a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps deposit --venue <venue> --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--yes] [--password <password>]
+mm-dev perps deposit --venue <venue> --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to deposit (e.g. 100, 50.5) |
-| `--asset` | No | Deposit asset (defaults to USDC) |
+| `--asset` | No | Deposit asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--source-chain` | No | Source chain as a CAIP-2 ID. Hyperliquid only supports Arbitrum (defaults to `eip155:42161` on mainnet) |
-| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
+| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
+| `--dry-run` | No | Preview the transaction without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -278,6 +285,7 @@ mm-dev perps deposit --venue <venue> --amount <amount> [--asset <asset>] [--sour
 
 ```bash
 mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC
+mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC --dry-run
 mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC --yes
 ```
 
@@ -288,18 +296,20 @@ Withdraw USDC from a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps withdraw --venue <venue> --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--yes] [--password <password>]
+mm-dev perps withdraw --venue <venue> --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--dry-run] [--include-spot] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to withdraw (e.g. 50, 25.5) |
-| `--asset` | No | Withdraw asset (defaults to USDC) |
+| `--asset` | No | Withdrawal asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--destination` | No | EVM destination address (defaults to your connected wallet) |
-| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
+| `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
+| `--dry-run` | No | Preview the withdrawal without signing or submitting |
+| `--include-spot` | No | Move free spot USDC to perp account before withdrawing if the perp balance alone is insufficient |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -307,6 +317,7 @@ mm-dev perps withdraw --venue <venue> --amount <amount> [--asset <asset>] [--des
 
 ```bash
 mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC
+mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --include-spot
 mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --destination 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18 --yes
 ```
 
