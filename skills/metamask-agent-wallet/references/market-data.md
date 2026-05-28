@@ -42,12 +42,13 @@ mm-dev price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--ti
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | CAIP-2 chain ID |
-| `--asset-type` | Yes | Asset type, such as `slip44:60` |
-| `--time-period` | No | Period such as `1d`, `7d`, `2M`, or `3y` |
-| `--interval` | No | `5m`, `hourly`, or `daily` |
-| `--from` | No | Start unix timestamp |
-| `--to` | No | End unix timestamp |
+| `--chain-id` | Yes | CAIP-2 chain ID (e.g. `eip155:1`). Run `mm-dev price networks` to see supported chains |
+| `--asset-type` | Yes | CAIP-19 asset type (e.g. `slip44:60` for ETH, `erc20:0x...` for ERC-20 tokens) |
+| `--time-period` | No | Time period (e.g. `1d`, `7d`, `30d`, `2M`, `1y`, `3y`) |
+| `--interval` | No | Sampling interval: `5m`, `hourly`, or `daily` |
+| `--from` | No | Start time as a Unix timestamp in seconds. Use with `--to` instead of `--time-period` for custom ranges |
+| `--to` | No | End time as a Unix timestamp in seconds. Use with `--from` instead of `--time-period` for custom ranges |
+| `--vs` | No | Quote currency code (defaults to `usd`). Run `mm-dev price currencies` to see options |
 
 ### Example
 
@@ -162,21 +163,26 @@ Fetch asset metadata for one or more CAIP-19 assets.
 ### Syntax
 
 ```bash
-mm-dev token assets --asset-ids <asset-ids> [--include-market-data] [--include-token-security-data] [--include-labels]
+mm-dev token assets --asset-ids <asset-ids> [--include-market-data] [--include-token-security-data] [--include-labels] [--include-aggregators] [--include-coingecko-id] [--include-occurrences] [--include-rwa-data]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs |
-| `--include-market-data` | No | Include market data |
-| `--include-token-security-data` | No | Include token security signals |
-| `--include-labels` | No | Include token labels |
+| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs (e.g. `eip155:1/erc20:0xa0b8...`). Run `mm-dev token networks` to see supported chains |
+| `--include-market-data` | No | Include market cap, volume, and price data |
+| `--include-token-security-data` | No | Include token security signals (scam risk, honeypot detection) |
+| `--include-labels` | No | Include token labels and categories |
+| `--include-aggregators` | No | Include aggregator sources that list this token |
+| `--include-coingecko-id` | No | Include the CoinGecko identifier for cross-referencing |
+| `--include-occurrences` | No | Include occurrence count across chains |
+| `--include-rwa-data` | No | Include real-world asset (RWA) data |
 
 ### Example
 
 ```bash
 mm-dev token assets --asset-ids "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48,eip155:137/slip44:966"
 mm-dev token assets --asset-ids "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" --include-market-data --include-token-security-data --include-labels
+mm-dev token assets --asset-ids "eip155:1/slip44:60" --include-aggregators --include-coingecko-id --include-rwa-data
 ```

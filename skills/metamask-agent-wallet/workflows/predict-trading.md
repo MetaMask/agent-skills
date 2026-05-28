@@ -48,7 +48,7 @@ Search can return loosely related markets, so inspect the selected market before
 
 ```bash
 mm-dev predict markets --query "Knicks NBA Finals" --limit 5 --active --json
-mm-dev predict market will-the-new-york-knicks-win-the-2026-nba-finals --json
+mm-dev predict market --market will-the-new-york-knicks-win-the-2026-nba-finals --json
 ```
 
 The market detail prints outcome token IDs. Outcome token IDs are not market IDs; use the token ID for `quote`, `place`, `book`, and `balance --token-id`.
@@ -87,7 +87,7 @@ mm-dev predict orders
 mm-dev predict orders --market <condition-id>
 mm-dev predict positions
 mm-dev predict positions --market <condition-id>
-mm-dev predict cancel <order-id>
+mm-dev predict cancel --order-id <order-id>
 mm-dev predict cancel --market <condition-id>
 mm-dev predict cancel --asset <outcomeTokenId>
 mm-dev predict cancel --all
@@ -98,7 +98,7 @@ mm-dev predict cancel --all
 ## Watch Async Jobs
 
 ```bash
-mm-dev predict watch <job-id> --wait
+mm-dev predict watch --id <job-id> --wait
 ```
 
 Use this for setup, approve, deposit, and order jobs that have not reached a terminal state.

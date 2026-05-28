@@ -9,21 +9,24 @@ Create a new wallet under the authenticated account.
 ### Syntax
 
 ```bash
-mm-dev wallet create [--chain-namespace <namespace>] [--name <name>]
+mm-dev wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode <mode>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `eip155` or `solana` |
-| `--name` | No | Wallet display name |
+| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--name` | No | Display name for the wallet |
+| `--trading-mode` | No | Trading mode for server wallets: `guard` (enforces outflow/whitelist policies) or `beast` (skips policy checks). Only applies to server-wallet mode (allowed: `guard`, `beast`) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
 ```bash
-mm-dev wallet create --chain-namespace eip155
-mm-dev wallet create --chain-namespace eip155 --name "Trading"
+mm-dev wallet create --chain-namespace evm
+mm-dev wallet create --chain-namespace evm --name "Trading"
+mm-dev wallet create --chain-namespace evm --name "Fast Trading" --trading-mode beast
 ```
 
 ## `wallet list` Command
@@ -40,7 +43,7 @@ mm-dev wallet list [--chain-namespace <namespace>] [--toon]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `eip155` or `solana` |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
 
 ### Example
 
@@ -63,10 +66,10 @@ mm-dev wallet select [--chain-namespace <namespace>] [--id <id>] [--address <add
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
 | `--id` | No | Wallet ID |
-| `--address` | No | Wallet address |
-| `--name` | No | Wallet name |
+| `--address` | No | Wallet address (0x-prefixed hex) |
+| `--name` | No | Wallet display name |
 
 ### Example
 
@@ -89,10 +92,10 @@ mm-dev wallet show [--chain-namespace <namespace>] [--id <id>] [--address <addre
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
 | `--id` | No | Wallet ID |
-| `--address` | No | Wallet address |
-| `--name` | No | Wallet name |
+| `--address` | No | Wallet address (0x-prefixed hex) |
+| `--name` | No | Wallet display name |
 
 ### Example
 
@@ -115,7 +118,7 @@ mm-dev wallet address [--chain-namespace <namespace>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace |
+| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
 
 ### Example
 
@@ -131,17 +134,20 @@ Show native and token balances for the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [--address <address>]
+mm-dev wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-id <ids>] [--token-contracts <addresses>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--currency` | No | Fiat currency code |
-| `--chain` | No | Comma-separated chain filters (chain id, CAIP-2 id, or chain key) |
-| `--token` | No | Token filter (symbol, token address, or CAIP-19 asset id) |
-| `--address` | No | Wallet address |
+| `--currency` | No | Fiat currency code for price conversion (e.g. usd, eur) |
+| `--chain` | No | Comma-separated chain filters (e.g. `1,137` or `eip155:1`). Run `mm-dev chains list` to see options |
+| `--token` | No | Filter by token symbol, contract address, or CAIP-19 asset ID (e.g. USDC, 0xa0b8...) |
+| `--address` | No | Wallet address (0x-prefixed hex) |
+| `--testnet` | No | Read balances via RPC on Arbitrum Sepolia, Amoy, and Sepolia testnets |
+| `--testnet-chain-id` | No | Comma-separated EVM testnet chain IDs for on-chain RPC balance reads (e.g. `421614,80002`) |
+| `--token-contracts` | No | Comma-separated ERC-20 contract addresses for testnet RPC chains (0x-prefixed hex). Use with `--testnet-chain-id` to read specific token balances on testnets |
 
 ### Example
 
@@ -150,4 +156,6 @@ mm-dev wallet balance
 mm-dev wallet balance --chain 8453
 mm-dev wallet balance --token USDC
 mm-dev wallet balance --currency eur
+mm-dev wallet balance --testnet
+mm-dev wallet balance --testnet-chain-id 421614 --token-contracts 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 ```

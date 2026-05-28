@@ -9,7 +9,7 @@ Initialize the project by selecting wallet mode and trading mode.
 ### Syntax
 
 ```bash
-mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>]
+mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -17,15 +17,41 @@ mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--wallet` | No | Wallet mode: `server-wallet` or `byok` |
-| `--mode` | No | Trading mode: `safe` or `yolo` |
-| `--mnemonic` | No | Mnemonic for BYOK wallet [env: `MM_MNEMONIC`] |
+| `--mode` | No | Trading mode: `guard` or `beast` (server-wallet only) |
+| `--mnemonic` | No | BIP-39 mnemonic phrase for BYOK wallet. Never pass inline — set `MM_MNEMONIC` env var instead. |
+| `--password` | No | Password to encrypt the BYOK mnemonic at rest. Never pass inline — set `MM_PASSWORD` env var instead. If omitted in interactive mode, the CLI prompts. If omitted in non-interactive mode, mnemonic is stored unencrypted. |
 
 ### Example
 
 ```bash
 mm-dev init
-mm-dev init --wallet server-wallet --mode yolo
-mm-dev init --wallet byok --mnemonic "word1 word2 ..."
+mm-dev init --wallet server-wallet --mode beast
+export MM_MNEMONIC="word1 word2 ..."
+mm-dev init --wallet byok
+
+export MM_MNEMONIC="word1 word2 ..."
+export MM_PASSWORD="mypassword"
+mm-dev init --wallet byok
+```
+
+## `init show` Command
+
+Display the current initialization settings (wallet mode, trading mode, policies).
+
+### Syntax
+
+```bash
+mm-dev init show
+```
+
+### Supported Flags
+
+This command does not support additional flags beyond output format options.
+
+### Example
+
+```bash
+mm-dev init show
 ```
 
 ## `login` Command
@@ -42,9 +68,9 @@ mm-dev login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token` | No | Pre-minted CLI token (`cliToken:cliRefreshToken`) [env: `MM_CLI_TOKEN`] |
-| `--timeout` | No | How long to wait for QR / browser callback, in seconds |
-| `--no-wait` | No | Print sign-in URL and exit; finish later with `mm-dev login --token` |
+| `--token` | No | Pre-minted CLI token in `cliToken:cliRefreshToken` format [env: `MM_CLI_TOKEN`] |
+| `--timeout` | No | Seconds to wait for QR or browser callback |
+| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login. Complete later with `mm-dev login --token` |
 
 ### Example
 
@@ -121,9 +147,79 @@ This command does not support flags.
 mm-dev reset
 ```
 
+## `wallet password set` Command
+
+Set a password to encrypt the BYOK mnemonic at rest. Only available in BYOK mode when the mnemonic is currently unencrypted.
+
+### Syntax
+
+```bash
+mm-dev wallet password set [--new <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--new` | No | New password. If omitted, the CLI prompts interactively. |
+
+### Example
+
+```bash
+mm-dev wallet password set
+mm-dev wallet password set --new "mypassword"
+```
+
+## `wallet password change` Command
+
+Change the BYOK mnemonic encryption password. Only available when the mnemonic is currently encrypted.
+
+### Syntax
+
+```bash
+mm-dev wallet password change [--current <password>] [--new <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--current` | No | Current password. If omitted, the CLI prompts interactively. |
+| `--new` | No | New password. If omitted, the CLI prompts interactively. |
+
+### Example
+
+```bash
+mm-dev wallet password change
+mm-dev wallet password change --current "oldpassword" --new "newpassword"
+```
+
+## `wallet password remove` Command
+
+Remove the BYOK mnemonic encryption password, storing the mnemonic as plaintext. Only available when the mnemonic is currently encrypted.
+
+### Syntax
+
+```bash
+mm-dev wallet password remove [--current <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--current` | No | Current password. If omitted, the CLI prompts interactively. |
+
+### Example
+
+```bash
+mm-dev wallet password remove
+mm-dev wallet password remove --current "mypassword"
+```
+
 ## Wallet Modes
 
 | Mode | Behavior |
 | --- | --- |
 | `server-wallet` | Keys hosted by MetaMask infrastructure. Signing and transaction operations may return async job handles. |
-| `byok` | Bring your own local mnemonic. Operation results are returned immediately. |
+| `byok` | Bring your own local mnemonic. Operation results are returned immediately. If the mnemonic is encrypted with a password, the CLI requires `--password` or interactive prompt to unlock before any operation that needs the private key. |

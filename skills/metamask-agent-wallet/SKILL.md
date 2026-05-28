@@ -22,11 +22,15 @@ Match the user's intent to a command and reference file, then read the reference
 | Check authentication status | `mm-dev auth status` | [auth.md](references/auth.md) |
 | Login in MetaMask Agentic CLI | `mm-dev login` | [auth.md](references/auth.md) |
 | Choose a wallet mode and set up policies | `mm-dev init` | [auth.md](references/auth.md) |
+| Show current init settings | `mm-dev init show` | [auth.md](references/auth.md) |
 | Sign in via QR code | `mm-dev login qr` | [auth.md](references/auth.md) |
 | Sign in via Google | `mm-dev login google` | [auth.md](references/auth.md) |
 | Sign in via email OTP | `mm-dev login email` | [auth.md](references/auth.md) |
 | Sign out | `mm-dev logout` | [auth.md](references/auth.md) |
 | Reset CLI session | `mm-dev reset` | [auth.md](references/auth.md) |
+| Set BYOK mnemonic encryption password | `mm-dev wallet password set` | [auth.md](references/auth.md) |
+| Change BYOK mnemonic encryption password | `mm-dev wallet password change` | [auth.md](references/auth.md) |
+| Remove BYOK mnemonic encryption password | `mm-dev wallet password remove` | [auth.md](references/auth.md) |
 | Interpret raw CLI error codes | `AuthError`, `ValidationError`, `WALLET_ERROR` | [errors.md](references/errors.md) |
 | Create a wallet | `mm-dev wallet create` | [wallet.md](references/wallet.md) |
 | List all wallets | `mm-dev wallet list` | [wallet.md](references/wallet.md) |
@@ -54,6 +58,9 @@ Match the user's intent to a command and reference file, then read the reference
 | Cancel a resting perps order | `mm-dev perps cancel` | [perps.md](references/perps.md) |
 | Deposit USDC into a perps venue | `mm-dev perps deposit` | [perps.md](references/perps.md) |
 | Withdraw USDC from a perps venue | `mm-dev perps withdraw` | [perps.md](references/perps.md) |
+| Transfer USDC between spot and perp accounts | `mm-dev perps transfer` | [perps.md](references/perps.md) |
+| List perpetual futures venues | `mm-dev perps list-venues` | [perps.md](references/perps.md) |
+| List available DEXs for a venue | `mm-dev perps dexs` | [perps.md](references/perps.md) |
 | Set Predict trading mode | `mm-dev predict mode` | [predict.md](references/predict.md) |
 | One-time Predict setup | `mm-dev predict setup` | [predict.md](references/predict.md) |
 | Create or refresh Predict credentials | `mm-dev predict auth` | [predict.md](references/predict.md) |
@@ -90,6 +97,20 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Close a perpetual position flow | [perps-close-position.md](workflows/perps-close-position.md) |
 | Modify a perpetual position flow | [perps-modify-position.md](workflows/perps-modify-position.md) |
 | Predict setup-fund-quote-place flow | [predict-trading.md](workflows/predict-trading.md) |
+| Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
+
+## Global Flags
+
+Every `mm-dev` command accepts these flags:
+
+| Flag | Short | Description |
+| --- | --- | --- |
+| `--format` | `-f` | Output format: `text`, `json`, `yaml`, `toml`, or `toon` (defaults to `text` in TTY, `json` when piped) |
+| `--json` | | Shorthand for `--format=json` |
+| `--toon` | | Shorthand for `--format=toon` |
+| `--verbose` | `-v` | Show debug logs on stderr. Use for troubleshooting |
+
+Always use `--toon` for command output unless the user explicitly requests a different format.
 
 ## Preflight
 
@@ -112,12 +133,12 @@ Before constructing any command, validate all user-provided values:
 | Flag | Validation rule |
 | --- | --- |
 | `--to`, `--address` | Must match `^0x[0-9a-fA-F]{40}$` |
-| `--amount` | Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
+| `--amount` | Human-readable decimal (e.g. 0.5, 100). Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
 | `--chain-id` | Must be a positive integer (`^\d+$`) |
 | `--payload` | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
 | `--token` | Must be a valid hex address or known symbol |
 | `--leverage` | Must be a positive integer (`^\d+$`) |
-| `--size` | Must match `^\d+\.?\d*$` and be positive |
+| `--size` | Human-readable decimal (e.g. 0.01, 1). Must match `^\d+\.?\d*$` and be positive |
 | `--venue` | Must be `hyperliquid` |
 | `--side` (perps) | Must be `long` or `short` |
 | `--order-id` | Must be a positive integer (`^\d+$`) |
@@ -127,6 +148,7 @@ Before constructing any command, validate all user-provided values:
 | `--side` (predict) | Must be `buy` or `sell` |
 | `--slippage` | Must be a number between 0 and 100 |
 | `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
+| `--password` | Must be a non-empty string. Never log, display, or store the value. |
 
 Do not pass unvalidated user input into any command.
 
@@ -144,12 +166,13 @@ Do not pass unvalidated user input into any command.
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
 | Predict deposit | Always confirm amount before executing |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
-| Auth / wallet management | May execute without confirmation |
+| Auth / wallet management | May execute without confirmation, except `reset` which requires explicit user confirmation |
 | Read-only queries | May execute without confirmation |
 
 ### Credential Safety
 
-- Never store, log, or display private keys, mnemonics, or auth tokens.
+- Never store, log, or display private keys, mnemonics, passwords, or auth tokens.
+- Never pass `--password` or `--mnemonic` as inline flags. Always instruct the user to set the `MM_PASSWORD` and `MM_MNEMONIC` environment variables instead to avoid exposing secrets in shell history.
 
 ### Suspicious Content Warnings
 
@@ -167,7 +190,7 @@ In server-wallet mode, signing and transaction commands return a `pollingId` ins
 2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
    - `mm-dev wallet requests list`
    - `mm-dev wallet requests watch --polling-id <id>`
-3. In BYOK mode, results are returned immediately.
+3. In BYOK mode, results are returned immediately. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 ## Output Rules
 

@@ -10,10 +10,20 @@ Reference command syntax in `references/perps.md`.
 2. Dry run the close.
 3. Confirm with the user and close.
 
-## Check Positions
+## Confirm Symbol
+
+If the user does not mention a token symbol, list open positions and confirm with the user:
 
 ```bash
-mm-dev perps positions --venue hyperliquid
+mm-dev perps positions
+```
+
+## Check Positions
+
+`--venue` defaults to `hyperliquid`. It can be omitted.
+
+```bash
+mm-dev perps positions
 ```
 
 ## Dry Run
@@ -21,7 +31,7 @@ mm-dev perps positions --venue hyperliquid
 Preview the close before executing:
 
 ```bash
-mm-dev perps close --venue hyperliquid --symbol BTC --dry-run
+mm-dev perps close --symbol BTC --dry-run
 ```
 
 For partial close, include `--size <amount>`.
@@ -31,14 +41,14 @@ For partial close, include `--size <amount>`.
 Remove `--dry-run` only after explicit user confirmation:
 
 ```bash
-mm-dev perps close --venue hyperliquid --symbol BTC
-mm-dev perps close --venue hyperliquid --symbol BTC --size 0.005
+mm-dev perps close --symbol BTC
+mm-dev perps close --symbol BTC --size 0.005
 ```
 
 `--all` closes every open position. Require explicit confirmation that the user wants all positions closed.
 
 ```bash
-mm-dev perps close --venue hyperliquid --all
+mm-dev perps close --all
 ```
 
 Do not add `--yes` unless the user explicitly asked for unattended execution.
