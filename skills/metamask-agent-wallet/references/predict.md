@@ -27,14 +27,15 @@ One-time Predict setup: creates trading credentials, deploys the deposit wallet,
 ### Syntax
 
 ```bash
-mm predict setup [--wait]
+mm predict setup [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--wait` | No | Wait for setup deployment and approval jobs to finish |
+| `--wait` | No | Block until the job completes |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -49,7 +50,7 @@ Create or refresh Predict trading credentials (API key + CLOB signing).
 ### Syntax
 
 ```bash
-mm predict auth [--refresh]
+mm predict auth [--refresh] [--password <password>]
 ```
 
 ### Supported Flags
@@ -57,6 +58,7 @@ mm predict auth [--refresh]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--refresh` | No | Force-create or refresh trading credentials |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -72,14 +74,15 @@ Repair missing deposit-wallet approvals.
 ### Syntax
 
 ```bash
-mm predict approve [--wait]
+mm predict approve [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--wait` | No | Wait for approval job to finish |
+| `--wait` | No | Block until the job completes |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -117,10 +120,10 @@ mm predict markets [--query <text>] [--limit <n>] [--cursor <cursor>] [--tag <ta
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--query` | No | Market search query |
-| `--limit` | No | Max markets to return (1-500) |
-| `--cursor` | No | Pagination cursor |
-| `--tag` | No | Market tag or category |
+| `--query` | No | Search query for market names (e.g. NBA Finals) |
+| `--limit` | No | Maximum markets to return, 1-500 |
+| `--cursor` | No | Pagination cursor from a previous response |
+| `--tag` | No | Market tag or category (e.g. sports, politics) |
 | `--active` | No | Only include active markets |
 | `--closed` | No | Include closed markets |
 
@@ -161,17 +164,18 @@ Preview order cost and fill before placing.
 ### Syntax
 
 ```bash
-mm predict quote --token-id <token-id> --side <side> --size <size> [--limit-price <price>]
+mm predict quote --token-id <token-id> --side <side> --size <size> [--limit-price <price>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID from `mm predict market` |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict market <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
-| `--size` | Yes | Order size in shares |
-| `--limit-price` | No | Optional execution price per share (0-1) |
+| `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
+| `--limit-price` | No | Execution price per share, between 0 and 1 |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -187,20 +191,21 @@ Place a Predict order (GTC/GTD limit, FOK/FAK market).
 ### Syntax
 
 ```bash
-mm predict place --token-id <token-id> --side <side> --size <size> --price <price> [--order-type <type>] [--post-only] [--expiration <unix>]
+mm predict place --token-id <token-id> --side <side> --size <size> --price <price> [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID from `mm predict market` |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict market <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
-| `--size` | Yes | Order size in shares |
+| `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
 | `--price` | Yes | Worst price per share (0-1); limit price for GTC/GTD, worst fill for FOK/FAK |
-| `--order-type` | No | Order type: `GTC`, `GTD`, `FOK`, or `FAK`. Default is `GTC` |
-| `--post-only` | No | Reject if the order would cross the book (GTC/GTD only) |
-| `--expiration` | If `GTD` | GTD expiration in unix seconds |
+| `--order-type` | No | Order type: `GTC`, `GTD`, `FOK`, or `FAK` (defaults to `GTC`) |
+| `--post-only` | No | Reject if the order would cross the book. Not supported with FOK/FAK orders |
+| `--expiration` | If `GTD` | Expiration as a Unix timestamp in seconds (only valid for GTD orders) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Validation Rules
 
@@ -222,7 +227,7 @@ Cancel Predict orders by ID, market, asset, or all open orders.
 ### Syntax
 
 ```bash
-mm predict cancel [<order-id>] [--all] [--market <condition-id>] [--asset <token-id>]
+mm predict cancel [<order-id>] [--all] [--market <condition-id>] [--asset <token-id>] [--password <password>]
 ```
 
 ### Supported Args
@@ -237,7 +242,8 @@ mm predict cancel [<order-id>] [--all] [--market <condition-id>] [--asset <token
 | --- | --- | --- |
 | `--all` | No | Cancel all open orders |
 | `--market` | No | Cancel orders for a given market condition ID |
-| `--asset` | No | Cancel orders for a given outcome token ID |
+| `--asset` | No | Cancel orders for a specific outcome token ID |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Validation Rules
 
@@ -259,14 +265,15 @@ View your Predict positions.
 ### Syntax
 
 ```bash
-mm predict positions [--market <id>]
+mm predict positions [--market <id>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--market` | No | Filter by market ID, condition ID, or slug |
+| `--market` | No | Market slug, ID, or condition ID. Run `mm predict markets` to search |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -282,7 +289,7 @@ View open Predict orders.
 ### Syntax
 
 ```bash
-mm predict orders [--market <condition-id>] [--cursor <cursor>]
+mm predict orders [--market <condition-id>] [--cursor <cursor>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -290,7 +297,8 @@ mm predict orders [--market <condition-id>] [--cursor <cursor>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--market` | No | Filter by market condition ID |
-| `--cursor` | No | Pagination cursor |
+| `--cursor` | No | Pagination cursor from a previous response |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -306,7 +314,7 @@ Check deposit wallet funds, approvals, and setup status.
 ### Syntax
 
 ```bash
-mm predict balance [--token-id <token-id>] [--sync]
+mm predict balance [--token-id <token-id>] [--sync] [--password <password>]
 ```
 
 ### Supported Flags
@@ -314,7 +322,8 @@ mm predict balance [--token-id <token-id>] [--sync]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--token-id` | No | Optional conditional token ID |
-| `--sync` | No | Refresh Predict balances and allowances before reading |
+| `--sync` | No | Refresh balances and allowances before reading |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -330,15 +339,16 @@ Fund your Predict deposit wallet with pUSD.
 ### Syntax
 
 ```bash
-mm predict deposit --amount <amount> [--wait]
+mm predict deposit --amount <amount> [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--amount` | Yes | pUSD amount to deposit |
-| `--wait` | No | Wait for submitted funding transactions |
+| `--amount` | Yes | pUSD amount to deposit, human-readable (e.g. 5, 100) |
+| `--wait` | No | Block until the job completes |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -375,7 +385,7 @@ Watch a setup, approval, deposit, or order job until it completes.
 ### Syntax
 
 ```bash
-mm predict watch <id> [--wait]
+mm predict watch <id> [--wait] [--password <password>]
 ```
 
 ### Supported Args
@@ -388,7 +398,8 @@ mm predict watch <id> [--wait]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--wait` | No | Wait until the job reaches a terminal state |
+| `--wait` | No | Block until the job completes |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 

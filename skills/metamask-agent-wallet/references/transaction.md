@@ -9,16 +9,17 @@ Send a raw EVM transaction using the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait]
+mm-dev wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID (e.g. `1` for Ethereum, `137` for Polygon) |
-| `--payload` | Yes | Transaction JSON (to, value, data, gas params) |
-| `--wait` | No | Wait for the transaction request to finish |
+| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
+| `--payload` | Yes | Transaction as a JSON string with at least a `to` address (e.g. `'{"to":"0x...","value":"0x0"}'}`) |
+| `--wait` | No | Block until the transaction completes (server-wallet mode only; BYOK returns immediately) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -44,4 +45,5 @@ Optional fields: `gasLimit`, `gasPrice`, `maxFeePerGas`, `maxPriorityFeePerGas`.
 
 ## Notes
 
+- If the chain is not mentioned by the user, ask for the chain.
 - In server-wallet mode, send-transaction returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.

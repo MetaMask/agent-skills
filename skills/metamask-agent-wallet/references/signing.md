@@ -10,16 +10,17 @@ Sign a plaintext message with the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet sign-message --message <text> --chain-id <id> [--wait]
+mm-dev wallet sign-message --message <text> --chain-id <id> [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID. If Chain is not mentioned, ask the user. |
-| `--message` | Yes | Message to sign |
-| `--wait` | No | Wait for the signature request to finish |
+| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137). If not mentioned, ask the user. |
+| `--message` | Yes | Plain-text message to sign |
+| `--wait` | No | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
@@ -35,16 +36,17 @@ Sign EIP-712 typed data with the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet sign-typed-data --chain-id <id> --payload '<JSON>' [--wait]
+mm-dev wallet sign-typed-data --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID |
-| `--payload` | Yes | EIP-712 typed data JSON |
-| `--wait` | No | Wait for the signature request to finish |
+| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
+| `--payload` | Yes | EIP-712 typed data as a JSON string with `domain`, `types`, `primaryType`, and `message` |
+| `--wait` | No | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 

@@ -11,19 +11,25 @@ Reference command syntax in `references/perps.md`.
 3. Dry run.
 4. Confirm with the user and open.
 
+## Confirm Symbol
+
+If the user does not mention a token symbol, list available markets and confirm with the user:
+
+```bash
+mm-dev perps markets
+```
+
 ## Check Balance
 
-```bash
-mm-dev perps balance --venue hyperliquid
-```
-
-If available margin is zero or insufficient, deposit USDC before proceeding:
+`--venue` defaults to `hyperliquid`. It can be omitted.
 
 ```bash
-mm-dev perps deposit --venue hyperliquid --amount <amount> --asset USDC
-```
+mm-dev perps balance```
 
-The default `--source-chain` is Arbitrum mainnet (`eip155:42161`). Do not assume other chains are supported unless the CLI confirms it.
+If available margin is zero or insufficient, deposit USDC before proceeding. Hyperliquid only supports deposits from Arbitrum mainnet (`eip155:42161`).
+
+```bash
+mm-dev perps deposit --amount <amount> --asset USDC```
 
 To confirm a deposit, wait briefly and poll `mm-dev perps balance`.
 
@@ -32,8 +38,7 @@ To confirm a deposit, wait briefly and poll `mm-dev perps balance`.
 Always quote before opening:
 
 ```bash
-mm-dev perps quote --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
-```
+mm-dev perps quote --symbol BTC --side long --size 0.01 --leverage 5```
 
 Show the user estimated entry, notional, fees, liquidation price, side, size, leverage, and venue before proceeding.
 
@@ -42,8 +47,7 @@ Show the user estimated entry, notional, fees, liquidation price, side, size, le
 Preview the order before signing:
 
 ```bash
-mm-dev perps open --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5 --dry-run
-```
+mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5 --dry-run```
 
 For limit orders, include `--type limit --limit-px <price>`.
 
@@ -54,7 +58,6 @@ For limit orders, include `--type limit --limit-px <price>`.
 Remove `--dry-run` only after explicit user confirmation:
 
 ```bash
-mm-dev perps open --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
-```
+mm-dev perps open --symbol BTC --side long --size 0.01 --leverage 5```
 
 Do not add `--yes` unless the user explicitly asked for unattended execution.

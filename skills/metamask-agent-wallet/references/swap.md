@@ -18,10 +18,10 @@ mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-
 | --- | --- | --- |
 | `--from` | Yes | Source token symbol (e.g. ETH, POL, USDC) |
 | `--to` | Yes | Destination token symbol (e.g. USDC, USDT) |
-| `--amount` | Yes | Amount to swap |
+| `--amount` | Yes | Human-readable amount to swap (e.g. 0.5, 100) |
 | `--from-chain` | Yes | Source EVM chain ID (e.g. 1 for Ethereum, 137 for Polygon) |
-| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` (same-chain swap). Set a different chain to bridge |
-| `--slippage` | No | Max slippage percent (e.g. 0.5); defaults to 0.5 |
+| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
+| `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
 
 ### Example
 
@@ -39,21 +39,22 @@ Execute a swap or bridge, either by referencing a previous quote ID or by provid
 ### Syntax
 
 ```bash
-mm swap execute --quote-id <id>
-mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>]
+mm swap execute --quote-id <id> [--password <password>]
+mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--quote-id` | Yes (unless re-quote args given) | Quote ID from a previous `mm swap quote` |
+| `--quote-id` | Yes (unless re-quote args given) | Quote ID returned by `mm swap quote`. If omitted, provide `--from`, `--to`, `--amount`, and `--from-chain` to re-quote |
 | `--from` | Yes (unless `--quote-id`) | Source token symbol |
 | `--to` | Yes (unless `--quote-id`) | Destination token symbol |
 | `--amount` | Yes (unless `--quote-id`) | Amount to swap |
 | `--from-chain` | Yes (unless `--quote-id`) | Source EVM chain ID |
-| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` |
-| `--slippage` | No | Max slippage percent; defaults to 0.5 |
+| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
+| `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Validation Rules
 
@@ -82,8 +83,8 @@ mm swap status --quote-id <id> [--tx-hash <hash>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--quote-id` | Yes | Quote ID from a previous swap |
-| `--tx-hash` | No | Source trade transaction hash (overrides the stored hash from execute) |
+| `--quote-id` | Yes | Quote ID returned by `mm swap quote` |
+| `--tx-hash` | No | Source transaction hash; overrides the stored hash from execute |
 
 ### Example
 
@@ -94,6 +95,7 @@ mm swap status --quote-id <quote-id> --tx-hash 0xabc...123
 
 ## Notes
 
+- If the chain is not mentioned by the user, ask for the chain.
 - Use `mm chains list` to discover supported chain IDs.
 - Same-chain swap: omit `--to-chain` (it defaults to `--from-chain`).
 - Cross-chain bridge: set `--to-chain` to a different chain than `--from-chain`. The CLI automatically routes through a bridge.

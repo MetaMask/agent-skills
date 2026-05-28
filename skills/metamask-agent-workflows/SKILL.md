@@ -24,6 +24,9 @@ Repeatable multi-step patterns for the `mm-dev` CLI. Load a workflow file when t
 | Close a perpetual position flow | [perps-close-position.md](workflows/perps-close-position.md) |
 | Modify a perpetual position flow | [perps-modify-position.md](workflows/perps-modify-position.md) |
 | Predict setup-fund-quote-place flow | [predict-trading.md](workflows/predict-trading.md) |
+| Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
+
+Always use `--toon` for command output unless the user explicitly requests a different format.
 
 ## Preflight
 
