@@ -20,7 +20,7 @@ mm-dev swap quote --from ETH --to USDC --amount 1 --from-chain 1
 
 Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.
 
-Persist the quote for execution. Show the quote to the user before execution.
+Persist the quote id for execution. Show the quote to the user before execution.
 Confirm source token, destination token, amount, chain, slippage, expected output, fees, and route.
 
 ## Execute
