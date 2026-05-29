@@ -2,6 +2,8 @@
 
 Use the `predict` commands to trade on prediction markets (Polymarket via the CLOB).
 
+**Workflow:** [predict-trading.md](../workflows/predict-trading.md) — setup, cross-chain funding, quote, place, and close.
+
 ## `predict mode` Command
 
 Choose or display the current Predict trading mode.

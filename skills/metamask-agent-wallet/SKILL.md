@@ -77,6 +77,7 @@ Match the user's intent to a command and reference file, then read the reference
 | View open prediction orders | `mm-dev predict orders` | [predict.md](references/predict.md) |
 | Check Predict deposit wallet balance | `mm-dev predict balance` | [predict.md](references/predict.md) |
 | Fund Predict deposit wallet | `mm-dev predict deposit` | [predict.md](references/predict.md) |
+| Bridge USDC to Polygon for predict | `mm-dev swap quote` + `mm-dev swap execute`, then `predict deposit` | [predict.md](references/predict.md), [predict-trading.md](workflows/predict-trading.md), [bridge.md](workflows/bridge.md) |
 | Withdraw pUSD from Predict deposit wallet | `mm-dev predict withdraw` | [predict.md](references/predict.md) |
 | Fetch prediction order book | `mm-dev predict book` | [predict.md](references/predict.md) |
 | Watch a Predict job | `mm-dev predict watch` | [predict.md](references/predict.md) |
