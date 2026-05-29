@@ -4,7 +4,19 @@ Use the `wallet` commands to create, list, select, inspect wallets, and check ba
 
 ## `wallet create` Command
 
-Create a new wallet under the authenticated account.
+Create a new wallet under the authenticated account. For server wallets, you select a trading mode:
+
+1. Guard mode — Guardrails keep the agent in check. Human approval (2FA) is required for agent wallet transactions outside your policies.
+2. Beast mode — For traders who understand the risks. The agent acts on its own, except when a transaction is flagged as malicious.
+
+|  | Guard mode | Beast mode |
+| --- | --- | --- |
+| Security check | Yes | Yes |
+| Whitelisted protocols | Yes | No |
+| Outflow limit (rolling 24h) | Yes | No |
+| Approval for malicious transactions | Yes | Yes |
+| Approval for protocols not in whitelist | Yes | No |
+| Approval for raising outflow limit | Yes | No |
 
 ### Syntax
 
@@ -18,7 +30,7 @@ mm-dev wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-
 | --- | --- | --- |
 | `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
 | `--name` | No | Display name for the wallet |
-| `--trading-mode` | No | Trading mode for server wallets: `guard` (enforces outflow/whitelist policies) or `beast` (skips policy checks). Only applies to server-wallet mode (allowed: `guard`, `beast`) |
+| `--trading-mode` | No | Trading mode for server wallets: `guard` or `beast`. Only applies to server-wallet mode (allowed: `guard`, `beast`) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example

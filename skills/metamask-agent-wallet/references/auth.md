@@ -4,7 +4,26 @@ Use these commands to initialize wallet mode, sign in, inspect authentication st
 
 ## `init` Command
 
-Initialize the project by selecting wallet mode and trading mode.
+Initialize the project by selecting a wallet mode and trading mode.
+
+Wallet modes:
+
+1. Server wallet — Keys are managed and secured server-side. Agents can't access your main wallet. You can define policy controls like outflow limits and protocol whitelists.
+2. Bring your own wallet — Import a seed phrase. Optionally, encrypt on-device with a password. You approve every transaction with your password if encrypted.
+
+Trading modes (server wallet only):
+
+1. Guard mode — Guardrails keep the agent in check. Human approval (2FA) is required for agent wallet transactions outside your policies.
+2. Beast mode — For traders who understand the risks. The agent acts on its own, except when a transaction is flagged as malicious.
+
+|  | Guard mode | Beast mode |
+| --- | --- | --- |
+| Security check | Yes | Yes |
+| Whitelisted protocols | Yes | No |
+| Outflow limit (rolling 24h) | Yes | No |
+| Approval for malicious transactions | Yes | Yes |
+| Approval for protocols not in whitelist | Yes | No |
+| Approval for raising outflow limit | Yes | No |
 
 ### Syntax
 
@@ -57,6 +76,12 @@ mm-dev init show
 ## `login` Command
 
 Sign in to the CLI. Defaults to QR / browser flow.
+
+Sign-in options:
+
+1. Sign in with MetaMask Mobile — Scan the QR code with MetaMask Mobile. The CLI can only access your agent wallet. Approval requests are sent to MetaMask Mobile.
+2. Sign in with Google — Approval requests are sent to your email.
+3. Sign in with email — Approval requests are sent to your email.
 
 ### Syntax
 

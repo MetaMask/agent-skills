@@ -14,7 +14,7 @@ SKILLs for the MetaMask Agent CLI. These skills enable AI agents to authenticate
 Install with [Vercel's Skills CLI](https://skills.sh):
 
 ```bash
-npx skills add metaMask/agent-skills
+npx skills add metamask/agent-skills
 ```
 
 Select any one of the SKILLs upon prompt. 

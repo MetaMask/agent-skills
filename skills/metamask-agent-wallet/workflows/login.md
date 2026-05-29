@@ -6,13 +6,15 @@ Reference command syntax in `references/auth.md`.
 
 ## Flow
 
-1. Ask the user which login method they want: Google, Email, or QR.
+1. Present login options with descriptions.
 2. Execute login.
 3. Verify with token.
 
 ## Login
 
-QR login (`mm-dev login qr`) does not support `--no-wait`. If the user wants QR, they must complete the login flow themselves.
+Present the sign-in options to the user. See `references/auth.md` for option details.
+
+QR login (`mm-dev login qr`) does not support `--no-wait`. If the user selects QR, they must complete the login flow in the browser.
 
 ```bash
 mm-dev login google --no-wait
