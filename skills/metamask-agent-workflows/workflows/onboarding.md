@@ -63,20 +63,16 @@ If already initialized, skip this step. Otherwise, ask the user to provision an 
 If the user selects `server-wallet`, ask them to choose an operating mode:
 
 1. Guard mode — Guardrails keep the agent in check. Human approval (2FA) is required for agent wallet transactions outside your policies.
-   - Guardrails:
-     - Security check
-     - Whitelisted protocols
-     - Outflow limit (rolling 24h)
-   - Approval required:
-     - Malicious transactions
-     - Protocols not in whitelist
-     - Raising outflow limit
-
 2. Beast mode — For traders who understand the risks. The agent acts on its own, except when a transaction is flagged as malicious.
-   - Guardrails:
-     - Security check
-   - Approval required:
-     - Malicious transactions
+
+|  | Guard mode | Beast mode |
+| --- | --- | --- |
+| Security check | Yes | Yes |
+| Whitelisted protocols | Yes | No |
+| Outflow limit (rolling 24h) | Yes | No |
+| Approval for malicious transactions | Yes | Yes |
+| Approval for protocols not in whitelist | Yes | No |
+| Approval for raising outflow limit | Yes | No |
 
 Server wallet:
 
