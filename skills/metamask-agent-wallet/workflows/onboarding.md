@@ -22,8 +22,9 @@ If this fails, the CLI is not installed. Guide the user to install it before pro
 
 ## Login Flow
 
-Ask the user which login method they want to use: Google, Email, or QR.
-QR login (`mm-dev login qr`) does not support `--no-wait`. If the user wants QR, they must complete the onboarding flow themselves.
+Present the sign-in options to the user. See `references/auth.md` for option details.
+
+QR login (`mm-dev login qr`) does not support `--no-wait`. If the user selects QR, they must complete the login flow in the browser.
 
 ### Login
 
@@ -50,13 +51,7 @@ First check if the project is already initialized:
 mm-dev init show
 ```
 
-If already initialized, skip this step. Otherwise, ask the user which wallet mode they want:
-- `server-wallet` (recommended) — keys are hosted by MetaMask infrastructure. No need to manage private keys or mnemonics.
-- `byok` — bring your own mnemonic. The user manages their own keys locally.
-
-Ask the user which trading mode they want (server-wallet only):
-- `guard` — enforces outflow and whitelist policies. When a policy is violated, the CLI requires MFA confirmation before proceeding.
-- `beast` — skips all policy checks and confirmations. Useful for scripting or experienced users who want faster execution.
+If already initialized, skip this step. Otherwise, ask the user to provision an agent wallet and select a trading mode. See `references/auth.md` for wallet mode and trading mode details.
 
 Server wallet:
 

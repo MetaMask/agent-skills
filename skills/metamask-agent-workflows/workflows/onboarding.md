@@ -22,8 +22,13 @@ If this fails, the CLI is not installed. Guide the user to install it before pro
 
 ## Login Flow
 
-Ask the user which login method they want to use: Google, Email, or QR.
-QR login (`mm-dev login qr`) does not support `--no-wait`. If the user wants QR, they must complete the onboarding flow themselves.
+Present the following sign-in options to the user:
+
+1. Sign in with MetaMask Mobile — Scan the QR code with MetaMask Mobile. The CLI can only access your agent wallet. Approval requests are sent to MetaMask Mobile.
+2. Sign in with Google — Approval requests are sent to your email.
+3. Sign in with email — Approval requests are sent to your email.
+
+QR login (`mm-dev login qr`) does not support `--no-wait`. If the user selects QR, they must complete the login flow in the browser.
 
 ### Login
 
@@ -50,13 +55,28 @@ First check if the project is already initialized:
 mm-dev init show
 ```
 
-If already initialized, skip this step. Otherwise, ask the user which wallet mode they want:
-- `server-wallet` (recommended) — keys are hosted by MetaMask infrastructure. No need to manage private keys or mnemonics.
-- `byok` — bring your own mnemonic. The user manages their own keys locally.
+If already initialized, skip this step. Otherwise, ask the user to provision an agent wallet:
 
-Ask the user which trading mode they want (server-wallet only):
-- `guard` — enforces outflow and whitelist policies. When a policy is violated, the CLI requires MFA confirmation before proceeding.
-- `beast` — skips all policy checks and confirmations. Useful for scripting or experienced users who want faster execution.
+1. Server wallet — Keys are managed and secured server-side. Agents can't access your main wallet. You can define policy controls like outflow limits and protocol whitelists.
+2. Bring your own wallet — Import a seed phrase. Optionally, encrypt on-device with a password. You approve every transaction with your password if encrypted.
+
+If the user selects `server-wallet`, ask them to choose an operating mode:
+
+1. Guard mode — Guardrails keep the agent in check. Human approval (2FA) is required for agent wallet transactions outside your policies.
+   - Guardrails:
+     - Security check
+     - Whitelisted protocols
+     - Outflow limit (rolling 24h)
+   - Approval required:
+     - Malicious transactions
+     - Protocols not in whitelist
+     - Raising outflow limit
+
+2. Beast mode — For traders who understand the risks. The agent acts on its own, except when a transaction is flagged as malicious.
+   - Guardrails:
+     - Security check
+   - Approval required:
+     - Malicious transactions
 
 Server wallet:
 
@@ -102,3 +122,10 @@ Confirm the session is authenticated, the wallet mode is correct, and the token 
 ```bash
 mm-dev wallet address
 ```
+
+## Get started
+
+After setup completes, prompt the user with the following next steps:
+
+- To view wallet details, run `wallet address` or `wallet balance`.
+- Transfer funds to this wallet address to start trading (skip if you already have a balance).
