@@ -4,7 +4,7 @@ Use `chains` commands to discover supported blockchain networks.
 
 ## `chains list` Command
 
-List all supported blockchain networks across all namespaces.
+List all supported EVM blockchain networks (EIP-155).
 
 ### Syntax
 
@@ -28,4 +28,3 @@ mm-dev chains list --toon
 | Namespace | Notes |
 | --- | --- |
 | `eip155` | Major EVM chains, such as Ethereum, Polygon, Arbitrum, Optimism, and BSC |
-| `solana` | Solana chains |

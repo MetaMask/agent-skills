@@ -4,7 +4,7 @@ Use these commands to initialize wallet mode, sign in, inspect authentication st
 
 ## `init` Command
 
-Initialize the project by selecting wallet mode and trading mode.
+Initialize the project by selecting wallet mode and trading mode. Requires an authenticated session — run `mm-dev login` first.
 
 ### Syntax
 
@@ -56,7 +56,7 @@ mm-dev init show
 
 ## `login` Command
 
-Sign in to the CLI. Defaults to QR / browser flow.
+Sign in to the CLI. On a TTY, bare `mm-dev login` shows a method picker (QR, Google, or email). QR is recommended but not auto-selected.
 
 ### Syntax
 
@@ -84,7 +84,10 @@ mm-dev login --token "cliToken:cliRefreshToken"
 
 ### Note
 
-Use `--no-wait` for non-interactive mode except QR flow. It prints the sign-in URL and exits immediately; complete authentication later with `mm-dev login --token`.
+- If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm-dev logout` first, then log in again.
+- Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
+- Use `mm-dev login google --no-wait` or `mm-dev login email --no-wait` for non-interactive/CI flows. Bare `mm-dev login --no-wait` fails without a TTY because no method is selected.
+- `--no-wait` is not supported with QR login. Complete authentication later with `mm-dev login --token`.
 
 ## `auth status` Command
 
@@ -109,7 +112,7 @@ mm-dev auth status --toon
 
 ## `logout` Command
 
-Sign out and clear auth credentials while keeping settings.
+Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic.
 
 ### Syntax
 

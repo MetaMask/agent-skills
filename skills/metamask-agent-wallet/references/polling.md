@@ -1,6 +1,6 @@
 # Polling Commands
 
-In server wallet mode, signing and transaction commands return a `pollingId` instead of an immediate result. Use these commands to track and wait for results.
+In server wallet mode, signing and transaction commands return a `pollingId` instead of an immediate result. Use these commands to track and wait for results. Both commands are server-wallet mode only.
 
 ## `wallet requests list` Command
 
@@ -9,39 +9,42 @@ List all pending wallet requests.
 ### Syntax
 
 ```bash
-mm-dev wallet requests list [--toon]
-```
-
-### Supported Flags
-
-This command does not support any flags beyond `--toon`.
-
-### Example
-
-```bash
-mm-dev wallet requests list
-mm-dev wallet requests list --toon
-```
-
-## `wallet requests watch` Command
-
-Wait for a specific wallet request to complete by its polling ID.
-
-### Syntax
-
-```bash
-mm-dev wallet requests watch --polling-id <id> [--toon]
+mm-dev wallet requests list [--sync] [--toon]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--polling-id` | Yes | Request polling ID returned by a previous command |
+| `--sync` | No | Refresh pending requests before listing (defaults to true; use `--no-sync` to skip) |
 
 ### Example
 
 ```bash
-mm-dev wallet requests watch --polling-id abc-123
+mm-dev wallet requests list
+mm-dev wallet requests list --no-sync --toon
+```
+
+## `wallet requests watch` Command
+
+Wait for a specific wallet request to complete by its polling ID. MFA prompts are surfaced once when a job enters the `AWAITING_MFA` state.
+
+### Syntax
+
+```bash
+mm-dev wallet requests watch <polling-id> [--polling-id <id>] [--toon]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<polling-id>` | Yes | Request polling ID returned by a previous command (positional) |
+| `--polling-id` | No | Same as positional `<polling-id>` |
+
+### Example
+
+```bash
+mm-dev wallet requests watch abc-123
 mm-dev wallet requests watch --polling-id abc-123 --toon
 ```

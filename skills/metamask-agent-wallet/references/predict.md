@@ -106,55 +106,97 @@ mm-dev predict status
 mm-dev predict status
 ```
 
-## `predict markets` Command
+## `predict markets list` Command
 
-Search tradeable Predict markets.
+List tradeable Predict markets with Gamma-style filters.
 
 ### Syntax
 
 ```bash
-mm-dev predict markets [--query <text>] [--limit <n>] [--cursor <cursor>] [--tag <tag>] [--active] [--closed]
+mm-dev predict markets list [--slug <slug>] [--limit <n>] [--offset <n>] [--order <fields>] [--ascending] [--tag <tag>] [--liquidity-num-min <n>] [--liquidity-num-max <n>] [--volume-num-min <n>] [--volume-num-max <n>] [--start-date-min <datetime>] [--start-date-max <datetime>] [--end-date-min <datetime>] [--end-date-max <datetime>] [--active] [--closed]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--query`, `-q` | No | Search query for market names (e.g. NBA Finals) |
+| `--slug` | No | Market slug to filter by |
 | `--limit` | No | Maximum markets to return, 1-500 |
-| `--cursor` | No | Pagination cursor from a previous response |
+| `--offset` | No | Market result offset (0-based) |
+| `--order` | No | Comma-separated market fields to order by |
+| `--ascending` | No | Sort markets in ascending order |
 | `--tag` | No | Market tag or category (e.g. sports, politics) |
+| `--liquidity-num-min` | No | Minimum market liquidity |
+| `--liquidity-num-max` | No | Maximum market liquidity |
+| `--volume-num-min` | No | Minimum market volume |
+| `--volume-num-max` | No | Maximum market volume |
+| `--start-date-min` | No | Minimum market start date-time |
+| `--start-date-max` | No | Maximum market start date-time |
+| `--end-date-min` | No | Minimum market end date-time |
+| `--end-date-max` | No | Maximum market end date-time |
 | `--active` | No | Only include active markets |
 | `--closed` | No | Include closed markets |
 
 ### Example
 
 ```bash
-mm-dev predict markets --query "Knicks NBA Finals" --limit 5 --active
-mm-dev predict markets --tag sports --limit 10
+mm-dev predict markets list --slug will-this-work --limit 5
+mm-dev predict markets list --tag sports --liquidity-num-min 10000 --limit 10
+mm-dev predict markets list --active --limit 50
 ```
 
-## `predict market` Command
+## `predict markets search` Command
 
-Inspect a specific market and show outcome token IDs needed for quoting and placing orders.
+Search Predict markets with Polymarket public search.
 
 ### Syntax
 
 ```bash
-mm-dev predict market --market <market>
+mm-dev predict markets search <query> [--limit <n>] [--page <n>] [--sort <field>] [--ascending] [--search-tags] [--events-status] [--recurrence <recurrence>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--market` | Yes | Market slug, ID, or condition ID. Run `mm-dev predict markets` to search for markets |
+| `<query>` | Yes | Search string (positional) |
+| `--limit` | No | Results per type (defaults to 10) |
+| `--page` | No | Search result page |
+| `--sort` | No | Search sort field |
+| `--ascending` | No | Sort search results in ascending order |
+| `--search-tags` | No | Include tag matches in search results (defaults to true; use `--no-search-tags` to disable) |
+| `--events-status` | No | Restrict to active events (defaults to true; use `--no-events-status` for all) |
+| `--recurrence` | No | Filter by series recurrence: `daily`, `weekly`, or `monthly` |
 
 ### Example
 
 ```bash
-mm-dev predict market --market will-the-new-york-knicks-win-the-2026-nba-finals
-mm-dev predict market --market 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb0ccdb2d37
+mm-dev predict markets search "Knicks NBA Finals" --limit 5
+mm-dev predict markets search "election" --limit 5
+```
+
+## `predict markets get` Command
+
+Inspect a specific market and show outcome token IDs needed for quoting and placing orders.
+
+### Syntax
+
+```bash
+mm-dev predict markets get <market> [--market <market>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<market>` | Yes | Market slug, ID, or condition ID (positional). Run `mm-dev predict markets search` or `mm-dev predict markets list` to find markets |
+| `--market` | No | Same as positional `<market>` |
+
+### Example
+
+```bash
+mm-dev predict markets get will-the-new-york-knicks-win-the-2026-nba-finals
+mm-dev predict markets get 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb0ccdb2d37
 ```
 
 ## `predict quote` Command
@@ -164,14 +206,15 @@ Preview order cost and fill before placing.
 ### Syntax
 
 ```bash
-mm-dev predict quote --token-id <token-id> --side <side> --size <size> [--limit-price <price>] [--password <password>]
+mm-dev predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> [--limit-price <price>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID. Run `mm-dev predict market <slug>` to get token IDs |
+| `<token-id>` | Yes | Outcome token ID (positional). Run `mm-dev predict markets get <slug>` to get token IDs |
+| `--token-id` | No | Same as positional `<token-id>` |
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
 | `--limit-price` | No | Execution price per share, between 0 and 1 |
@@ -191,14 +234,15 @@ Place a Predict order (GTC/GTD limit, FOK/FAK market).
 ### Syntax
 
 ```bash
-mm-dev predict place --token-id <token-id> --side <side> --size <size> --price <price> [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
+mm-dev predict place <token-id> [--token-id <token-id>] --side <side> --size <size> --price <price> [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID. Run `mm-dev predict market <slug>` to get token IDs |
+| `<token-id>` | Yes | Outcome token ID (positional). Run `mm-dev predict markets get <slug>` to get token IDs |
+| `--token-id` | No | Same as positional `<token-id>` |
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
 | `--price` | Yes | Worst price per share (0-1); limit price for GTC/GTD, worst fill for FOK/FAK |
@@ -227,14 +271,15 @@ Cancel Predict orders by ID, market, asset, or all open orders.
 ### Syntax
 
 ```bash
-mm-dev predict cancel [--order-id <id>] [--all] [--market <condition-id>] [--asset <token-id>] [--password <password>]
+mm-dev predict cancel [<order-id>] [--order-id <id>] [--all] [--market <condition-id>] [--asset <token-id>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--order-id` | Yes (unless `--all`/`--market`/`--asset`) | Order ID to cancel |
+| `<order-id>` | Yes (unless `--all`/`--market`/`--asset`) | Order ID to cancel (positional) |
+| `--order-id` | No | Same as positional `<order-id>` |
 | `--all` | No | Cancel all open orders |
 | `--market` | No | Cancel orders for a given market condition ID |
 | `--asset` | No | Cancel orders for a specific outcome token ID |
@@ -242,11 +287,12 @@ mm-dev predict cancel [--order-id <id>] [--all] [--market <condition-id>] [--ass
 
 ### Validation Rules
 
-- Exactly one of `--order-id`, `--all`, `--market`, or `--asset` must be provided.
+- Use only one of `--order-id`, `--all`, or `--market`/`--asset` (market and asset can be combined as one target).
 
 ### Example
 
 ```bash
+mm-dev predict cancel <order-id>
 mm-dev predict cancel --order-id <order-id>
 mm-dev predict cancel --all
 mm-dev predict cancel --market <condition-id>
@@ -267,7 +313,7 @@ mm-dev predict positions [--market <id>] [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--market` | No | Market slug, ID, or condition ID. Run `mm-dev predict markets` to search |
+| `--market` | No | Market slug, ID, or condition ID. Run `mm-dev predict markets search` or `mm-dev predict markets list` to find markets |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -291,7 +337,7 @@ mm-dev predict orders [--market <condition-id>] [--cursor <cursor>] [--password 
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--market` | No | Filter by market condition ID |
+| `--market` | No | Market slug, ID, or condition ID. Run `mm-dev predict markets search` or `mm-dev predict markets list` to find markets |
 | `--cursor` | No | Pagination cursor from a previous response |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -316,7 +362,7 @@ mm-dev predict balance [--token-id <token-id>] [--sync] [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | No | Optional conditional token ID |
+| `--token-id` | No | Outcome token ID. Run `mm-dev predict markets get <slug>` to get token IDs |
 | `--sync` | No | Refresh balances and allowances before reading |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -329,7 +375,7 @@ mm-dev predict balance --token-id <token-id> --sync
 
 ## `predict deposit` Command
 
-Fund your Predict deposit wallet with pUSD.
+Convert USDC.e from your EOA to pUSD in your Predict deposit wallet.
 
 ### Syntax
 
@@ -358,14 +404,15 @@ Fetch the raw order book for an outcome token.
 ### Syntax
 
 ```bash
-mm-dev predict book --token-id <token-id>
+mm-dev predict book <token-id> [--token-id <token-id>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID. Run `mm-dev predict market --market <slug>` to get token IDs |
+| `<token-id>` | Yes | Outcome token ID (positional). Run `mm-dev predict markets get <slug>` to get token IDs |
+| `--token-id` | No | Same as positional `<token-id>` |
 
 ### Example
 
@@ -380,29 +427,31 @@ Watch a setup, approval, deposit, or order job until it completes.
 ### Syntax
 
 ```bash
-mm-dev predict watch --id <id> [--wait] [--password <password>]
+mm-dev predict watch <id> [--id <id>] [--wait] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--id` | Yes | Job or transaction ID to watch |
+| `<id>` | Yes | Job or transaction ID to watch (positional) |
+| `--id` | No | Same as positional `<id>` |
 | `--wait` | No | Block until the job completes |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
 ```bash
+mm-dev predict watch <job-id> --wait
 mm-dev predict watch --id <job-id> --wait
 ```
 
 ## Notes
 
 - Before trading, run `mm-dev predict setup --wait` to initialize credentials, deploy the deposit wallet, and set approvals.
-- Use `mm-dev predict market --market <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
+- Use `mm-dev predict markets get <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
 - Prices are per-share and must be in the range [0, 1].
 - Side must be `buy` or `sell`.
 - The `predict mode` command switches between `mainnet` and `testnet`.
 - If the user does not specify a mode, the CLI uses the previously set mode.
-- Setup, approve, deposit, and order flows can return job IDs. Track them with `mm-dev predict watch --id <job-id> --wait`.
+- Setup, approve, deposit, and order flows can return job IDs. Track them with `mm-dev predict watch <job-id> --wait`.

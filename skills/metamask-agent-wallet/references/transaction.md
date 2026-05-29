@@ -24,8 +24,8 @@ mm-dev wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--pa
 ### Example
 
 ```bash
-mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"1000000000000000000","data":"0x"}'
-mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0","data":"0xabcdef"}' --wait
+mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}'
+mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0x0","data":"0xabcdef"}' --wait
 mm-dev wallet send-transaction --chain-id 1 --payload '...' --toon
 ```
 
@@ -36,12 +36,12 @@ The `--payload` flag takes a JSON string with transaction fields:
 ```json
 {
   "to": "0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18",
-  "value": "1000000000000000000",
+  "value": "0xde0b6b3a7640000",
   "data": "0x"
 }
 ```
 
-Optional fields: `gasLimit`, `gasPrice`, `maxFeePerGas`, `maxPriorityFeePerGas`.
+Optional fields: `gas`, `nonce`, `maxFeePerGas`, `maxPriorityFeePerGas`. The `value` field must be 0x-prefixed hex, not a decimal wei string.
 
 ## Notes
 
