@@ -2,6 +2,8 @@
 
 In server wallet mode, signing and transaction commands return a `pollingId` instead of an immediate result. Use these commands to track and wait for results. Both commands are server-wallet mode only.
 
+Transfers, swaps, perps, and predict orders attach a human-readable `intent` summary to their request (e.g. `Transfer 0.5 ETH to 0x...`). When listing or watching requests, surface the `intent` so the user can confirm what they are approving.
+
 ## `wallet requests list` Command
 
 List all pending wallet requests.
