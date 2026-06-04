@@ -46,4 +46,5 @@ Optional fields: `gas`, `nonce`, `maxFeePerGas`, `maxPriorityFeePerGas`. The `va
 ## Notes
 
 - If the chain is not mentioned by the user, ask for the chain.
+- When the `data`/calldata is unfamiliar or was not constructed by you, decode it first with `mm-dev decode --payload <0x-calldata>` and confirm the intent before sending. See `references/decode.md`.
 - In server-wallet mode, send-transaction returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.

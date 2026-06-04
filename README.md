@@ -6,7 +6,7 @@ SKILLs for the MetaMask Agent CLI. These skills enable AI agents to authenticate
 
 | Skill | Description |
 | --- | --- |
-| [`metamask-agent-wallet`](./skills/metamask-agent-wallet/SKILL.md) | Full CLI reference skill that routes the agent to topic-specific reference docs for all MetaMask Agent CLI commands — auth, wallets, transfers, signing, swaps, bridges, perps, prediction markets, and market data. |
+| [`metamask-agent-wallet`](./skills/metamask-agent-wallet/SKILL.md) | Full CLI reference skill that routes the agent to topic-specific reference docs for all MetaMask Agent CLI commands — auth, wallets, transfers, signing, swaps, bridges, perps, prediction markets, market data, and calldata decoding. |
 | [`metamask-agent-workflows`](./skills/metamask-agent-workflows/SKILL.md) | Multistep workflow templates for complex operations like onboarding, swaps, bridges, and perps trading. It doesn't include reference docs — relies on `--help` for command details instead. |
 
 ## Installation

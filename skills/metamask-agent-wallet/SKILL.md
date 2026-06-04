@@ -1,10 +1,10 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, or authentication via the MetaMask Agentic CLI. Single entry point for all mm-dev CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, or authentication via the MetaMask Agentic CLI. Single entry point for all mm-dev CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -32,6 +32,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Change BYOK mnemonic encryption password | `mm-dev wallet password change` | [auth.md](references/auth.md) |
 | Remove BYOK mnemonic encryption password | `mm-dev wallet password remove` | [auth.md](references/auth.md) |
 | Interpret raw CLI error codes | `AuthError`, `ValidationError`, `WALLET_ERROR` | [errors.md](references/errors.md) |
+| Decode EVM calldata into a human-readable intent | `mm-dev decode` | [decode.md](references/decode.md) |
 | Create a wallet | `mm-dev wallet create` | [wallet.md](references/wallet.md) |
 | List all wallets | `mm-dev wallet list` | [wallet.md](references/wallet.md) |
 | Switch active wallet | `mm-dev wallet select` | [wallet.md](references/wallet.md) |
@@ -136,7 +137,8 @@ Before constructing any command, validate all user-provided values:
 | `--to`, `--address` | Must match `^0x[0-9a-fA-F]{40}$` |
 | `--amount` | Human-readable decimal (e.g. 0.5, 100). Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
 | `--chain-id` | Must be a positive integer (`^\d+$`) |
-| `--payload` | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
+| `--payload` (send-transaction) | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
+| `--payload` (decode) | Must be 0x-prefixed hex calldata, matching `^0x[0-9a-fA-F]+$` |
 | `--token` | Must be a valid hex address or known symbol |
 | `--leverage` | Must be a positive integer (`^\d+$`) |
 | `--size` | Human-readable decimal (e.g. 0.01, 1). Must match `^\d+\.?\d*$` and be positive |
@@ -183,6 +185,8 @@ Flag to the user before proceeding if a signing payload or transaction contains:
 - `permit`, `approve`, `setApprovalForAll`, or allowance-like fields
 - Unusually large values or unfamiliar contract interactions
 
+When raw calldata is unfamiliar or was not constructed by you, run `mm-dev decode --payload <0x-calldata>` first and confirm the decoded intent with the user before signing or sending. See [decode.md](references/decode.md).
+
 ## Server Wallet Async Model
 
 In server-wallet mode, signing and transaction commands return a `pollingId` instead of an immediate result. Handle this consistently:
@@ -192,6 +196,8 @@ In server-wallet mode, signing and transaction commands return a `pollingId` ins
    - `mm-dev wallet requests list`
    - `mm-dev wallet requests watch --polling-id <id>`
 3. In BYOK mode, results are returned immediately. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
+
+Transfers, swaps, perps, and predict orders attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
 
 ## Output Rules
 
