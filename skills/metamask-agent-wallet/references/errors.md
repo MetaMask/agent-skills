@@ -1,30 +1,22 @@
 # Error Codes
 
-This reference lists raw CLI and SDK error codes. Workflows for diagnosing failures live in `../workflows/troubleshooting.md`.
+This reference lists error codes the CLI actually emits. SDK-only or remapped codes are noted where relevant. Workflows for diagnosing failures live in `../workflows/troubleshooting.md`.
 
 ## Auth Errors
 
 | Code | Meaning |
 | --- | --- |
-| `AUTH_FAILED` | Authentication failed |
-| `AUTH_ERROR` | Generic authentication error |
-| `TOKEN_INVALID` | Invalid CLI token |
+| `ALREADY_AUTHENTICATED` | Valid session already exists; run `mm-dev logout` before logging in again |
+| `AUTH_FAILED` | Authentication failed (includes missing refresh token cases) |
+| `AUTH_ERROR` | Generic authentication error (includes missing auth token cases) |
+| `TOKEN_INVALID` | Invalid CLI token, token pair, or project ID |
 | `TOKEN_REFRESH_FAILED` | Failed to refresh token |
-| `PAIRING_ABORTED` | Login pairing was aborted |
 | `PAIRING_TIMEOUT` | Login pairing timed out |
 | `PAIRING_EXPIRED` | Pairing session expired |
-| `INVALID_CLI_TOKENS` | CLI token pair is invalid |
-| `INVALID_CLI_TOKEN` | CLI token is invalid |
-| `MISSING_REFRESH_TOKEN` | Refresh token is missing |
-| `REFRESH_CLI_TOKEN_FAILED` | CLI token refresh failed |
-| `MISSING_TOKEN` | Required auth token is missing |
-| `REVOKE_CLI_TOKEN_FAILED` | CLI token revoke failed |
-| `INVALID_PROJECT_ID` | Project ID is invalid for the selected environment |
-| `MISSING_PROJECT_ID` | Project ID is not configured |
 | `INVALID_OTP` | Invalid one-time password |
 | `MWP_TIMEOUT` | Mobile Wallet Protocol timeout |
-| `MWP_CANCELLED` | Mobile Wallet Protocol cancelled |
-| `LOGOUT_FAILED` | Logout operation failed |
+| `MWP_CANCELLED` | Mobile Wallet Protocol cancelled (pairing aborted) |
+| `LOGOUT_FAILED` | Logout operation failed (includes token revoke failures) |
 
 ## Validation Errors
 
@@ -67,12 +59,13 @@ This reference lists raw CLI and SDK error codes. Workflows for diagnosing failu
 | `PASSWORD_MISMATCH` | Password confirmation does not match |
 | `EMPTY_PASSWORD` | Empty password provided |
 | `WALLET_NOT_FOUND` | Wallet not found |
-| `WALLET_ERROR` | Wallet provider or wallet operation error |
+| `WALLET_ERROR` | Wallet provider or wallet operation error (includes on-chain reverts and network failures from wallet paths) |
 | `WALLET_METADATA` | Wallet metadata error |
 | `WRONG_NAMESPACE` | Wrong namespace for wallet |
 | `UNSUPPORTED_NAMESPACE` | Unsupported wallet namespace |
 | `NO_AUTH_TOKEN` | Missing authentication token for wallet operations |
 | `NO_PROJECT_ID` | Project ID not configured for wallet |
+| `MISSING_PROJECT_ID` | Project ID is not configured |
 
 ## Command Errors
 
@@ -110,7 +103,7 @@ This reference lists raw CLI and SDK error codes. Workflows for diagnosing failu
 | `UNSUPPORTED_NETWORK` | Unsupported network for perps |
 | `UNSUPPORTED_ROUTE` | Unsupported deposit or withdraw route |
 | `UNSUPPORTED_ASSET` | Unsupported asset |
-| `UNSUPPORTED_SOURCE_CHAIN` | Unsupported source chain |
+| `UNSUPPORTED_SOURCE_CHAIN` | Unsupported source chain for perps deposit |
 | `INVALID_SYMBOL` | Unknown perpetual market symbol |
 | `INVALID_AMOUNT` | Invalid amount |
 | `INVALID_SIZE` | Invalid position size |
@@ -141,18 +134,17 @@ This reference lists raw CLI and SDK error codes. Workflows for diagnosing failu
 | `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported |
 | `PREDICT_INSUFFICIENT_BALANCE` | Insufficient Predict balance |
 | `PREDICT_INSUFFICIENT_ALLOWANCE` | Insufficient Predict allowance |
+| `PREDICT_INSUFFICIENT_FUNDING_BALANCE` | Insufficient funding balance for Predict deposit |
 | `PREDICT_CANCEL_TARGET_REQUIRED` | Cancel target not specified |
 | `PREDICT_WALLET_STATE_REQUIRED` | Wallet state required for Predict |
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
+| `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
+| `PREDICT_ERROR` | Generic Predict error |
+| `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
 
 ## Network & Filesystem Errors
 
 | Code | Meaning |
 | --- | --- |
 | `NETWORK_UNREACHABLE` | Network unreachable |
-| `NETWORK_TIMEOUT` | Network timeout |
-| `NETWORK_ERROR` | Generic network error |
 | `RESET_FAILED` | Failed to reset CLI session |
-| `MNEMONIC_STORE_FAILED` | Failed to store mnemonic |
-| `FILESYSTEM_ERROR` | Generic filesystem error |
-| `TX_REVERTED` | Transaction reverted on-chain |

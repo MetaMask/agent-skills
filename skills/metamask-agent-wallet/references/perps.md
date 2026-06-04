@@ -4,14 +4,14 @@ Use `perps` commands to trade perpetual futures on supported venues. Currently s
 
 ## Common Flags
 
-All `perps` commands accept these flags:
+Most `perps` commands accept these flags (`list-venues` does not):
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
 
-State-changing perps commands accept `--yes` to skip interactive confirmation. Perps commands do not use `--wait`. In BYOK mode with an encrypted mnemonic, state-changing commands also accept `--password` to unlock the mnemonic [env: `MM_PASSWORD`].
+The `--yes` flag skips interactive confirmation on `open`, `close`, `modify`, and `cancel` only. On `deposit`, `transfer`, and `withdraw`, `--yes` is accepted but has no effect because those commands do not prompt. Perps commands do not use `--wait`. In BYOK mode with an encrypted mnemonic, state-changing commands also accept `--password` to unlock the mnemonic [env: `MM_PASSWORD`].
 
 ## `perps markets` Command
 
@@ -20,14 +20,14 @@ List perpetual markets for a venue.
 ### Syntax
 
 ```bash
-mm-dev perps markets --venue <venue> [--network <network>] [--symbol <symbol>] [--symbols <list>] [--dex <name>]
+mm-dev perps markets [--venue <venue>] [--network <network>] [--symbol <symbol>] [--symbols <list>] [--dex <name>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
 | `--symbol` | No | Filter to a single market symbol (e.g. BTC) |
 | `--symbols` | No | Comma-separated market symbols to filter (e.g. BTC,ETH,SOL) |
@@ -49,7 +49,7 @@ Show the connected wallet's perpetual account balances for a venue.
 ### Syntax
 
 ```bash
-mm-dev perps balance --venue <venue> [--network <network>]
+mm-dev perps balance [--venue <venue>] [--network <network>]
 ```
 
 ### Example
@@ -66,7 +66,7 @@ List open positions for the connected wallet on a venue.
 ### Syntax
 
 ```bash
-mm-dev perps positions --venue <venue> [--network <network>]
+mm-dev perps positions [--venue <venue>] [--network <network>]
 ```
 
 ### Example
@@ -83,19 +83,19 @@ Estimate entry price, notional, fees, and liquidation price without placing an o
 ### Syntax
 
 ```bash
-mm-dev perps quote --venue <venue> --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--network <network>]
+mm-dev perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--network <network>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--symbol` | Yes | Market symbol (e.g. BTC, ETH, SOL) |
-| `--side` | Yes | Position direction: `long` or `short` |
+| `--side` | Yes | Position direction (allowed: `long`, `short`) |
 | `--size` | Yes | Size in base asset, human-readable (e.g. 0.01, 1) |
-| `--leverage` | Yes | Desired leverage |
-| `--type` | No | Order type: `market` or `limit`. Default is `market` |
+| `--leverage` | Yes | Leverage multiplier as a positive integer (e.g. 5, 10) |
+| `--type` | No | Order type (allowed: `market`, `limit`). Default is `market` |
 | `--limit-px` | If `--type limit` | Limit price, human-readable (e.g. 60000 for BTC) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
 
@@ -113,19 +113,19 @@ Open a new perpetual position by placing an order.
 ### Syntax
 
 ```bash
-mm-dev perps open --venue <venue> --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--symbol` | Yes | Market symbol (e.g. BTC, ETH, SOL) |
-| `--side` | Yes | Position direction: `long` or `short` |
+| `--side` | Yes | Position direction (allowed: `long`, `short`) |
 | `--size` | Yes | Size in base asset, human-readable (e.g. 0.01, 1) |
 | `--leverage` | Yes | Leverage multiplier as a positive integer (e.g. 5, 10) |
-| `--type` | No | Order type: `market` or `limit` (defaults to `market`) |
+| `--type` | No | Order type (allowed: `market`, `limit`; defaults to `market`) |
 | `--limit-px` | If `--type limit` | Limit price; required when `--type` is `limit` (e.g. 60000 for BTC) |
 | `--max-slippage-bps` | No | Slippage cap in basis points for IOC market pricing (e.g. 50) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
@@ -148,7 +148,7 @@ List resting orders for the connected wallet on a venue.
 ### Syntax
 
 ```bash
-mm-dev perps orders --venue <venue> [--network <network>]
+mm-dev perps orders [--venue <venue>] [--network <network>]
 ```
 
 ### Example
@@ -165,22 +165,26 @@ Close one position, part of a position, or all open positions.
 ### Syntax
 
 ```bash
-mm-dev perps close --venue <venue> [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--symbol` | Yes, unless `--all` | Market symbol to close (e.g. BTC, ETH) |
-| `--size` | No | Partial close size, human-readable (e.g. 0.005); omit for full close |
+| `--size` | No | Partial close size in base asset (e.g. 0.5); omit for full close. Not allowed with `--all` |
 | `--all` | No | Close all open positions; mutually exclusive with `--symbol` |
 | `--max-slippage-bps` | No | Slippage cap in basis points for IOC pricing (e.g. 50) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
 | `--dry-run` | No | Preview the close action without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+
+### Validation Rules
+
+- `--size` is not allowed with `--all`.
 
 ### Example
 
@@ -198,14 +202,14 @@ Modify leverage, take-profit, or stop-loss for an existing position.
 ### Syntax
 
 ```bash
-mm-dev perps modify --venue <venue> --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--symbol` | Yes | Market symbol (e.g. BTC, ETH, SOL) |
 | `--leverage` | No | New leverage multiplier as a positive integer (e.g. 5, 10) |
 | `--tp` | No | Take-profit trigger price, human-readable (e.g. 3000, 2500.50) |
@@ -234,14 +238,14 @@ Cancel a resting perps order.
 ### Syntax
 
 ```bash
-mm-dev perps cancel --venue <venue> --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--order-id` | Yes | Venue order ID to cancel (positive integer) |
 | `--symbol` | No | Market symbol; speeds up cancel by avoiding an open-order lookup (e.g. BTC, ETH) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
@@ -265,20 +269,19 @@ Deposit USDC into a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps deposit --venue <venue> --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps deposit [--venue <venue>] --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--dry-run] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to deposit (e.g. 100, 50.5) |
 | `--asset` | No | Deposit asset (defaults to `USDC`) (allowed: `USDC`) |
-| `--source-chain` | No | Source chain as a CAIP-2 ID. Hyperliquid only supports Arbitrum (defaults to `eip155:42161` on mainnet) |
+| `--source-chain` | No | Source chain as a CAIP-2 ID or decimal chain ID (defaults to Arbitrum for the selected network: `eip155:42161` on mainnet, `eip155:421614` on testnet) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
 | `--dry-run` | No | Preview the transaction without signing or submitting |
-| `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -286,7 +289,6 @@ mm-dev perps deposit --venue <venue> --amount <amount> [--asset <asset>] [--sour
 ```bash
 mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC
 mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC --dry-run
-mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC --yes
 ```
 
 ## `perps withdraw` Command
@@ -296,21 +298,20 @@ Withdraw USDC from a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps withdraw --venue <venue> --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--dry-run] [--include-spot] [--yes] [--password <password>]
+mm-dev perps withdraw [--venue <venue>] --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--dry-run] [--include-spot] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to withdraw (e.g. 50, 25.5) |
 | `--asset` | No | Withdrawal asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--destination` | No | EVM destination address (defaults to your connected wallet) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
 | `--dry-run` | No | Preview the withdrawal without signing or submitting |
-| `--include-spot` | No | Move free spot USDC to perp account before withdrawing if the perp balance alone is insufficient |
-| `--yes` | No | Skip interactive confirmation |
+| `--include-spot` | No | Move free spot USDC to perp before withdrawing if needed |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -318,7 +319,7 @@ mm-dev perps withdraw --venue <venue> --amount <amount> [--asset <asset>] [--des
 ```bash
 mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC
 mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --include-spot
-mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --destination 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18 --yes
+mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --destination 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
 ```
 
 ## `perps transfer` Command
@@ -328,20 +329,19 @@ Transfer USDC between spot and perp accounts on a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps transfer --venue <venue> --amount <amount> --direction <direction> [--asset <asset>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm-dev perps transfer [--venue <venue>] --amount <amount> --direction <direction> [--asset <asset>] [--network <network>] [--dry-run] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to transfer (e.g. 100, 50.5) |
-| `--direction` | Yes | Transfer direction: `spot-to-perp` or `perp-to-spot` |
-| `--asset` | No | Transfer asset (defaults to USDC) |
+| `--direction` | Yes | Transfer direction (allowed: `spot-to-perp`, `perp-to-spot`) |
+| `--asset` | No | Transfer asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
 | `--dry-run` | No | Preview the transfer without signing or submitting |
-| `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -378,14 +378,14 @@ List available DEX identifiers a venue exposes. For Hyperliquid, this includes t
 ### Syntax
 
 ```bash
-mm-dev perps dexs --venue <venue> [--network <network>]
+mm-dev perps dexs [--venue <venue>] [--network <network>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | Yes | Perpetual venue (defaults to `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) |
 
 ### Example

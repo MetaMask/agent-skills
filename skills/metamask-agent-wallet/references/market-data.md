@@ -35,7 +35,7 @@ Fetch historical prices for an asset.
 ### Syntax
 
 ```bash
-mm-dev price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-period <period>] [--interval <interval>] [--from <unix>] [--to <unix>]
+mm-dev price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-period <period>] [--interval <interval>] [--from <unix>] [--to <unix>] [--vs <currency>]
 ```
 
 ### Supported Flags
@@ -95,16 +95,16 @@ List popular, trending, or top-gainer tokens.
 ### Syntax
 
 ```bash
-mm-dev token list popular --chain <chain>
-mm-dev token list trending --chain <chain>
-mm-dev token list top-gainer --chain <chain>
+mm-dev token list popular [--chain <chain>]
+mm-dev token list trending [--chain <chain>]
+mm-dev token list top-gainer [--chain <chain>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain` | Yes | Chain id, CAIP-2 id, or configured chain key |
+| `--chain` | No | Chain id, CAIP-2 id, or configured chain key. Defaults to the active wallet chain, or `eip155:1` if none is selected |
 
 ### Example
 
@@ -128,9 +128,9 @@ mm-dev token list search --query <query> [--chain <chains>] [--limit <n>] [--aft
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--query` | Yes | Search query |
-| `--chain` | No | Chain id, CAIP-2 id, or configured chain key |
-| `--limit` | No | Maximum results |
+| `--query` | Yes | Search query by symbol or name (e.g. USDC, Wrapped Ether) |
+| `--chain` | No | Comma-separated chain IDs, CAIP-2 IDs, or configured chain keys. Defaults to the active wallet chain, or `eip155:1` if none is selected |
+| `--limit` | No | Maximum results (defaults to 10; 1-500) |
 | `--after` | No | Pagination cursor |
 
 ### Example

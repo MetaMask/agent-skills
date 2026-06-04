@@ -16,7 +16,7 @@ mm-dev wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
 | `--name` | No | Display name for the wallet |
 | `--trading-mode` | No | Trading mode for server wallets: `guard` (enforces outflow/whitelist policies) or `beast` (skips policy checks). Only applies to server-wallet mode (allowed: `guard`, `beast`) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
@@ -43,13 +43,13 @@ mm-dev wallet list [--chain-namespace <namespace>] [--toon]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
 
 ### Example
 
 ```bash
 mm-dev wallet list
-mm-dev wallet list --chain-namespace solana --toon
+mm-dev wallet list --chain-namespace evm --toon
 ```
 
 ## `wallet select` Command
@@ -66,7 +66,7 @@ mm-dev wallet select [--chain-namespace <namespace>] [--id <id>] [--address <add
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
 | `--id` | No | Wallet ID |
 | `--address` | No | Wallet address (0x-prefixed hex) |
 | `--name` | No | Wallet display name |
@@ -92,7 +92,7 @@ mm-dev wallet show [--chain-namespace <namespace>] [--id <id>] [--address <addre
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
 | `--id` | No | Wallet ID |
 | `--address` | No | Wallet address (0x-prefixed hex) |
 | `--name` | No | Wallet display name |
@@ -118,13 +118,13 @@ mm-dev wallet address [--chain-namespace <namespace>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) or `solana` (allowed: `evm`, `solana`) |
+| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
 
 ### Example
 
 ```bash
 mm-dev wallet address
-mm-dev wallet address --chain-namespace eip155
+mm-dev wallet address --chain-namespace evm
 ```
 
 ## `wallet balance` Command

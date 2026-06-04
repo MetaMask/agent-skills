@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "1.0.0"
+  version: "1.1.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -66,8 +66,9 @@ Match the user's intent to a command and reference file, then read the reference
 | Create or refresh Predict credentials | `mm-dev predict auth` | [predict.md](references/predict.md) |
 | Repair Predict approvals | `mm-dev predict approve` | [predict.md](references/predict.md) |
 | Check Predict back-end status | `mm-dev predict status` | [predict.md](references/predict.md) |
-| Search prediction markets | `mm-dev predict markets` | [predict.md](references/predict.md) |
-| Inspect a prediction market | `mm-dev predict market` | [predict.md](references/predict.md) |
+| List prediction markets | `mm-dev predict markets list` | [predict.md](references/predict.md) |
+| Search prediction markets | `mm-dev predict markets search` | [predict.md](references/predict.md) |
+| Inspect a prediction market | `mm-dev predict markets get` | [predict.md](references/predict.md) |
 | Preview a prediction order cost | `mm-dev predict quote` | [predict.md](references/predict.md) |
 | Place a prediction market order | `mm-dev predict place` | [predict.md](references/predict.md) |
 | Cancel prediction orders | `mm-dev predict cancel` | [predict.md](references/predict.md) |

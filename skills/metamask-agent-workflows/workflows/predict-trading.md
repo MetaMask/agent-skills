@@ -47,8 +47,8 @@ mm-dev predict deposit --amount 100 --wait --json
 Search can return loosely related markets, so inspect the selected market before quoting:
 
 ```bash
-mm-dev predict markets --query "Knicks NBA Finals" --limit 5 --active --json
-mm-dev predict market --market will-the-new-york-knicks-win-the-2026-nba-finals --json
+mm-dev predict markets search "Knicks NBA Finals" --limit 5 --json
+mm-dev predict markets get will-the-new-york-knicks-win-the-2026-nba-finals --json
 ```
 
 The market detail prints outcome token IDs. Outcome token IDs are not market IDs; use the token ID for `quote`, `place`, `book`, and `balance --token-id`.
@@ -56,7 +56,7 @@ The market detail prints outcome token IDs. Outcome token IDs are not market IDs
 If search is noisy, list active markets and filter manually:
 
 ```bash
-mm-dev predict markets --active --limit 50 --json
+mm-dev predict markets list --active --limit 50 --json
 ```
 
 ## Quote, Then Place
