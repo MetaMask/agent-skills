@@ -373,6 +373,32 @@ mm-dev predict balance --sync
 mm-dev predict balance --token-id <token-id> --sync
 ```
 
+## `predict withdraw` Command
+
+Withdraw pUSD from your Predict deposit wallet to your owner EOA or another address. Validates the amount against the on-chain deposit wallet balance before signing. Uses the Polymarket Relayer batch mechanism.
+
+### Syntax
+
+```bash
+mm-dev predict withdraw --amount <amount> [--to <address>] [--wait] [--password <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--amount` | Yes | pUSD amount to withdraw, human-readable (e.g. 0.1, 5, 100) |
+| `--to` | No | Recipient address. Defaults to your owner EOA |
+| `--wait` | No | Block until the job completes |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+
+### Example
+
+```bash
+mm-dev predict withdraw --amount 10 --wait
+mm-dev predict withdraw --amount 5 --to 0xAbc... --wait
+```
+
 ## `predict deposit` Command
 
 Convert USDC.e from your EOA to pUSD in your Predict deposit wallet.
@@ -422,7 +448,7 @@ mm-dev predict book --token-id <token-id>
 
 ## `predict watch` Command
 
-Watch a setup, approval, deposit, or order job until it completes.
+Watch a setup, approval, deposit, withdraw, or order job until it completes.
 
 ### Syntax
 
@@ -454,4 +480,4 @@ mm-dev predict watch --id <job-id> --wait
 - Side must be `buy` or `sell`.
 - The `predict mode` command switches between `mainnet` and `testnet`.
 - If the user does not specify a mode, the CLI uses the previously set mode.
-- Setup, approve, deposit, and order flows can return job IDs. Track them with `mm-dev predict watch <job-id> --wait`.
+- Setup, approve, deposit, withdraw, and order flows can return job IDs. Track them with `mm-dev predict watch <job-id> --wait`.

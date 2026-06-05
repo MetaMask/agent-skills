@@ -4,7 +4,7 @@ description: Use when the user needs to perform multi-step operations with the M
 license: MIT
 metadata:
   author: metamask
-  version: "1.1.0"
+  version: "1.2.0"
 ---
 
 # MetaMask Agent Workflows

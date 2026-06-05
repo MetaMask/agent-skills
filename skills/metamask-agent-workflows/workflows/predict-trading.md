@@ -42,6 +42,23 @@ mm-dev predict deposit --amount 100 --wait --json
 
 `--amount` is in pUSD. The owner EOA needs enough Polygon USDC and POL for gas to complete the deposit transaction.
 
+## Withdraw from the Deposit Wallet
+
+Check balance first:
+
+```bash
+mm-dev predict balance --sync
+```
+
+Withdraw pUSD to the owner EOA (default) or a specified address:
+
+```bash
+mm-dev predict withdraw --amount 50 --wait
+mm-dev predict withdraw --amount 10 --to 0xRecipient... --wait
+```
+
+The CLI validates the amount against the on-chain deposit wallet balance before signing. Confirm amount and recipient with the user before executing.
+
 ## Find the Right Market
 
 Search can return loosely related markets, so inspect the selected market before quoting:
@@ -101,7 +118,7 @@ mm-dev predict cancel --all
 mm-dev predict watch --id <job-id> --wait
 ```
 
-Use this for setup, approve, deposit, and order jobs that have not reached a terminal state.
+Use this for setup, approve, deposit, withdraw, and order jobs that have not reached a terminal state.
 
 ## Safety Notes
 

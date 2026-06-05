@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "1.2.0"
+  version: "1.3.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -23,7 +23,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Login in MetaMask Agentic CLI | `mm-dev login` | [auth.md](references/auth.md) |
 | Choose a wallet mode and set up policies | `mm-dev init` | [auth.md](references/auth.md) |
 | Show current init settings | `mm-dev init show` | [auth.md](references/auth.md) |
-| Sign in via QR code | `mm-dev login qr` | [auth.md](references/auth.md) |
+| Sign in via QR code (coming soon) | `mm-dev login qr` | [auth.md](references/auth.md) |
 | Sign in via Google | `mm-dev login google` | [auth.md](references/auth.md) |
 | Sign in via email OTP | `mm-dev login email` | [auth.md](references/auth.md) |
 | Sign out | `mm-dev logout` | [auth.md](references/auth.md) |
@@ -77,6 +77,7 @@ Match the user's intent to a command and reference file, then read the reference
 | View open prediction orders | `mm-dev predict orders` | [predict.md](references/predict.md) |
 | Check Predict deposit wallet balance | `mm-dev predict balance` | [predict.md](references/predict.md) |
 | Fund Predict deposit wallet | `mm-dev predict deposit` | [predict.md](references/predict.md) |
+| Withdraw pUSD from Predict deposit wallet | `mm-dev predict withdraw` | [predict.md](references/predict.md) |
 | Fetch prediction order book | `mm-dev predict book` | [predict.md](references/predict.md) |
 | Watch a Predict job | `mm-dev predict watch` | [predict.md](references/predict.md) |
 | Get a swap or bridge quote | `mm-dev swap quote` | [swap.md](references/swap.md) |
@@ -168,6 +169,7 @@ Do not pass unvalidated user input into any command.
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
 | Predict deposit | Always confirm amount before executing |
+| Predict withdraw | Always confirm amount and recipient (`--to` defaults to owner EOA) before executing |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
 | Auth / wallet management | May execute without confirmation, except `reset` which requires explicit user confirmation |
 | Read-only queries | May execute without confirmation |
@@ -197,7 +199,7 @@ In server-wallet mode, signing and transaction commands return a `pollingId` ins
    - `mm-dev wallet requests watch --polling-id <id>`
 3. In BYOK mode, results are returned immediately. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
-Transfers, swaps, perps, and predict orders attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
+Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`, `Withdraw 10 pUSD to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
 
 ## Output Rules
 
