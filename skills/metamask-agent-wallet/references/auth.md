@@ -76,7 +76,6 @@ mm-dev login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no
 
 ```bash
 mm-dev login --no-wait
-mm-dev login qr
 mm-dev login google --no-wait
 mm-dev login email --no-wait
 mm-dev login --token "cliToken:cliRefreshToken"
@@ -85,6 +84,7 @@ mm-dev login --token "cliToken:cliRefreshToken"
 ### Note
 
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm-dev logout` first, then log in again.
+- `mm-dev login qr` returns `COMING_SOON`. Use Google or email sign-in instead.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
 - Use `mm-dev login google --no-wait` or `mm-dev login email --no-wait` for non-interactive/CI flows. Bare `mm-dev login --no-wait` fails without a TTY because no method is selected.
 - `--no-wait` is not supported with QR login. Complete authentication later with `mm-dev login --token`.

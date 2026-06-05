@@ -22,8 +22,7 @@ If this fails, the CLI is not installed. Guide the user to install it before pro
 
 ## Login Flow
 
-Ask the user which login method they want to use: Google, Email, or QR.
-QR login (`mm-dev login qr`) does not support `--no-wait`. If the user wants QR, they must complete the onboarding flow themselves.
+Ask the user which login method they want to use: Google or Email. QR login is coming soon (`mm-dev login qr` returns `COMING_SOON`).
 
 ### Login
 

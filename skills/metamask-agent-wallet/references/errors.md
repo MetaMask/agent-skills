@@ -78,6 +78,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_ID` | Missing ID parameter |
 | `MISSING_QUOTE_ID` | Missing quote ID |
 | `MISSING_SWAP_PARAMS` | Missing swap parameters |
+| `COMING_SOON` | Feature not yet available (e.g. `mm-dev login qr`) |
 
 ## Swap & Bridge Errors
 
@@ -131,6 +132,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_AUTH_INVALID` | Predict credentials invalid or incomplete |
 | `PREDICT_RELAYER_CONFIG_REQUIRED` | Relayer configuration required |
 | `PREDICT_INVALID_DEPOSIT_AMOUNT` | Invalid deposit amount |
+| `PREDICT_WITHDRAW_ZERO` | Withdraw amount must be greater than zero |
+| `PREDICT_WITHDRAW_INSUFFICIENT_BALANCE` | Withdraw amount exceeds deposit wallet pUSD balance |
 | `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported |
 | `PREDICT_INSUFFICIENT_BALANCE` | Insufficient Predict balance |
 | `PREDICT_INSUFFICIENT_ALLOWANCE` | Insufficient Predict allowance |
