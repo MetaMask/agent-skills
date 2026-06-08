@@ -1,15 +1,15 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, or authentication via the MetaMask Agentic CLI. Single entry point for all mm-dev CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, or authentication via the MetaMask Agentic CLI. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "1.3.0"
+  version: "2.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
 
-This skill documents the `mm-dev` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, and cross-chain bridges.
+This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, and cross-chain bridges.
 
 Use the routing table to select the relevant reference file. CLI behavior lives in `references/`. Repeatable operational patterns live in `workflows/`.
 
@@ -19,71 +19,71 @@ Match the user's intent to a command and reference file, then read the reference
 
 | User Intent | Command | Reference |
 | --- | --- | --- |
-| Check authentication status | `mm-dev auth status` | [auth.md](references/auth.md) |
-| Login in MetaMask Agentic CLI | `mm-dev login` | [auth.md](references/auth.md) |
-| Choose a wallet mode and set up policies | `mm-dev init` | [auth.md](references/auth.md) |
-| Show current init settings | `mm-dev init show` | [auth.md](references/auth.md) |
-| Sign in via QR code (coming soon) | `mm-dev login qr` | [auth.md](references/auth.md) |
-| Sign in via Google | `mm-dev login google` | [auth.md](references/auth.md) |
-| Sign in via email OTP | `mm-dev login email` | [auth.md](references/auth.md) |
-| Sign out | `mm-dev logout` | [auth.md](references/auth.md) |
-| Reset CLI session | `mm-dev reset` | [auth.md](references/auth.md) |
-| Set BYOK mnemonic encryption password | `mm-dev wallet password set` | [auth.md](references/auth.md) |
-| Change BYOK mnemonic encryption password | `mm-dev wallet password change` | [auth.md](references/auth.md) |
-| Remove BYOK mnemonic encryption password | `mm-dev wallet password remove` | [auth.md](references/auth.md) |
+| Check authentication status | `mm auth status` | [auth.md](references/auth.md) |
+| Login in MetaMask Agentic CLI | `mm login` | [auth.md](references/auth.md) |
+| Choose a wallet mode and set up policies | `mm init` | [auth.md](references/auth.md) |
+| Show current init settings | `mm init show` | [auth.md](references/auth.md) |
+| Sign in via QR code (coming soon) | `mm login qr` | [auth.md](references/auth.md) |
+| Sign in via Google | `mm login google` | [auth.md](references/auth.md) |
+| Sign in via email OTP | `mm login email` | [auth.md](references/auth.md) |
+| Sign out | `mm logout` | [auth.md](references/auth.md) |
+| Reset CLI session | `mm reset` | [auth.md](references/auth.md) |
+| Set BYOK mnemonic encryption password | `mm wallet password set` | [auth.md](references/auth.md) |
+| Change BYOK mnemonic encryption password | `mm wallet password change` | [auth.md](references/auth.md) |
+| Remove BYOK mnemonic encryption password | `mm wallet password remove` | [auth.md](references/auth.md) |
 | Interpret raw CLI error codes | `AuthError`, `ValidationError`, `WALLET_ERROR` | [errors.md](references/errors.md) |
-| Decode EVM calldata into a human-readable intent | `mm-dev decode` | [decode.md](references/decode.md) |
-| Create a wallet | `mm-dev wallet create` | [wallet.md](references/wallet.md) |
-| List all wallets | `mm-dev wallet list` | [wallet.md](references/wallet.md) |
-| Switch active wallet | `mm-dev wallet select` | [wallet.md](references/wallet.md) |
-| Show active wallet details | `mm-dev wallet show` | [wallet.md](references/wallet.md) |
-| Show active wallet address | `mm-dev wallet address` | [wallet.md](references/wallet.md) |
-| Check the active wallet balance | `mm-dev wallet balance` | [wallet.md](references/wallet.md) |
-| Sign a plaintext message | `mm-dev wallet sign-message` | [signing.md](references/signing.md) |
-| Sign EIP-712 typed data | `mm-dev wallet sign-typed-data` | [signing.md](references/signing.md) |
-| Send a raw EVM transaction | `mm-dev wallet send-transaction` | [transaction.md](references/transaction.md) |
-| Transfer native tokens or ERC-20 tokens | `mm-dev transfer` | [transfer.md](references/transfer.md) |
-| List supported chains by the CLI | `mm-dev chains list` | [chain.md](references/chain.md) |
-| List pending wallet requests | `mm-dev wallet requests list` | [polling.md](references/polling.md) |
-| Watch a wallet polling id | `mm-dev wallet requests watch` | [polling.md](references/polling.md) |
-| Query spot or historical prices | `mm-dev price ...` | [market-data.md](references/market-data.md) |
-| Discover tokens, token networks, or token metadata | `mm-dev token ...` | [market-data.md](references/market-data.md) |
-| List perpetual markets | `mm-dev perps markets` | [perps.md](references/perps.md) |
-| Check perps account balance | `mm-dev perps balance` | [perps.md](references/perps.md) |
-| List open perpetual positions | `mm-dev perps positions` | [perps.md](references/perps.md) |
-| Get a quote for a perpetual order | `mm-dev perps quote` | [perps.md](references/perps.md) |
-| List resting perpetual orders | `mm-dev perps orders` | [perps.md](references/perps.md) |
-| Open a perpetual position | `mm-dev perps open` | [perps.md](references/perps.md) |
-| Close a perpetual position | `mm-dev perps close` | [perps.md](references/perps.md) |
-| Modify leverage, take-profit, or stop-loss | `mm-dev perps modify` | [perps.md](references/perps.md) |
-| Cancel a resting perps order | `mm-dev perps cancel` | [perps.md](references/perps.md) |
-| Deposit USDC into a perps venue | `mm-dev perps deposit` | [perps.md](references/perps.md) |
-| Withdraw USDC from a perps venue | `mm-dev perps withdraw` | [perps.md](references/perps.md) |
-| Transfer USDC between spot and perp accounts | `mm-dev perps transfer` | [perps.md](references/perps.md) |
-| List perpetual futures venues | `mm-dev perps list-venues` | [perps.md](references/perps.md) |
-| List available DEXs for a venue | `mm-dev perps dexs` | [perps.md](references/perps.md) |
-| Set Predict trading mode | `mm-dev predict mode` | [predict.md](references/predict.md) |
-| One-time Predict setup | `mm-dev predict setup` | [predict.md](references/predict.md) |
-| Create or refresh Predict credentials | `mm-dev predict auth` | [predict.md](references/predict.md) |
-| Repair Predict approvals | `mm-dev predict approve` | [predict.md](references/predict.md) |
-| Check Predict back-end status | `mm-dev predict status` | [predict.md](references/predict.md) |
-| List prediction markets | `mm-dev predict markets list` | [predict.md](references/predict.md) |
-| Search prediction markets | `mm-dev predict markets search` | [predict.md](references/predict.md) |
-| Inspect a prediction market | `mm-dev predict markets get` | [predict.md](references/predict.md) |
-| Preview a prediction order cost | `mm-dev predict quote` | [predict.md](references/predict.md) |
-| Place a prediction market order | `mm-dev predict place` | [predict.md](references/predict.md) |
-| Cancel prediction orders | `mm-dev predict cancel` | [predict.md](references/predict.md) |
-| View prediction market positions | `mm-dev predict positions` | [predict.md](references/predict.md) |
-| View open prediction orders | `mm-dev predict orders` | [predict.md](references/predict.md) |
-| Check Predict deposit wallet balance | `mm-dev predict balance` | [predict.md](references/predict.md) |
-| Fund Predict deposit wallet | `mm-dev predict deposit` | [predict.md](references/predict.md) |
-| Withdraw pUSD from Predict deposit wallet | `mm-dev predict withdraw` | [predict.md](references/predict.md) |
-| Fetch prediction order book | `mm-dev predict book` | [predict.md](references/predict.md) |
-| Watch a Predict job | `mm-dev predict watch` | [predict.md](references/predict.md) |
-| Get a swap or bridge quote | `mm-dev swap quote` | [swap.md](references/swap.md) |
-| Execute a token swap or bridge | `mm-dev swap execute` | [swap.md](references/swap.md) |
-| Check swap or bridge status | `mm-dev swap status` | [swap.md](references/swap.md) |
-| Bridge tokens to another chain | `mm-dev swap execute` | [swap.md](references/swap.md) |
+| Decode EVM calldata into a human-readable intent | `mm decode` | [decode.md](references/decode.md) |
+| Create a wallet | `mm wallet create` | [wallet.md](references/wallet.md) |
+| List all wallets | `mm wallet list` | [wallet.md](references/wallet.md) |
+| Switch active wallet | `mm wallet select` | [wallet.md](references/wallet.md) |
+| Show active wallet details | `mm wallet show` | [wallet.md](references/wallet.md) |
+| Show active wallet address | `mm wallet address` | [wallet.md](references/wallet.md) |
+| Check the active wallet balance | `mm wallet balance` | [wallet.md](references/wallet.md) |
+| Sign a plaintext message | `mm wallet sign-message` | [signing.md](references/signing.md) |
+| Sign EIP-712 typed data | `mm wallet sign-typed-data` | [signing.md](references/signing.md) |
+| Send a raw EVM transaction | `mm wallet send-transaction` | [transaction.md](references/transaction.md) |
+| Transfer native tokens or ERC-20 tokens | `mm transfer` | [transfer.md](references/transfer.md) |
+| List supported chains by the CLI | `mm chains list` | [chain.md](references/chain.md) |
+| List pending wallet requests | `mm wallet requests list` | [polling.md](references/polling.md) |
+| Watch a wallet polling id | `mm wallet requests watch` | [polling.md](references/polling.md) |
+| Query spot or historical prices | `mm price ...` | [market-data.md](references/market-data.md) |
+| Discover tokens, token networks, or token metadata | `mm token ...` | [market-data.md](references/market-data.md) |
+| List perpetual markets | `mm perps markets` | [perps.md](references/perps.md) |
+| Check perps account balance | `mm perps balance` | [perps.md](references/perps.md) |
+| List open perpetual positions | `mm perps positions` | [perps.md](references/perps.md) |
+| Get a quote for a perpetual order | `mm perps quote` | [perps.md](references/perps.md) |
+| List resting perpetual orders | `mm perps orders` | [perps.md](references/perps.md) |
+| Open a perpetual position | `mm perps open` | [perps.md](references/perps.md) |
+| Close a perpetual position | `mm perps close` | [perps.md](references/perps.md) |
+| Modify leverage, take-profit, or stop-loss | `mm perps modify` | [perps.md](references/perps.md) |
+| Cancel a resting perps order | `mm perps cancel` | [perps.md](references/perps.md) |
+| Deposit USDC into a perps venue | `mm perps deposit` | [perps.md](references/perps.md) |
+| Withdraw USDC from a perps venue | `mm perps withdraw` | [perps.md](references/perps.md) |
+| Transfer USDC between spot and perp accounts | `mm perps transfer` | [perps.md](references/perps.md) |
+| List perpetual futures venues | `mm perps list-venues` | [perps.md](references/perps.md) |
+| List available DEXs for a venue | `mm perps dexs` | [perps.md](references/perps.md) |
+| Set Predict trading mode | `mm predict mode` | [predict.md](references/predict.md) |
+| One-time Predict setup | `mm predict setup` | [predict.md](references/predict.md) |
+| Create or refresh Predict credentials | `mm predict auth` | [predict.md](references/predict.md) |
+| Repair Predict approvals | `mm predict approve` | [predict.md](references/predict.md) |
+| Check Predict back-end status | `mm predict status` | [predict.md](references/predict.md) |
+| List prediction markets | `mm predict markets list` | [predict.md](references/predict.md) |
+| Search prediction markets | `mm predict markets search` | [predict.md](references/predict.md) |
+| Inspect a prediction market | `mm predict markets get` | [predict.md](references/predict.md) |
+| Preview a prediction order cost | `mm predict quote` | [predict.md](references/predict.md) |
+| Place a prediction market order | `mm predict place` | [predict.md](references/predict.md) |
+| Cancel prediction orders | `mm predict cancel` | [predict.md](references/predict.md) |
+| View prediction market positions | `mm predict positions` | [predict.md](references/predict.md) |
+| View open prediction orders | `mm predict orders` | [predict.md](references/predict.md) |
+| Check Predict deposit wallet balance | `mm predict balance` | [predict.md](references/predict.md) |
+| Fund Predict deposit wallet | `mm predict deposit` | [predict.md](references/predict.md) |
+| Withdraw pUSD from Predict deposit wallet | `mm predict withdraw` | [predict.md](references/predict.md) |
+| Fetch prediction order book | `mm predict book` | [predict.md](references/predict.md) |
+| Watch a Predict job | `mm predict watch` | [predict.md](references/predict.md) |
+| Get a swap or bridge quote | `mm swap quote` | [swap.md](references/swap.md) |
+| Execute a token swap or bridge | `mm swap execute` | [swap.md](references/swap.md) |
+| Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
+| Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 
 ## Workflows
 
@@ -104,7 +104,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 
 ## Global Flags
 
-Every `mm-dev` command accepts these flags:
+Every `mm` command accepts these flags:
 
 | Flag | Short | Description |
 | --- | --- | --- |
@@ -120,7 +120,7 @@ Always use `--toon` for command output unless the user explicitly requests a dif
 Always run preflight before any CLI operation.
 
 ```bash
-mm-dev auth status
+mm auth status
 ```
 
 If the user is not authenticated, follow `workflows/onboarding.md` for first time setup, or `workflows/login.md` for login.
@@ -187,7 +187,7 @@ Flag to the user before proceeding if a signing payload or transaction contains:
 - `permit`, `approve`, `setApprovalForAll`, or allowance-like fields
 - Unusually large values or unfamiliar contract interactions
 
-When raw calldata is unfamiliar or was not constructed by you, run `mm-dev decode --payload <0x-calldata>` first and confirm the decoded intent with the user before signing or sending. See [decode.md](references/decode.md).
+When raw calldata is unfamiliar or was not constructed by you, run `mm decode --payload <0x-calldata>` first and confirm the decoded intent with the user before signing or sending. See [decode.md](references/decode.md).
 
 ## Server Wallet Async Model
 
@@ -195,8 +195,8 @@ In server-wallet mode, signing and transaction commands return a `pollingId` ins
 
 1. Prefer `--wait` to block until complete.
 2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
-   - `mm-dev wallet requests list`
-   - `mm-dev wallet requests watch --polling-id <id>`
+   - `mm wallet requests list`
+   - `mm wallet requests watch --polling-id <id>`
 3. In BYOK mode, results are returned immediately. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`, `Withdraw 10 pUSD to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
@@ -205,4 +205,4 @@ Transfers, swaps, perps, predict orders, and predict withdraws attach a human-re
 
 - Route silently. Do not announce which reference you are loading.
 - Surface errors from commands verbatim. Do not mask or reword them.
-- If a command fails, check `mm-dev <command> --help` and guide from there.
+- If a command fails, check `mm <command> --help` and guide from there.

@@ -15,7 +15,7 @@ Reference command syntax in `references/perps.md`.
 If the user does not mention a token symbol, list open positions and confirm with the user:
 
 ```bash
-mm-dev perps positions
+mm perps positions
 ```
 
 ## Check Positions
@@ -23,7 +23,7 @@ mm-dev perps positions
 `--venue` defaults to `hyperliquid`. It can be omitted.
 
 ```bash
-mm-dev perps positions
+mm perps positions
 ```
 
 ## Dry Run
@@ -31,8 +31,8 @@ mm-dev perps positions
 Preview the modification before executing:
 
 ```bash
-mm-dev perps modify --symbol BTC --leverage 10 --dry-run
-mm-dev perps modify --symbol ETH --tp 3000 --sl 2000 --dry-run
+mm perps modify --symbol BTC --leverage 10 --dry-run
+mm perps modify --symbol ETH --tp 3000 --sl 2000 --dry-run
 ```
 
 At least one of `--leverage`, `--tp`, or `--sl` must be provided.
@@ -42,8 +42,8 @@ At least one of `--leverage`, `--tp`, or `--sl` must be provided.
 Remove `--dry-run` only after explicit user confirmation:
 
 ```bash
-mm-dev perps modify --symbol BTC --leverage 10
-mm-dev perps modify --symbol ETH --tp 3000 --sl 2000
+mm perps modify --symbol BTC --leverage 10
+mm perps modify --symbol ETH --tp 3000 --sl 2000
 ```
 
 Do not add `--yes` unless the user explicitly asked for unattended execution.

@@ -20,26 +20,26 @@ List perpetual markets for a venue.
 ### Syntax
 
 ```bash
-mm-dev perps markets [--venue <venue>] [--network <network>] [--symbol <symbol>] [--symbols <list>] [--dex <name>]
+mm perps markets [--venue <venue>] [--network <network>] [--symbol <symbol>] [--symbols <list>] [--dex <name>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
 | `--symbol` | No | Filter to a single market symbol (e.g. BTC) |
 | `--symbols` | No | Comma-separated market symbols to filter (e.g. BTC,ETH,SOL) |
-| `--dex` | No | HIP-3 DEX name; omit for the main Hyperliquid DEX. Run `mm-dev perps dexs` to see options |
+| `--dex` | No | HIP-3 DEX name; omit for the main Hyperliquid DEX. Run `mm perps dexs` to see options |
 
 ### Example
 
 ```bash
-mm-dev perps markets --venue hyperliquid
-mm-dev perps markets --venue hyperliquid --symbol BTC
-mm-dev perps markets --venue hyperliquid --symbols BTC,ETH,SOL --network testnet
-mm-dev perps markets --venue hyperliquid --dex myDex
+mm perps markets --venue hyperliquid
+mm perps markets --venue hyperliquid --symbol BTC
+mm perps markets --venue hyperliquid --symbols BTC,ETH,SOL --network testnet
+mm perps markets --venue hyperliquid --dex myDex
 ```
 
 ## `perps balance` Command
@@ -49,14 +49,14 @@ Show the connected wallet's perpetual account balances for a venue.
 ### Syntax
 
 ```bash
-mm-dev perps balance [--venue <venue>] [--network <network>]
+mm perps balance [--venue <venue>] [--network <network>]
 ```
 
 ### Example
 
 ```bash
-mm-dev perps balance --venue hyperliquid
-mm-dev perps balance --venue hyperliquid --network testnet
+mm perps balance --venue hyperliquid
+mm perps balance --venue hyperliquid --network testnet
 ```
 
 ## `perps positions` Command
@@ -66,14 +66,14 @@ List open positions for the connected wallet on a venue.
 ### Syntax
 
 ```bash
-mm-dev perps positions [--venue <venue>] [--network <network>]
+mm perps positions [--venue <venue>] [--network <network>]
 ```
 
 ### Example
 
 ```bash
-mm-dev perps positions --venue hyperliquid
-mm-dev perps positions --venue hyperliquid --network testnet
+mm perps positions --venue hyperliquid
+mm perps positions --venue hyperliquid --network testnet
 ```
 
 ## `perps quote` Command
@@ -83,7 +83,7 @@ Estimate entry price, notional, fees, and liquidation price without placing an o
 ### Syntax
 
 ```bash
-mm-dev perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--network <network>]
+mm perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--network <network>]
 ```
 
 ### Supported Flags
@@ -102,8 +102,8 @@ mm-dev perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <siz
 ### Example
 
 ```bash
-mm-dev perps quote --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
-mm-dev perps quote --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
+mm perps quote --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
+mm perps quote --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
 ```
 
 ## `perps open` Command
@@ -113,7 +113,7 @@ Open a new perpetual position by placing an order.
 ### Syntax
 
 ```bash
-mm-dev perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
@@ -136,9 +136,9 @@ mm-dev perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size
 ### Example
 
 ```bash
-mm-dev perps open --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
-mm-dev perps open --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
-mm-dev perps open --venue hyperliquid --symbol BTC --side long --size 0.05 --leverage 3 --dry-run
+mm perps open --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
+mm perps open --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
+mm perps open --venue hyperliquid --symbol BTC --side long --size 0.05 --leverage 3 --dry-run
 ```
 
 ## `perps orders` Command
@@ -148,14 +148,14 @@ List resting orders for the connected wallet on a venue.
 ### Syntax
 
 ```bash
-mm-dev perps orders [--venue <venue>] [--network <network>]
+mm perps orders [--venue <venue>] [--network <network>]
 ```
 
 ### Example
 
 ```bash
-mm-dev perps orders --venue hyperliquid
-mm-dev perps orders --venue hyperliquid --network testnet
+mm perps orders --venue hyperliquid
+mm perps orders --venue hyperliquid --network testnet
 ```
 
 ## `perps close` Command
@@ -165,7 +165,7 @@ Close one position, part of a position, or all open positions.
 ### Syntax
 
 ```bash
-mm-dev perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
@@ -189,10 +189,10 @@ mm-dev perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all]
 ### Example
 
 ```bash
-mm-dev perps close --venue hyperliquid --symbol BTC
-mm-dev perps close --venue hyperliquid --symbol ETH --size 0.5
-mm-dev perps close --venue hyperliquid --all
-mm-dev perps close --venue hyperliquid --symbol BTC --dry-run
+mm perps close --venue hyperliquid --symbol BTC
+mm perps close --venue hyperliquid --symbol ETH --size 0.5
+mm perps close --venue hyperliquid --all
+mm perps close --venue hyperliquid --symbol BTC --dry-run
 ```
 
 ## `perps modify` Command
@@ -202,7 +202,7 @@ Modify leverage, take-profit, or stop-loss for an existing position.
 ### Syntax
 
 ```bash
-mm-dev perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
@@ -226,9 +226,9 @@ mm-dev perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] 
 ### Example
 
 ```bash
-mm-dev perps modify --venue hyperliquid --symbol BTC --leverage 10
-mm-dev perps modify --venue hyperliquid --symbol ETH --tp 3000 --sl 2000
-mm-dev perps modify --venue hyperliquid --symbol BTC --leverage 3 --dry-run
+mm perps modify --venue hyperliquid --symbol BTC --leverage 10
+mm perps modify --venue hyperliquid --symbol ETH --tp 3000 --sl 2000
+mm perps modify --venue hyperliquid --symbol BTC --leverage 3 --dry-run
 ```
 
 ## `perps cancel` Command
@@ -238,14 +238,14 @@ Cancel a resting perps order.
 ### Syntax
 
 ```bash
-mm-dev perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>]
+mm perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--order-id` | Yes | Venue order ID to cancel (positive integer) |
 | `--symbol` | No | Market symbol; speeds up cancel by avoiding an open-order lookup (e.g. BTC, ETH) |
 | `--network` | No | Target network: `mainnet` or `testnet` (defaults to `mainnet`) (allowed: `mainnet`, `testnet`) |
@@ -256,10 +256,10 @@ mm-dev perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--net
 ### Example
 
 ```bash
-mm-dev perps cancel --venue hyperliquid --order-id 12345
-mm-dev perps cancel --venue hyperliquid --order-id 12345 --symbol BTC
-mm-dev perps cancel --venue hyperliquid --order-id 12345 --dry-run
-mm-dev perps cancel --venue hyperliquid --order-id 12345 --yes
+mm perps cancel --venue hyperliquid --order-id 12345
+mm perps cancel --venue hyperliquid --order-id 12345 --symbol BTC
+mm perps cancel --venue hyperliquid --order-id 12345 --dry-run
+mm perps cancel --venue hyperliquid --order-id 12345 --yes
 ```
 
 ## `perps deposit` Command
@@ -269,14 +269,14 @@ Deposit USDC into a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps deposit [--venue <venue>] --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--dry-run] [--password <password>]
+mm perps deposit [--venue <venue>] --amount <amount> [--asset <asset>] [--source-chain <chain>] [--network <network>] [--dry-run] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to deposit (e.g. 100, 50.5) |
 | `--asset` | No | Deposit asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--source-chain` | No | Source chain as a CAIP-2 ID or decimal chain ID (defaults to Arbitrum for the selected network: `eip155:42161` on mainnet, `eip155:421614` on testnet) |
@@ -287,8 +287,8 @@ mm-dev perps deposit [--venue <venue>] --amount <amount> [--asset <asset>] [--so
 ### Example
 
 ```bash
-mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC
-mm-dev perps deposit --venue hyperliquid --amount 100 --asset USDC --dry-run
+mm perps deposit --venue hyperliquid --amount 100 --asset USDC
+mm perps deposit --venue hyperliquid --amount 100 --asset USDC --dry-run
 ```
 
 ## `perps withdraw` Command
@@ -298,14 +298,14 @@ Withdraw USDC from a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps withdraw [--venue <venue>] --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--dry-run] [--include-spot] [--password <password>]
+mm perps withdraw [--venue <venue>] --amount <amount> [--asset <asset>] [--destination <address>] [--network <network>] [--dry-run] [--include-spot] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm-dev perps list-venues` to see options (allowed: `hyperliquid`) |
+| `--venue` | No | Perpetual venue (defaults to `hyperliquid`). Run `mm perps list-venues` to see options (allowed: `hyperliquid`) |
 | `--amount` | Yes | Human-readable USDC amount to withdraw (e.g. 50, 25.5) |
 | `--asset` | No | Withdrawal asset (defaults to `USDC`) (allowed: `USDC`) |
 | `--destination` | No | EVM destination address (defaults to your connected wallet) |
@@ -317,9 +317,9 @@ mm-dev perps withdraw [--venue <venue>] --amount <amount> [--asset <asset>] [--d
 ### Example
 
 ```bash
-mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC
-mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --include-spot
-mm-dev perps withdraw --venue hyperliquid --amount 50 --asset USDC --destination 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
+mm perps withdraw --venue hyperliquid --amount 50 --asset USDC
+mm perps withdraw --venue hyperliquid --amount 50 --asset USDC --include-spot
+mm perps withdraw --venue hyperliquid --amount 50 --asset USDC --destination 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
 ```
 
 ## `perps transfer` Command
@@ -329,7 +329,7 @@ Transfer USDC between spot and perp accounts on a perpetual venue.
 ### Syntax
 
 ```bash
-mm-dev perps transfer [--venue <venue>] --amount <amount> --direction <direction> [--asset <asset>] [--network <network>] [--dry-run] [--password <password>]
+mm perps transfer [--venue <venue>] --amount <amount> --direction <direction> [--asset <asset>] [--network <network>] [--dry-run] [--password <password>]
 ```
 
 ### Supported Flags
@@ -347,8 +347,8 @@ mm-dev perps transfer [--venue <venue>] --amount <amount> --direction <direction
 ### Example
 
 ```bash
-mm-dev perps transfer --venue hyperliquid --amount 100 --direction spot-to-perp --asset USDC
-mm-dev perps transfer --venue hyperliquid --amount 50 --direction perp-to-spot --asset USDC
+mm perps transfer --venue hyperliquid --amount 100 --direction spot-to-perp --asset USDC
+mm perps transfer --venue hyperliquid --amount 50 --direction perp-to-spot --asset USDC
 ```
 
 ## `perps list-venues` Command
@@ -358,7 +358,7 @@ List available perpetual futures venues.
 ### Syntax
 
 ```bash
-mm-dev perps list-venues
+mm perps list-venues
 ```
 
 ### Supported Flags
@@ -368,7 +368,7 @@ This command does not support additional flags beyond output format options.
 ### Example
 
 ```bash
-mm-dev perps list-venues
+mm perps list-venues
 ```
 
 ## `perps dexs` Command
@@ -378,7 +378,7 @@ List available DEX identifiers a venue exposes. For Hyperliquid, this includes t
 ### Syntax
 
 ```bash
-mm-dev perps dexs [--venue <venue>] [--network <network>]
+mm perps dexs [--venue <venue>] [--network <network>]
 ```
 
 ### Supported Flags
@@ -391,9 +391,9 @@ mm-dev perps dexs [--venue <venue>] [--network <network>]
 ### Example
 
 ```bash
-mm-dev perps dexs --venue hyperliquid
+mm perps dexs --venue hyperliquid
 ```
 
 ## Notes
 
-- If the user does not mention a token symbol, use `mm-dev perps markets` to list available markets and confirm the symbol with the user before proceeding.
+- If the user does not mention a token symbol, use `mm perps markets` to list available markets and confirm the symbol with the user before proceeding.

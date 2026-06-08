@@ -9,7 +9,7 @@ Send a raw EVM transaction using the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
+mm wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
 ```
 
 ### Supported Flags
@@ -24,9 +24,9 @@ mm-dev wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--pa
 ### Example
 
 ```bash
-mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}'
-mm-dev wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0x0","data":"0xabcdef"}' --wait
-mm-dev wallet send-transaction --chain-id 1 --payload '...' --toon
+mm wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}'
+mm wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0x0","data":"0xabcdef"}' --wait
+mm wallet send-transaction --chain-id 1 --payload '...' --toon
 ```
 
 ## Transaction Payload
@@ -46,5 +46,5 @@ Optional fields: `gas`, `nonce`, `maxFeePerGas`, `maxPriorityFeePerGas`. The `va
 ## Notes
 
 - If the chain is not mentioned by the user, ask for the chain.
-- When the `data`/calldata is unfamiliar or was not constructed by you, decode it first with `mm-dev decode --payload <0x-calldata>` and confirm the intent before sending. See `references/decode.md`.
+- When the `data`/calldata is unfamiliar or was not constructed by you, decode it first with `mm decode --payload <0x-calldata>` and confirm the intent before sending. See `references/decode.md`.
 - In server-wallet mode, send-transaction returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.

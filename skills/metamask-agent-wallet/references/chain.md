@@ -9,7 +9,7 @@ List all supported EVM blockchain networks (EIP-155).
 ### Syntax
 
 ```bash
-mm-dev chains list [--toon]
+mm chains list [--toon]
 ```
 
 ### Supported Flags
@@ -19,8 +19,8 @@ This command does not support additional flags beyond output format options.
 ### Example
 
 ```bash
-mm-dev chains list
-mm-dev chains list --toon
+mm chains list
+mm chains list --toon
 ```
 
 ## Supported Namespaces

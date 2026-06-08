@@ -9,7 +9,7 @@ Create a new wallet under the authenticated account.
 ### Syntax
 
 ```bash
-mm-dev wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode <mode>] [--password <password>]
+mm wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode <mode>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -24,9 +24,9 @@ mm-dev wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-
 ### Example
 
 ```bash
-mm-dev wallet create --chain-namespace evm
-mm-dev wallet create --chain-namespace evm --name "Trading"
-mm-dev wallet create --chain-namespace evm --name "Fast Trading" --trading-mode beast
+mm wallet create --chain-namespace evm
+mm wallet create --chain-namespace evm --name "Trading"
+mm wallet create --chain-namespace evm --name "Fast Trading" --trading-mode beast
 ```
 
 ## `wallet list` Command
@@ -36,7 +36,7 @@ List all wallets associated with the authenticated account.
 ### Syntax
 
 ```bash
-mm-dev wallet list [--chain-namespace <namespace>] [--toon]
+mm wallet list [--chain-namespace <namespace>] [--toon]
 ```
 
 ### Supported Flags
@@ -48,8 +48,8 @@ mm-dev wallet list [--chain-namespace <namespace>] [--toon]
 ### Example
 
 ```bash
-mm-dev wallet list
-mm-dev wallet list --chain-namespace evm --toon
+mm wallet list
+mm wallet list --chain-namespace evm --toon
 ```
 
 ## `wallet select` Command
@@ -59,7 +59,7 @@ Switch the active wallet used for subsequent commands.
 ### Syntax
 
 ```bash
-mm-dev wallet select [--chain-namespace <namespace>] [--id <id>] [--address <address>] [--name <name>]
+mm wallet select [--chain-namespace <namespace>] [--id <id>] [--address <address>] [--name <name>]
 ```
 
 ### Supported Flags
@@ -74,8 +74,8 @@ mm-dev wallet select [--chain-namespace <namespace>] [--id <id>] [--address <add
 ### Example
 
 ```bash
-mm-dev wallet select --address 0x742d...f2bD18
-mm-dev wallet select --name "Trading"
+mm wallet select --address 0x742d...f2bD18
+mm wallet select --name "Trading"
 ```
 
 ## `wallet show` Command
@@ -85,7 +85,7 @@ Display details for a specific wallet or the currently active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet show [--chain-namespace <namespace>] [--id <id>] [--address <address>] [--name <name>]
+mm wallet show [--chain-namespace <namespace>] [--id <id>] [--address <address>] [--name <name>]
 ```
 
 ### Supported Flags
@@ -100,8 +100,8 @@ mm-dev wallet show [--chain-namespace <namespace>] [--id <id>] [--address <addre
 ### Example
 
 ```bash
-mm-dev wallet show
-mm-dev wallet show --address 0x742d...f2bD18
+mm wallet show
+mm wallet show --address 0x742d...f2bD18
 ```
 
 ## `wallet address` Command
@@ -111,7 +111,7 @@ Print the address of the currently active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet address [--chain-namespace <namespace>]
+mm wallet address [--chain-namespace <namespace>]
 ```
 
 ### Supported Flags
@@ -123,8 +123,8 @@ mm-dev wallet address [--chain-namespace <namespace>]
 ### Example
 
 ```bash
-mm-dev wallet address
-mm-dev wallet address --chain-namespace evm
+mm wallet address
+mm wallet address --chain-namespace evm
 ```
 
 ## `wallet balance` Command
@@ -134,7 +134,7 @@ Show native and token balances for the active wallet.
 ### Syntax
 
 ```bash
-mm-dev wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-id <ids>] [--token-contracts <addresses>]
+mm wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-id <ids>] [--token-contracts <addresses>]
 ```
 
 ### Supported Flags
@@ -142,7 +142,7 @@ mm-dev wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [
 | Name | Required | Description |
 | --- | --- | --- |
 | `--currency` | No | Fiat currency code for price conversion (e.g. usd, eur) |
-| `--chain` | No | Comma-separated chain filters (e.g. `1,137` or `eip155:1`). Run `mm-dev chains list` to see options |
+| `--chain` | No | Comma-separated chain filters (e.g. `1,137` or `eip155:1`). Run `mm chains list` to see options |
 | `--token` | No | Filter by token symbol, contract address, or CAIP-19 asset ID (e.g. USDC, 0xa0b8...) |
 | `--address` | No | Wallet address (0x-prefixed hex) |
 | `--testnet` | No | Read balances via RPC on Arbitrum Sepolia, Amoy, and Sepolia testnets |
@@ -152,10 +152,10 @@ mm-dev wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [
 ### Example
 
 ```bash
-mm-dev wallet balance
-mm-dev wallet balance --chain 8453
-mm-dev wallet balance --token USDC
-mm-dev wallet balance --currency eur
-mm-dev wallet balance --testnet
-mm-dev wallet balance --testnet-chain-id 421614 --token-contracts 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+mm wallet balance
+mm wallet balance --chain 8453
+mm wallet balance --token USDC
+mm wallet balance --currency eur
+mm wallet balance --testnet
+mm wallet balance --testnet-chain-id 421614 --token-contracts 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 ```

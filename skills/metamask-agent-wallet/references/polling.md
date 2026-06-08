@@ -11,7 +11,7 @@ List all pending wallet requests.
 ### Syntax
 
 ```bash
-mm-dev wallet requests list [--sync] [--toon]
+mm wallet requests list [--sync] [--toon]
 ```
 
 ### Supported Flags
@@ -23,8 +23,8 @@ mm-dev wallet requests list [--sync] [--toon]
 ### Example
 
 ```bash
-mm-dev wallet requests list
-mm-dev wallet requests list --no-sync --toon
+mm wallet requests list
+mm wallet requests list --no-sync --toon
 ```
 
 ## `wallet requests watch` Command
@@ -34,7 +34,7 @@ Wait for a specific wallet request to complete by its polling ID. MFA prompts ar
 ### Syntax
 
 ```bash
-mm-dev wallet requests watch <polling-id> [--polling-id <id>] [--toon]
+mm wallet requests watch <polling-id> [--polling-id <id>] [--toon]
 ```
 
 ### Supported Flags
@@ -47,6 +47,6 @@ mm-dev wallet requests watch <polling-id> [--polling-id <id>] [--toon]
 ### Example
 
 ```bash
-mm-dev wallet requests watch abc-123
-mm-dev wallet requests watch --polling-id abc-123 --toon
+mm wallet requests watch abc-123
+mm wallet requests watch --polling-id abc-123 --toon
 ```

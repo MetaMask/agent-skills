@@ -4,12 +4,12 @@ description: Use when the user needs to perform multi-step operations with the M
 license: MIT
 metadata:
   author: metamask
-  version: "1.2.0"
+  version: "2.0.0"
 ---
 
 # MetaMask Agent Workflows
 
-Repeatable multi-step patterns for the `mm-dev` CLI. Load a workflow file when the user's request is a pattern, not a single command.
+Repeatable multi-step patterns for the `mm` CLI. Load a workflow file when the user's request is a pattern, not a single command.
 
 ## Workflow Routing
 
@@ -33,17 +33,17 @@ Always use `--toon` for command output unless the user explicitly requests a dif
 Always run preflight before any CLI operation.
 
 ```bash
-mm-dev auth status
+mm auth status
 ```
 
 If the user is not authenticated, follow `workflows/onboarding.md` for first time setup, or `workflows/login.md` for login.
 
 ## Command Discovery
 
-Before constructing any command, run `mm-dev <command> --help` to confirm the exact flags, syntax, and defaults. Do not guess flags from memory.
+Before constructing any command, run `mm <command> --help` to confirm the exact flags, syntax, and defaults. Do not guess flags from memory.
 
 ## Output Rules
 
 - Route silently. Do not announce which workflow you are loading.
 - Surface errors from commands verbatim. Do not mask or reword them.
-- If a command fails, check `mm-dev <command> --help` and guide from there.
+- If a command fails, check `mm <command> --help` and guide from there.
