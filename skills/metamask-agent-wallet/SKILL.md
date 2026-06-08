@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "1.3.0"
+  version: "2.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
