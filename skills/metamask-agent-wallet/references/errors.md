@@ -143,6 +143,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
 | `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
 | `PREDICT_ERROR` | Generic Predict error |
+| `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
 
 ## Network & Filesystem Errors

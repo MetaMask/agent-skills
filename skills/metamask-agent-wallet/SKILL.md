@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -23,7 +23,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Login in MetaMask Agentic CLI | `mm login` | [auth.md](references/auth.md) |
 | Choose a wallet mode and set up policies | `mm init` | [auth.md](references/auth.md) |
 | Show current init settings | `mm init show` | [auth.md](references/auth.md) |
-| Sign in via QR code (coming soon) | `mm login qr` | [auth.md](references/auth.md) |
+| Sign in via QR code with MetaMask Mobile | `mm login qr` | [auth.md](references/auth.md) |
 | Sign in via Google | `mm login google` | [auth.md](references/auth.md) |
 | Sign in via email OTP | `mm login email` | [auth.md](references/auth.md) |
 | Sign out | `mm logout` | [auth.md](references/auth.md) |
@@ -67,14 +67,24 @@ Match the user's intent to a command and reference file, then read the reference
 | Create or refresh Predict credentials | `mm predict auth` | [predict.md](references/predict.md) |
 | Repair Predict approvals | `mm predict approve` | [predict.md](references/predict.md) |
 | Check Predict back-end status | `mm predict status` | [predict.md](references/predict.md) |
+| Check if Polymarket is geoblocked for your IP | `mm predict geoblock` | [predict.md](references/predict.md) |
 | List prediction markets | `mm predict markets list` | [predict.md](references/predict.md) |
 | Search prediction markets | `mm predict markets search` | [predict.md](references/predict.md) |
 | Inspect a prediction market | `mm predict markets get` | [predict.md](references/predict.md) |
+| List Polymarket events | `mm predict events list` | [predict.md](references/predict.md) |
+| Inspect a Polymarket event | `mm predict events get` | [predict.md](references/predict.md) |
+| List Polymarket event series | `mm predict series list` | [predict.md](references/predict.md) |
+| Inspect a Polymarket event series | `mm predict series get` | [predict.md](references/predict.md) |
+| List Polymarket tags | `mm predict tags list` | [predict.md](references/predict.md) |
+| Inspect a Polymarket tag | `mm predict tags get` | [predict.md](references/predict.md) |
 | Preview a prediction order cost | `mm predict quote` | [predict.md](references/predict.md) |
 | Place a prediction market order | `mm predict place` | [predict.md](references/predict.md) |
 | Cancel prediction orders | `mm predict cancel` | [predict.md](references/predict.md) |
 | View prediction market positions | `mm predict positions` | [predict.md](references/predict.md) |
 | View open prediction orders | `mm predict orders` | [predict.md](references/predict.md) |
+| Show full Predict portfolio snapshot | `mm predict portfolio` | [predict.md](references/predict.md) |
+| List redeemable (winning) positions | `mm predict redeem list` | [predict.md](references/predict.md) |
+| Redeem winning positions | `mm predict redeem` | [predict.md](references/predict.md) |
 | Check Predict deposit wallet balance | `mm predict balance` | [predict.md](references/predict.md) |
 | Fund Predict deposit wallet | `mm predict deposit` | [predict.md](references/predict.md) |
 | Withdraw pUSD from Predict deposit wallet | `mm predict withdraw` | [predict.md](references/predict.md) |
@@ -170,6 +180,7 @@ Do not pass unvalidated user input into any command.
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
 | Predict deposit | Always confirm amount before executing |
 | Predict withdraw | Always confirm amount and recipient (`--to` defaults to owner EOA) before executing |
+| Predict redeem | Always confirm the target (condition ID or `--all`) before executing; `--all` redeems every winning position |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
 | Auth / wallet management | May execute without confirmation, except `reset` which requires explicit user confirmation |
 | Read-only queries | May execute without confirmation |
