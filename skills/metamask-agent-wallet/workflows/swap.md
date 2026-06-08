@@ -15,7 +15,7 @@ Do not skip the quote review step. It is where the user sees output amount, fees
 ## Quote
 
 ```bash
-mm-dev swap quote --from ETH --to USDC --amount 1 --from-chain 1
+mm swap quote --from ETH --to USDC --amount 1 --from-chain 1
 ```
 
 Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.
@@ -26,7 +26,7 @@ Confirm source token, destination token, amount, chain, slippage, expected outpu
 ## Execute
 
 ```bash
-mm-dev swap execute --quote-id "$QUOTE_ID"
+mm swap execute --quote-id "$QUOTE_ID"
 ```
 
 Prefer executing by quote ID. Re-quote-and-execute flags exist, but quote ID execution keeps the reviewed quote tied to the submitted action.
@@ -34,7 +34,7 @@ Prefer executing by quote ID. Re-quote-and-execute flags exist, but quote ID exe
 ## Status
 
 ```bash
-mm-dev swap status --quote-id "$QUOTE_ID"
+mm swap status --quote-id "$QUOTE_ID"
 ```
 
 ## Edge Cases
@@ -43,4 +43,4 @@ mm-dev swap status --quote-id "$QUOTE_ID"
 - Insufficient balance: surface the error verbatim.
 - Slippage exceeded: only increase `--slippage` if the user explicitly accepts more slippage. Always warn the user
   if slippage is increased above 1% that it will affect the minimum received.
-- Missing chain: use `mm-dev chains list` before guessing a chain ID.
+- Missing chain: use `mm chains list` before guessing a chain ID.

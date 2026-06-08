@@ -12,11 +12,11 @@ Reference command syntax in `references/auth.md`.
 
 ## Login
 
-`mm-dev login qr` returns `COMING_SOON`. Use Google or email sign-in.
+`mm login qr` returns `COMING_SOON`. Use Google or email sign-in.
 
 ```bash
-mm-dev login google --no-wait
-mm-dev login email --no-wait
+mm login google --no-wait
+mm login email --no-wait
 ```
 
 Use `--no-wait` for non-interactive environments. The command prints a sign-in URL.
@@ -26,11 +26,11 @@ Use `--no-wait` for non-interactive environments. The command prints a sign-in U
 Once the user completes sign-in, verify with:
 
 ```bash
-mm-dev login --token "<TOKEN>"
+mm login --token "<TOKEN>"
 ```
 
 ## Confirm
 
 ```bash
-mm-dev auth status
+mm auth status
 ```

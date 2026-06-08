@@ -9,7 +9,7 @@ Transfer native currency or ERC-20 tokens to a recipient address.
 ### Syntax
 
 ```bash
-mm-dev transfer --to <address> --amount <value> --chain-id <id> --token <symbol-or-address> [--wait] [--password <password>]
+mm transfer --to <address> --amount <value> --chain-id <id> --token <symbol-or-address> [--wait] [--password <password>]
 ```
 
 ### Supported Flags
@@ -26,13 +26,13 @@ mm-dev transfer --to <address> --amount <value> --chain-id <id> --token <symbol-
 ### Example
 
 ```bash
-mm-dev transfer --to 0x742d...f2bD18 --amount 0.5 --chain-id 1 --token ETH
-mm-dev transfer --to 0x742d...f2bD18 --amount 100 --chain-id 137 --token USDC
-mm-dev transfer --to 0x742d...f2bD18 --amount 1.0 --chain-id 1 --token ETH --toon
+mm transfer --to 0x742d...f2bD18 --amount 0.5 --chain-id 1 --token ETH
+mm transfer --to 0x742d...f2bD18 --amount 100 --chain-id 137 --token USDC
+mm transfer --to 0x742d...f2bD18 --amount 1.0 --chain-id 1 --token ETH --toon
 ```
 
 ## Notes
 
 - If the chain is not mentioned by the user, ask for the chain.
-- Use `mm-dev chains list` to discover supported chain IDs.
+- Use `mm chains list` to discover supported chain IDs.
 - In server-wallet mode, transfer returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.

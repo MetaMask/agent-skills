@@ -15,20 +15,20 @@ Reference command syntax in `references/auth.md` and `references/wallet.md`.
 ## Check CLI Installation
 
 ```bash
-mm-dev --version
+mm --version
 ```
 
 If this fails, the CLI is not installed. Guide the user to install it before proceeding.
 
 ## Login Flow
 
-Ask the user which login method they want to use: Google or Email. QR login is coming soon (`mm-dev login qr` returns `COMING_SOON`).
+Ask the user which login method they want to use: Google or Email. QR login is coming soon (`mm login qr` returns `COMING_SOON`).
 
 ### Login
 
 ```bash
-mm-dev login google --no-wait
-mm-dev login email --no-wait
+mm login google --no-wait
+mm login email --no-wait
 ```
 
 Use `--no-wait` for non-interactive environments. The command prints a sign-in URL.
@@ -38,7 +38,7 @@ Use `--no-wait` for non-interactive environments. The command prints a sign-in U
 Once the user completes sign-in, verify with:
 
 ```bash
-mm-dev login --token "<TOKEN>"
+mm login --token "<TOKEN>"
 ```
 
 ## Initialize Project
@@ -46,7 +46,7 @@ mm-dev login --token "<TOKEN>"
 First check if the project is already initialized:
 
 ```bash
-mm-dev init show
+mm init show
 ```
 
 If already initialized, skip this step. Otherwise, ask the user which wallet mode they want:
@@ -60,7 +60,7 @@ Ask the user which trading mode they want (server-wallet only):
 Server wallet:
 
 ```bash
-mm-dev init --wallet server-wallet --mode guard
+mm init --wallet server-wallet --mode guard
 ```
 
 BYOK:
@@ -69,7 +69,7 @@ Never pass `--mnemonic` or `--password` as inline flags. Always instruct the use
 
 ```bash
 export MM_MNEMONIC="word1 word2 ..."
-mm-dev init --wallet byok
+mm init --wallet byok
 ```
 
 If the user wants to encrypt their mnemonic with a password during init:
@@ -77,13 +77,13 @@ If the user wants to encrypt their mnemonic with a password during init:
 ```bash
 export MM_MNEMONIC="word1 word2 ..."
 export MM_PASSWORD="mypassword"
-mm-dev init --wallet byok
+mm init --wallet byok
 ```
 
 If the mnemonic was stored unencrypted, suggest setting a password afterward:
 
 ```bash
-mm-dev wallet password set
+mm wallet password set
 ```
 
 Once the mnemonic is encrypted, all subsequent operations that need the private key require the `MM_PASSWORD` environment variable to be set. Never instruct the user to pass `--password` inline.
@@ -91,7 +91,7 @@ Once the mnemonic is encrypted, all subsequent operations that need the private 
 ## Verify Auth Status
 
 ```bash
-mm-dev auth status
+mm auth status
 ```
 
 Confirm the session is authenticated, the wallet mode is correct, and the token is valid.
@@ -99,5 +99,5 @@ Confirm the session is authenticated, the wallet mode is correct, and the token 
 ## Show Wallet Address
 
 ```bash
-mm-dev wallet address
+mm wallet address
 ```

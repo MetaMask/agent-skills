@@ -9,10 +9,10 @@ Decode hex-encoded EVM calldata into its function name, parameters, and a plain-
 ### Syntax
 
 ```bash
-mm-dev decode --payload <0x-calldata> [--toon]
+mm decode --payload <0x-calldata> [--toon]
 ```
 
-The payload can also be passed positionally: `mm-dev decode <0x-calldata>`.
+The payload can also be passed positionally: `mm decode <0x-calldata>`.
 
 ### Supported Flags
 
@@ -31,11 +31,11 @@ The payload can also be passed positionally: `mm-dev decode <0x-calldata>`.
 ### Example
 
 ```bash
-mm-dev decode --payload 0x095ea7b3000000000000000000000000...
-mm-dev decode 0x095ea7b3000000000000000000000000... --toon
+mm decode --payload 0x095ea7b3000000000000000000000000...
+mm decode 0x095ea7b3000000000000000000000000... --toon
 ```
 
 ## Notes
 
-- Use this before `mm-dev wallet send-transaction` whenever the calldata is unfamiliar or was not constructed by you, to confirm what the transaction actually does.
+- Use this before `mm wallet send-transaction` whenever the calldata is unfamiliar or was not constructed by you, to confirm what the transaction actually does.
 - If the selector is not recognized, `intent` falls back to `Call unknown function`. Treat unrecognized calldata as higher risk and warn the user before proceeding.

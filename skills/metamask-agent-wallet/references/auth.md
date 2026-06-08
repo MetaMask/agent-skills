@@ -4,12 +4,12 @@ Use these commands to initialize wallet mode, sign in, inspect authentication st
 
 ## `init` Command
 
-Initialize the project by selecting wallet mode and trading mode. Requires an authenticated session — run `mm-dev login` first.
+Initialize the project by selecting wallet mode and trading mode. Requires an authenticated session — run `mm login` first.
 
 ### Syntax
 
 ```bash
-mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <password>]
+mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -24,14 +24,14 @@ mm-dev init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password 
 ### Example
 
 ```bash
-mm-dev init
-mm-dev init --wallet server-wallet --mode beast
+mm init
+mm init --wallet server-wallet --mode beast
 export MM_MNEMONIC="word1 word2 ..."
-mm-dev init --wallet byok
+mm init --wallet byok
 
 export MM_MNEMONIC="word1 word2 ..."
 export MM_PASSWORD="mypassword"
-mm-dev init --wallet byok
+mm init --wallet byok
 ```
 
 ## `init show` Command
@@ -41,7 +41,7 @@ Display the current initialization settings (wallet mode, trading mode, policies
 ### Syntax
 
 ```bash
-mm-dev init show
+mm init show
 ```
 
 ### Supported Flags
@@ -51,17 +51,17 @@ This command does not support additional flags beyond output format options.
 ### Example
 
 ```bash
-mm-dev init show
+mm init show
 ```
 
 ## `login` Command
 
-Sign in to the CLI. On a TTY, bare `mm-dev login` shows a method picker (QR, Google, or email). QR is recommended but not auto-selected.
+Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (QR, Google, or email). QR is recommended but not auto-selected.
 
 ### Syntax
 
 ```bash
-mm-dev login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no-wait]
+mm login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no-wait]
 ```
 
 ### Supported Flags
@@ -70,24 +70,24 @@ mm-dev login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no
 | --- | --- | --- |
 | `--token` | No | Pre-minted CLI token in `cliToken:cliRefreshToken` format [env: `MM_CLI_TOKEN`] |
 | `--timeout` | No | Seconds to wait for QR or browser callback |
-| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login. Complete later with `mm-dev login --token` |
+| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login. Complete later with `mm login --token` |
 
 ### Example
 
 ```bash
-mm-dev login --no-wait
-mm-dev login google --no-wait
-mm-dev login email --no-wait
-mm-dev login --token "cliToken:cliRefreshToken"
+mm login --no-wait
+mm login google --no-wait
+mm login email --no-wait
+mm login --token "cliToken:cliRefreshToken"
 ```
 
 ### Note
 
-- If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm-dev logout` first, then log in again.
-- `mm-dev login qr` returns `COMING_SOON`. Use Google or email sign-in instead.
+- If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
+- `mm login qr` returns `COMING_SOON`. Use Google or email sign-in instead.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
-- Use `mm-dev login google --no-wait` or `mm-dev login email --no-wait` for non-interactive/CI flows. Bare `mm-dev login --no-wait` fails without a TTY because no method is selected.
-- `--no-wait` is not supported with QR login. Complete authentication later with `mm-dev login --token`.
+- Use `mm login google --no-wait` or `mm login email --no-wait` for non-interactive/CI flows. Bare `mm login --no-wait` fails without a TTY because no method is selected.
+- `--no-wait` is not supported with QR login. Complete authentication later with `mm login --token`.
 
 ## `auth status` Command
 
@@ -96,7 +96,7 @@ Show the current authentication status.
 ### Syntax
 
 ```bash
-mm-dev auth status [--toon]
+mm auth status [--toon]
 ```
 
 ### Supported Flags
@@ -106,8 +106,8 @@ This command does not support additional flags beyond output format options.
 ### Example
 
 ```bash
-mm-dev auth status
-mm-dev auth status --toon
+mm auth status
+mm auth status --toon
 ```
 
 ## `logout` Command
@@ -117,7 +117,7 @@ Sign out and clear auth credentials plus local init state, wallet selection, and
 ### Syntax
 
 ```bash
-mm-dev logout
+mm logout
 ```
 
 ### Supported Flags
@@ -127,7 +127,7 @@ This command does not support flags.
 ### Example
 
 ```bash
-mm-dev logout
+mm logout
 ```
 
 ## `reset` Command
@@ -137,7 +137,7 @@ Clear the local CLI session entirely.
 ### Syntax
 
 ```bash
-mm-dev reset
+mm reset
 ```
 
 ### Supported Flags
@@ -147,7 +147,7 @@ This command does not support flags.
 ### Example
 
 ```bash
-mm-dev reset
+mm reset
 ```
 
 ## `wallet password set` Command
@@ -157,7 +157,7 @@ Set a password to encrypt the BYOK mnemonic at rest. Only available in BYOK mode
 ### Syntax
 
 ```bash
-mm-dev wallet password set [--new <password>]
+mm wallet password set [--new <password>]
 ```
 
 ### Supported Flags
@@ -169,8 +169,8 @@ mm-dev wallet password set [--new <password>]
 ### Example
 
 ```bash
-mm-dev wallet password set
-mm-dev wallet password set --new "mypassword"
+mm wallet password set
+mm wallet password set --new "mypassword"
 ```
 
 ## `wallet password change` Command
@@ -180,7 +180,7 @@ Change the BYOK mnemonic encryption password. Only available when the mnemonic i
 ### Syntax
 
 ```bash
-mm-dev wallet password change [--current <password>] [--new <password>]
+mm wallet password change [--current <password>] [--new <password>]
 ```
 
 ### Supported Flags
@@ -193,8 +193,8 @@ mm-dev wallet password change [--current <password>] [--new <password>]
 ### Example
 
 ```bash
-mm-dev wallet password change
-mm-dev wallet password change --current "oldpassword" --new "newpassword"
+mm wallet password change
+mm wallet password change --current "oldpassword" --new "newpassword"
 ```
 
 ## `wallet password remove` Command
@@ -204,7 +204,7 @@ Remove the BYOK mnemonic encryption password, storing the mnemonic as plaintext.
 ### Syntax
 
 ```bash
-mm-dev wallet password remove [--current <password>]
+mm wallet password remove [--current <password>]
 ```
 
 ### Supported Flags
@@ -216,8 +216,8 @@ mm-dev wallet password remove [--current <password>]
 ### Example
 
 ```bash
-mm-dev wallet password remove
-mm-dev wallet password remove --current "mypassword"
+mm wallet password remove
+mm wallet password remove --current "mypassword"
 ```
 
 ## Wallet Modes

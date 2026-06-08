@@ -6,7 +6,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 
 | Code | Meaning |
 | --- | --- |
-| `ALREADY_AUTHENTICATED` | Valid session already exists; run `mm-dev logout` before logging in again |
+| `ALREADY_AUTHENTICATED` | Valid session already exists; run `mm logout` before logging in again |
 | `AUTH_FAILED` | Authentication failed (includes missing refresh token cases) |
 | `AUTH_ERROR` | Generic authentication error (includes missing auth token cases) |
 | `TOKEN_INVALID` | Invalid CLI token, token pair, or project ID |
@@ -72,13 +72,13 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `ABORTED` | Operation aborted by user |
-| `NOT_INITIALIZED` | Project not initialized — run `mm-dev init` |
+| `NOT_INITIALIZED` | Project not initialized — run `mm init` |
 | `NO_MNEMONIC` | Mnemonic not stored |
 | `NO_TTY` | No TTY available for interactive prompts |
 | `MISSING_ID` | Missing ID parameter |
 | `MISSING_QUOTE_ID` | Missing quote ID |
 | `MISSING_SWAP_PARAMS` | Missing swap parameters |
-| `COMING_SOON` | Feature not yet available (e.g. `mm-dev login qr`) |
+| `COMING_SOON` | Feature not yet available (e.g. `mm login qr`) |
 
 ## Swap & Bridge Errors
 

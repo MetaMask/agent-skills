@@ -9,19 +9,19 @@ Reference command syntax in `../references/predict.md`.
 Choose the Predict mode, run setup, and check backend status:
 
 ```bash
-mm-dev predict mode mainnet
-mm-dev predict setup --wait
-mm-dev predict status
+mm predict mode mainnet
+mm predict setup --wait
+mm predict status
 ```
 
-`predict setup --wait` blocks until credential, deposit-wallet, and approval jobs complete. Without `--wait`, watch returned jobs with `mm-dev predict watch`.
+`predict setup --wait` blocks until credential, deposit-wallet, and approval jobs complete. Without `--wait`, watch returned jobs with `mm predict watch`.
 
 If setup or approvals look stale later:
 
 ```bash
-mm-dev predict auth --refresh
-mm-dev predict approve --wait
-mm-dev predict balance --sync
+mm predict auth --refresh
+mm predict approve --wait
+mm predict balance --sync
 ```
 
 `predict setup` and `predict deposit` use `--wait`; do not add `--yes` to those commands.
@@ -31,13 +31,13 @@ mm-dev predict balance --sync
 Check deposit wallet status:
 
 ```bash
-mm-dev predict balance --sync
+mm predict balance --sync
 ```
 
 Fund pUSD:
 
 ```bash
-mm-dev predict deposit --amount 100 --wait --json
+mm predict deposit --amount 100 --wait --json
 ```
 
 `--amount` is in pUSD. The owner EOA needs enough Polygon USDC and POL for gas to complete the deposit transaction.
@@ -47,14 +47,14 @@ mm-dev predict deposit --amount 100 --wait --json
 Check balance first:
 
 ```bash
-mm-dev predict balance --sync
+mm predict balance --sync
 ```
 
 Withdraw pUSD to the owner EOA (default) or a specified address:
 
 ```bash
-mm-dev predict withdraw --amount 50 --wait
-mm-dev predict withdraw --amount 10 --to 0xRecipient... --wait
+mm predict withdraw --amount 50 --wait
+mm predict withdraw --amount 10 --to 0xRecipient... --wait
 ```
 
 The CLI validates the amount against the on-chain deposit wallet balance before signing. Confirm amount and recipient with the user before executing.
@@ -64,8 +64,8 @@ The CLI validates the amount against the on-chain deposit wallet balance before 
 Search can return loosely related markets, so inspect the selected market before quoting:
 
 ```bash
-mm-dev predict markets search "Knicks NBA Finals" --limit 5 --json
-mm-dev predict markets get will-the-new-york-knicks-win-the-2026-nba-finals --json
+mm predict markets search "Knicks NBA Finals" --limit 5 --json
+mm predict markets get will-the-new-york-knicks-win-the-2026-nba-finals --json
 ```
 
 The market detail prints outcome token IDs. Outcome token IDs are not market IDs; use the token ID for `quote`, `place`, `book`, and `balance --token-id`.
@@ -73,7 +73,7 @@ The market detail prints outcome token IDs. Outcome token IDs are not market IDs
 If search is noisy, list active markets and filter manually:
 
 ```bash
-mm-dev predict markets list --active --limit 50 --json
+mm predict markets list --active --limit 50 --json
 ```
 
 ## Quote, Then Place
@@ -81,7 +81,7 @@ mm-dev predict markets list --active --limit 50 --json
 Preview the order cost and fill before placing:
 
 ```bash
-mm-dev predict quote \
+mm predict quote \
   --token-id <outcomeTokenId> \
   --side buy --size 100 --limit-price 0.55
 ```
@@ -89,7 +89,7 @@ mm-dev predict quote \
 After the user confirms token ID, outcome, side, size, price, and order type:
 
 ```bash
-mm-dev predict place \
+mm predict place \
   --token-id <outcomeTokenId> \
   --side buy --size 100 --price 0.55 \
   --order-type GTC
@@ -100,14 +100,14 @@ mm-dev predict place \
 ## Manage Orders and Positions
 
 ```bash
-mm-dev predict orders
-mm-dev predict orders --market <condition-id>
-mm-dev predict positions
-mm-dev predict positions --market <condition-id>
-mm-dev predict cancel --order-id <order-id>
-mm-dev predict cancel --market <condition-id>
-mm-dev predict cancel --asset <outcomeTokenId>
-mm-dev predict cancel --all
+mm predict orders
+mm predict orders --market <condition-id>
+mm predict positions
+mm predict positions --market <condition-id>
+mm predict cancel --order-id <order-id>
+mm predict cancel --market <condition-id>
+mm predict cancel --asset <outcomeTokenId>
+mm predict cancel --all
 ```
 
 `predict cancel --all` cancels every open order. Require explicit confirmation.
@@ -115,7 +115,7 @@ mm-dev predict cancel --all
 ## Watch Async Jobs
 
 ```bash
-mm-dev predict watch --id <job-id> --wait
+mm predict watch --id <job-id> --wait
 ```
 
 Use this for setup, approve, deposit, withdraw, and order jobs that have not reached a terminal state.
@@ -123,5 +123,5 @@ Use this for setup, approve, deposit, withdraw, and order jobs that have not rea
 ## Safety Notes
 
 - Prices are 0-1 floats. Treat `--price 1` as suspicious unless the user explicitly confirms.
-- Trades are signed by the deposit wallet address shown by `mm-dev predict balance`, not necessarily the connected owner EOA.
+- Trades are signed by the deposit wallet address shown by `mm predict balance`, not necessarily the connected owner EOA.
 - Always inspect the market to map the user's intended outcome to the correct token ID.
