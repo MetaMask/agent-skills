@@ -1,6 +1,6 @@
 # MetaMask Agent CLI Skills
 
-SKILLs for the MetaMask Agent CLI. These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, and more using the MetaMask Agent CLI.
+SKILLs for the MetaMask Agent CLI (`@metamask/agentic-cli` v1.0.0). These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, and more using the MetaMask Agent CLI.
 
 ## Skills
 

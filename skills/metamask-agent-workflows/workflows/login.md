@@ -6,9 +6,10 @@ Reference command syntax in `references/auth.md`.
 
 ## Flow
 
-1. Ask the user which login method they want: MetaMask Mobile QR, Google, or Email.
-2. Execute login.
-3. Verify with token.
+1. Confirm the target environment with `mm config get env` (set with `mm config set env` before login if not `prod`).
+2. Ask the user which login method they want: MetaMask Mobile QR, Google, or Email.
+3. Execute login.
+4. Verify with token.
 
 ## Login
 
