@@ -34,7 +34,7 @@ mm config set env dev
 
 For a one-off override without persisting, use `MM_ENV=dev mm login` (or `uat`).
 
-To switch environments after a prior login, run `mm logout` or `mm reset` first, then `mm config set env`.
+To switch environments, run `mm config set env <prod|dev|uat>`.
 
 ## Login Flow
 

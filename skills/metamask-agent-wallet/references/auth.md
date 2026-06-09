@@ -179,6 +179,16 @@ mm config set <env|verbose|format> <value>
 | `verbose` | `true` or `false` |
 | `format` | `json`, `text`, `yaml`, `toml`, or `toon` |
 
+### Overrides
+
+Persisted values can be overridden per invocation without changing `~/.metamask/config.json`:
+
+| Key | Override |
+| --- | --- |
+| `env` | `MM_ENV` environment variable |
+| `verbose` | `--verbose` / `-v` flag |
+| `format` | `--format`, `--json`, `--toon`, etc. |
+
 ### Example
 
 ```bash
@@ -190,8 +200,7 @@ mm config set format toon
 
 ### Note
 
-- Set the target environment **before** signing in. To switch environments after login, run `mm logout` or `mm reset` first, then `mm config set env`.
-- `MM_ENV=prod|dev|uat` overrides the persisted environment for a single invocation (useful in CI).
+- Switch environments at any time with `mm config set env <prod|dev|uat>`.
 - Non-prod sessions are stored in env-scoped files under `~/.metamask/` (e.g. `session.dev.json`, `session.uat.json`); prod uses `session.json`.
 
 ## `reset` Command
