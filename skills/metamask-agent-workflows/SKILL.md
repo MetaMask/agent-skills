@@ -4,7 +4,8 @@ description: Use when the user needs to perform multi-step operations with the M
 license: MIT
 metadata:
   author: metamask
-  version: "2.0.0"
+  version: "2.1.0"
+  cliVersion: "1.0.0"
 ---
 
 # MetaMask Agent Workflows
@@ -37,7 +38,29 @@ Always use `--toon` for command output unless the user explicitly requests a dif
 
 ## Preflight
 
-Always run preflight before any CLI operation.
+Run these checks before the first CLI operation in a session, in order.
+
+### 1. Version compatibility
+
+This skill is written for `@metamask/agentic-cli` **v1.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
+
+```bash
+mm --version
+```
+
+The installed version is the value after `@metamask/agentic-cli/` (e.g. `@metamask/agentic-cli/1.0.0 darwin-arm64 node-v24.14.1`). Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort; skip silently on network failure):
+
+```bash
+npm view @metamask/agentic-cli version
+```
+
+If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
+
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `1.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+
+Run this check once per session. Do not block operations on it.
+
+### 2. Authentication
 
 ```bash
 mm auth status

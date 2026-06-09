@@ -7,10 +7,11 @@ Reference command syntax in `references/auth.md` and `references/wallet.md`.
 ## Flow
 
 1. Check CLI installation.
-2. Login.
-3. Initialize wallet mode.
-4. Verify auth status.
-5. Show wallet address.
+2. Configure environment (if not using production).
+3. Login.
+4. Initialize wallet mode.
+5. Verify auth status.
+6. Show wallet address.
 
 ## Check CLI Installation
 
@@ -18,7 +19,22 @@ Reference command syntax in `references/auth.md` and `references/wallet.md`.
 mm --version
 ```
 
-If this fails, the CLI is not installed. Guide the user to install it before proceeding.
+If this fails, the CLI is not installed. Guide the user to install it with `npm install -g @metamask/agentic-cli@latest` before proceeding.
+
+Then run the version compatibility check from the skill `Preflight` section: compare the installed `major.minor` against the pinned `cliVersion` and the latest published release, and warn the user if they are out of sync.
+
+## Configure Environment
+
+Production (`prod`) is the default. Set the target environment **before** login if the user needs dev or uat:
+
+```bash
+mm config get env
+mm config set env dev
+```
+
+For a one-off override without persisting, use `MM_ENV=dev mm login` (or `uat`).
+
+To switch environments, run `mm config set env <prod|dev|uat>`.
 
 ## Login Flow
 
@@ -49,7 +65,11 @@ First check if the project is already initialized:
 mm init show
 ```
 
-If already initialized, skip this step. Otherwise, ask the user which wallet mode they want:
+If already initialized, skip this step.
+
+For server-wallet mode, if the account already has a remote wallet, `mm init` syncs it and reuses the existing trading mode — no trading-mode prompt.
+
+Otherwise, ask the user which wallet mode they want:
 - `server-wallet` (recommended) — keys are hosted by MetaMask infrastructure. No need to manage private keys or mnemonics.
 - `byok` — bring your own mnemonic. The user manages their own keys locally.
 
