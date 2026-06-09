@@ -78,7 +78,9 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_ID` | Missing ID parameter |
 | `MISSING_QUOTE_ID` | Missing quote ID |
 | `MISSING_SWAP_PARAMS` | Missing swap parameters |
-| `COMING_SOON` | Feature not yet available (e.g. `mm login qr`) |
+| `COMING_SOON` | Feature not yet available (e.g. `mm login qr` on production) |
+| `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
+| `INVALID_CONFIG_VALUE` | Invalid value for a config key (e.g. env not in `prod|dev|uat`) |
 
 ## Swap & Bridge Errors
 

@@ -34,6 +34,10 @@ export MM_PASSWORD="mypassword"
 mm init --wallet byok
 ```
 
+### Note
+
+- In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode and policies instead of prompting for a new trading mode or creating a wallet.
+
 ## `init show` Command
 
 Display the current initialization settings (wallet mode, trading mode, policies).
@@ -130,9 +134,78 @@ This command does not support flags.
 mm logout
 ```
 
+## `config get` Command
+
+Show persisted CLI configuration. Does not require authentication.
+
+### Syntax
+
+```bash
+mm config get [env|verbose|format]
+```
+
+### Supported Keys
+
+| Key | Description |
+| --- | --- |
+| `env` | Target API environment: `prod`, `dev`, or `uat` (defaults to `prod` when unset) |
+| `verbose` | Whether verbose logging is persisted (`true` or `false`) |
+| `format` | Default output format: `json`, `text`, `yaml`, `toml`, or `toon` |
+
+Omit the key to return all values.
+
+### Example
+
+```bash
+mm config get
+mm config get env
+```
+
+## `config set` Command
+
+Persist a CLI configuration value in `~/.metamask/config.json`. Does not require authentication.
+
+### Syntax
+
+```bash
+mm config set <env|verbose|format> <value>
+```
+
+### Supported Keys
+
+| Key | Values |
+| --- | --- |
+| `env` | `prod`, `dev`, or `uat` |
+| `verbose` | `true` or `false` |
+| `format` | `json`, `text`, `yaml`, `toml`, or `toon` |
+
+### Overrides
+
+Persisted values can be overridden per invocation without changing `~/.metamask/config.json`:
+
+| Key | Override |
+| --- | --- |
+| `env` | `MM_ENV` environment variable |
+| `verbose` | `--verbose` / `-v` flag |
+| `format` | `--format`, `--json`, `--toon`, etc. |
+
+### Example
+
+```bash
+mm config set env prod
+mm config set env dev
+mm config set env uat
+mm config set format toon
+```
+
+### Note
+
+- Switch environments at any time with `mm config set env <prod|dev|uat>`.
+- Non-prod sessions are stored in env-scoped files under `~/.metamask/` (e.g. `session.dev.json`, `session.uat.json`); prod uses `session.json`.
+
 ## `reset` Command
 
-Clear the local CLI session entirely.
+Clear the local CLI session entirely, including auth credentials, wallet state, mnemonic, swap quotes, and persisted config.
 
 ### Syntax
 
