@@ -16,6 +16,12 @@ mm predict status
 
 `predict setup --wait` blocks until credential, deposit-wallet, and approval jobs complete. Without `--wait`, watch returned jobs with `mm predict watch`.
 
+Polymarket is geoblocked in some regions. `mm predict setup` checks the caller's IP first and aborts with `PREDICT_GEOBLOCKED` before any wallet interaction if the region is restricted. To check region status independently, run:
+
+```bash
+mm predict geoblock
+```
+
 If setup or approvals look stale later:
 
 ```bash
@@ -76,6 +82,17 @@ If search is noisy, list active markets and filter manually:
 mm predict markets list --active --limit 50 --json
 ```
 
+To browse by topic, use events, series, and tags. Resolve a tag slug or ID first, then filter:
+
+```bash
+mm predict tags list --limit 50 --json
+mm predict events list --tag-slug sports --active --limit 10 --json
+mm predict events get <event-slug-or-id> --json
+mm predict series list --recurrence weekly --limit 10 --json
+```
+
+These browse-only commands do not return outcome token IDs. Drill into a specific market with `mm predict markets get <slug>` before quoting or placing.
+
 ## Quote, Then Place
 
 Preview the order cost and fill before placing:
@@ -112,13 +129,31 @@ mm predict cancel --all
 
 `predict cancel --all` cancels every open order. Require explicit confirmation.
 
+## Portfolio and Redeeming Winnings
+
+Get a single snapshot of balance, open positions, and redeemable winnings:
+
+```bash
+mm predict portfolio --json
+```
+
+After a market resolves, list and claim winning positions:
+
+```bash
+mm predict redeem list --json
+mm predict redeem <condition-id> --wait
+mm predict redeem --all --wait
+```
+
+`predict redeem --all` redeems every winning position. Confirm the target (condition ID or `--all`) with the user before executing. With `--wait`, the CLI polls for the redemption transaction receipt.
+
 ## Watch Async Jobs
 
 ```bash
 mm predict watch --id <job-id> --wait
 ```
 
-Use this for setup, approve, deposit, withdraw, and order jobs that have not reached a terminal state.
+Use this for setup, approve, deposit, withdraw, redeem, and order jobs that have not reached a terminal state.
 
 ## Safety Notes
 

@@ -22,7 +22,7 @@ If this fails, the CLI is not installed. Guide the user to install it before pro
 
 ## Login Flow
 
-Ask the user which login method they want to use: Google or Email. QR login is coming soon (`mm login qr` returns `COMING_SOON`).
+Ask the user which login method they want to use: MetaMask Mobile QR, Google, or Email. QR (`mm login qr`) is available on non-production builds (dev/uat); on production it returns `COMING_SOON`, so fall back to Google or email there.
 
 ### Login
 

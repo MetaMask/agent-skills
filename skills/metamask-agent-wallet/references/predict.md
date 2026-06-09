@@ -106,6 +106,22 @@ mm predict status
 mm predict status
 ```
 
+## `predict geoblock` Command
+
+Check whether Polymarket access is geoblocked for your current IP. Returns `blocked`, `ip`, `country`, and `region`.
+
+### Syntax
+
+```bash
+mm predict geoblock
+```
+
+### Example
+
+```bash
+mm predict geoblock
+```
+
 ## `predict markets list` Command
 
 List tradeable Predict markets with Gamma-style filters.
@@ -197,6 +213,160 @@ mm predict markets get <market> [--market <market>]
 ```bash
 mm predict markets get will-the-new-york-knicks-win-the-2026-nba-finals
 mm predict markets get 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb0ccdb2d37
+```
+
+## `predict events list` Command
+
+List Polymarket events (groupings of related markets) with Gamma-style filters.
+
+### Syntax
+
+```bash
+mm predict events list [--tag-slug <slug>] [--tag-id <n>] [--active] [--closed] [--featured] [--order <field>] [--ascending] [--liquidity-min <n>] [--start-date-min <datetime>] [--start-date-max <datetime>] [--end-date-min <datetime>] [--end-date-max <datetime>] [--limit <n>] [--offset <n>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--tag-slug` | No | Filter by tag slug (e.g. sports, politics) |
+| `--tag-id` | No | Filter by tag ID (from `mm predict tags list`) |
+| `--active` | No | Active events only |
+| `--closed` | No | Include closed/resolved events |
+| `--featured` | No | Only featured/trending events |
+| `--order` | No | Sort field: `volume_24hr`, `volume`, `liquidity`, `start_date`, `end_date` |
+| `--ascending` | No | Sort ascending (defaults to descending) |
+| `--liquidity-min` | No | Minimum event liquidity |
+| `--start-date-min` | No | Minimum event start date-time |
+| `--start-date-max` | No | Maximum event start date-time |
+| `--end-date-min` | No | Minimum event end date-time |
+| `--end-date-max` | No | Maximum event end date-time |
+| `--limit` | No | Maximum events to return, 1-500 |
+| `--offset` | No | Result offset (0-based) |
+
+### Example
+
+```bash
+mm predict events list --tag-slug sports --limit 10
+mm predict events list --active --featured
+```
+
+## `predict events get` Command
+
+Inspect a single Polymarket event by slug or ID.
+
+### Syntax
+
+```bash
+mm predict events get <event>
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<event>` | Yes | Event slug or ID (positional) |
+
+### Example
+
+```bash
+mm predict events get some-event-slug
+```
+
+## `predict series list` Command
+
+List Polymarket event series (recurring groupings of events).
+
+### Syntax
+
+```bash
+mm predict series list [--recurrence <recurrence>] [--active] [--featured] [--tag-slug <slug>] [--limit <n>] [--offset <n>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--recurrence` | No | Filter by recurrence: `annual`, `daily`, `weekly`, or `monthly` |
+| `--active` | No | Active series only |
+| `--featured` | No | Only featured series |
+| `--tag-slug` | No | Filter by tag slug |
+| `--limit` | No | Maximum series to return, 1-500 |
+| `--offset` | No | Result offset (0-based) |
+
+### Example
+
+```bash
+mm predict series list --recurrence weekly --limit 10
+```
+
+## `predict series get` Command
+
+Inspect a single event series by ID.
+
+### Syntax
+
+```bash
+mm predict series get <id>
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<id>` | Yes | Series ID (positional) |
+
+### Example
+
+```bash
+mm predict series get 12345
+```
+
+## `predict tags list` Command
+
+List Polymarket tags, useful for `--tag-slug` / `--tag-id` filters on events and markets.
+
+### Syntax
+
+```bash
+mm predict tags list [--limit <n>] [--offset <n>] [--is-carousel]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--limit` | No | Maximum tags to return, 1-500 |
+| `--offset` | No | Result offset (0-based) |
+| `--is-carousel` | No | Only carousel tags |
+
+### Example
+
+```bash
+mm predict tags list --limit 50
+```
+
+## `predict tags get` Command
+
+Fetch a single Polymarket tag by numeric ID or slug.
+
+### Syntax
+
+```bash
+mm predict tags get <tag>
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<tag>` | Yes | Tag ID (integer) or slug string (positional) |
+
+### Example
+
+```bash
+mm predict tags get sports
+mm predict tags get 100
 ```
 
 ## `predict quote` Command
@@ -321,6 +491,80 @@ mm predict positions [--market <id>] [--password <password>]
 ```bash
 mm predict positions
 mm predict positions --market <condition-id>
+```
+
+## `predict portfolio` Command
+
+Full portfolio snapshot: deposit wallet pUSD balance, open positions with estimated value, and outstanding redeemable winnings.
+
+### Syntax
+
+```bash
+mm predict portfolio [--password <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+
+### Example
+
+```bash
+mm predict portfolio
+```
+
+## `predict redeem list` Command
+
+List all redeemable (winning) positions in your deposit wallet, with position size and market question.
+
+### Syntax
+
+```bash
+mm predict redeem list [--password <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+
+### Example
+
+```bash
+mm predict redeem list
+```
+
+## `predict redeem` Command
+
+Redeem winning tokens after market resolution. Redeem one position by condition ID, or all redeemable positions with `--all`. With `--wait`, polls for the transaction receipt.
+
+### Syntax
+
+```bash
+mm predict redeem [<condition-id>] [--all] [--wait] [--password <password>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<condition-id>` | Yes (unless `--all`) | Market condition ID to redeem (positional) |
+| `--all` | No | Redeem all redeemable positions |
+| `--wait` | No | Block until the redemption transaction is confirmed |
+| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+
+### Validation Rules
+
+- Provide either a `<condition-id>` or `--all`, not both.
+
+### Example
+
+```bash
+mm predict redeem 0xABC123... --wait
+mm predict redeem --all --wait
 ```
 
 ## `predict orders` Command
@@ -475,9 +719,12 @@ mm predict watch --id <job-id> --wait
 ## Notes
 
 - Before trading, run `mm predict setup --wait` to initialize credentials, deploy the deposit wallet, and set approvals.
+- `mm predict setup` aborts early with `PREDICT_GEOBLOCKED` if your IP resolves to a restricted region, before any wallet interaction. Use `mm predict geoblock` to check region status without running setup.
 - Use `mm predict markets get <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
+- Use `mm predict events`, `mm predict series`, and `mm predict tags` to browse Polymarket content; tag slugs/IDs from `mm predict tags list` feed the `--tag-slug` / `--tag-id` filters on `events` and `markets`.
+- After a market resolves, use `mm predict redeem list` to see winnings and `mm predict redeem <condition-id> --wait` (or `--all`) to claim them. `mm predict portfolio` shows balance, open positions, and redeemable winnings in one snapshot.
 - Prices are per-share and must be in the range [0, 1].
 - Side must be `buy` or `sell`.
 - The `predict mode` command switches between `mainnet` and `testnet`.
 - If the user does not specify a mode, the CLI uses the previously set mode.
-- Setup, approve, deposit, withdraw, and order flows can return job IDs. Track them with `mm predict watch <job-id> --wait`.
+- Setup, approve, deposit, withdraw, redeem, and order flows can return job IDs. Track them with `mm predict watch <job-id> --wait`.

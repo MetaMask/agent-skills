@@ -56,7 +56,7 @@ mm init show
 
 ## `login` Command
 
-Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (QR, Google, or email). QR is recommended but not auto-selected.
+Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (MetaMask Mobile QR, Google, or email). QR is recommended but not auto-selected.
 
 ### Syntax
 
@@ -84,7 +84,7 @@ mm login --token "cliToken:cliRefreshToken"
 ### Note
 
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
-- `mm login qr` returns `COMING_SOON`. Use Google or email sign-in instead.
+- `mm login qr` (scan with MetaMask Mobile) is available on non-production builds (dev/uat). On production it returns `COMING_SOON`; use Google or email sign-in instead.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
 - Use `mm login google --no-wait` or `mm login email --no-wait` for non-interactive/CI flows. Bare `mm login --no-wait` fails without a TTY because no method is selected.
 - `--no-wait` is not supported with QR login. Complete authentication later with `mm login --token`.
