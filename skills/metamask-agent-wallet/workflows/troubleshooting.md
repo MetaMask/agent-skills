@@ -8,6 +8,7 @@ Run or suggest these in order:
 
 ```bash
 mm --version
+mm config get env
 mm auth status
 mm <failing-command> --help
 ```
@@ -20,7 +21,7 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | --- | --- | --- |
 | `mm: command not found` | Binary not installed or not on `PATH` | Check install and PATH |
 | Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch --polling-id <id>` |
-| Auth errors after previously working | Expired token or wrong environment | Check `mm auth status` and environment/session file |
+| Auth errors after previously working | Expired token or wrong environment | Check `mm config get env`, `mm auth status`, and the env-scoped session file under `~/.metamask/` |
 | `CHAIN_ID_MISMATCH` on typed data | Payload `domain.chainId` differs from `--chain-id` | Align the two chain IDs |
 | `MNEMONIC_LOCKED` or `WRONG_PASSWORD` | BYOK mnemonic is encrypted and password was wrong or missing | Set the correct `MM_PASSWORD` environment variable and re-run |
 | `ALREADY_ENCRYPTED` on `wallet password set` | Mnemonic already has a password | Use `mm wallet password change` instead |

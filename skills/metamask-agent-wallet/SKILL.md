@@ -4,7 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "2.1.0"
+  version: "2.2.0"
+  cliVersion: "1.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -28,6 +29,8 @@ Match the user's intent to a command and reference file, then read the reference
 | Sign in via email OTP | `mm login email` | [auth.md](references/auth.md) |
 | Sign out | `mm logout` | [auth.md](references/auth.md) |
 | Reset CLI session | `mm reset` | [auth.md](references/auth.md) |
+| Show CLI configuration | `mm config get` | [auth.md](references/auth.md) |
+| Set CLI configuration | `mm config set` | [auth.md](references/auth.md) |
 | Set BYOK mnemonic encryption password | `mm wallet password set` | [auth.md](references/auth.md) |
 | Change BYOK mnemonic encryption password | `mm wallet password change` | [auth.md](references/auth.md) |
 | Remove BYOK mnemonic encryption password | `mm wallet password remove` | [auth.md](references/auth.md) |
@@ -127,7 +130,29 @@ Always use `--toon` for command output unless the user explicitly requests a dif
 
 ## Preflight
 
-Always run preflight before any CLI operation.
+Run these checks before the first CLI operation in a session, in order.
+
+### 1. Version compatibility
+
+This skill is written for `@metamask/agentic-cli` **v1.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
+
+```bash
+mm --version
+```
+
+The installed version is the value after `@metamask/agentic-cli/` (e.g. `@metamask/agentic-cli/1.0.0 darwin-arm64 node-v24.14.1`). Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort; skip silently on network failure):
+
+```bash
+npm view @metamask/agentic-cli version
+```
+
+If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
+
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `1.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+
+Run this check once per session. Do not block operations on it.
+
+### 2. Authentication
 
 ```bash
 mm auth status
