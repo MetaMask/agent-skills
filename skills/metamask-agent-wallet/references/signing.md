@@ -53,7 +53,7 @@ mm wallet sign-typed-data --chain-id <id> --payload '<JSON>' [--wait] [--passwor
 
 ```bash
 mm wallet sign-typed-data --chain-id 1 --payload '{"types":...,"primaryType":...,"domain":...,"message":...}'
-mm wallet sign-typed-data --chain-id 137 --payload '{"types":...}' --wait --intent "Approve USDC spending"
+mm wallet sign-typed-data --chain-id 137 --payload '{"types":...}' --wait --intent "Approve 10 USDC"
 ```
 
 ## EIP-712 Typed Data

@@ -31,10 +31,10 @@ Aave V3 doesn't accept native ETH on most markets. If the reserve accepts native
 Check that the user has sufficient funds:
 
 ```bash
-mm wallet balance --chain-id <CHAIN_ID> --token <ASSET_SYMBOL_OR_ADDRESS>
+mm wallet balance --chain <CHAIN_ID>
 ```
 
-If the balance is insufficient, tell the user and stop.
+If the user doesn't have enough of the supply token or native gas token, check balances on other chains. If the user has assets on the same chain, prompt them to swap. If the user has assets on another chain, prompt them to bridge to the target chain before proceeding.
 
 ## Query supply transaction
 

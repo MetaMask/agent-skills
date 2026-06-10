@@ -25,7 +25,7 @@ mm wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--passwo
 ### Example
 
 ```bash
-mm wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}' --intent "Send 1 ETH to alice.eth"
+mm wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}' --intent "Send 1 ETH to 0x742d...f2bD18"
 mm wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0x0","data":"0xabcdef"}' --wait
 mm wallet send-transaction --chain-id 1 --payload '...' --toon
 ```
