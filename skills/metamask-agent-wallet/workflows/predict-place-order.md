@@ -66,6 +66,7 @@ mm predict place \
 
 ## Safety notes
 
+- Placing orders between a market's end date and its final UMA resolution carries major financial risk. Prices during this window don't reflect true odds and arbitrage strategies can fail if UMA resolves unexpectedly. If the order creation time is after the market end date but before UMA resolution, warn the user about potential financial loss and get explicit confirmation before proceeding.
 - Prices are 0-1 floats. Treat `--price 1` as suspicious unless the user explicitly confirms.
 - Trades are signed by the deposit wallet address from `mm predict status`, not the connected owner EOA.
 - Always inspect the market to map the user's intended outcome to the correct token ID.
