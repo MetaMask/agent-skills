@@ -20,8 +20,8 @@ mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-
 | `--to` | Yes | Destination token symbol (e.g. USDC, USDT) |
 | `--amount` | Yes | Human-readable amount to swap (e.g. 0.5, 100) |
 | `--from-chain` | Yes | Source EVM chain ID (e.g. 1 for Ethereum, 137 for Polygon) |
-| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
-| `--to-address` | No | Recipient address for swapped/bridged output tokens; defaults to the signer's wallet |
+| `--to-chain` | No | Destination EVM chain ID. Defaults to `--from-chain` for same-chain swaps |
+| `--to-address` | No | Recipient address for bridged output tokens. Only valid for cross-chain swaps. Defaults to the signer's wallet |
 | `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
 
 ### Example
@@ -54,8 +54,8 @@ mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chai
 | `--to` | Yes (unless `--quote-id`) | Destination token symbol |
 | `--amount` | Yes (unless `--quote-id`) | Amount to swap |
 | `--from-chain` | Yes (unless `--quote-id`) | Source EVM chain ID |
-| `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
-| `--to-address` | No | Recipient address for swapped/bridged output tokens; defaults to the signer's wallet. Persisted quotes retain the recipient for `--quote-id` execution |
+| `--to-chain` | No | Destination EVM chain ID. Defaults to `--from-chain` for same-chain swaps |
+| `--to-address` | No | Recipient address for bridged output tokens. Only valid for cross-chain swaps. Defaults to the signer's wallet. Persisted quotes retain the recipient for `--quote-id` execution |
 | `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
@@ -87,7 +87,7 @@ mm swap status --quote-id <id> [--tx-hash <hash>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--quote-id` | Yes | Quote ID returned by `mm swap quote` |
-| `--tx-hash` | No | Source transaction hash; overrides the stored hash from execute |
+| `--tx-hash` | No | Source transaction hash. Overrides the stored hash from execute |
 
 ### Example
 
@@ -102,7 +102,6 @@ mm swap status --quote-id <quote-id> --tx-hash 0xabc...123
 - Use `mm chains list` to discover supported chain IDs.
 - Same-chain swap: omit `--to-chain` (it defaults to `--from-chain`).
 - Cross-chain bridge: set `--to-chain` to a different chain than `--from-chain`. The CLI automatically routes through a bridge.
-- `--to-address` is only valid for cross-chain swaps. The CLI rejects `--to-address` for same-chain swaps; output always goes to the signer's wallet on the source chain.
 - The typical flow is: `mm swap quote` to preview, then `mm swap execute --quote-id <id>` to submit.
 - You can skip the quote step by passing all swap parameters directly to `mm swap execute`.
 - Use `mm swap status --quote-id <id>` to track progress after execution.
