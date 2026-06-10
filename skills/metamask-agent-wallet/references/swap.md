@@ -9,7 +9,7 @@ Get a swap or bridge quote showing expected output, fees, and route.
 ### Syntax
 
 ```bash
-mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>]
+mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--to-address <address>] [--slippage <percent>]
 ```
 
 ### Supported Flags
@@ -21,6 +21,7 @@ mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-
 | `--amount` | Yes | Human-readable amount to swap (e.g. 0.5, 100) |
 | `--from-chain` | Yes | Source EVM chain ID (e.g. 1 for Ethereum, 137 for Polygon) |
 | `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
+| `--to-address` | No | Recipient address for swapped/bridged output tokens; defaults to the signer's wallet |
 | `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
 
 ### Example
@@ -30,6 +31,7 @@ mm swap quote --from ETH --to USDC --amount 0.5 --from-chain 1
 mm swap quote --from USDC --to USDT --amount 100 --from-chain 137
 mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137
 mm swap quote --from ETH --to USDC --amount 0.5 --from-chain 1 --slippage 1
+mm swap quote --from ETH --to pUSD --amount 0.5 --from-chain 1 --to-chain 137 --to-address 0x742d...f2bD18
 ```
 
 ## `swap execute` Command
@@ -40,7 +42,7 @@ Execute a swap or bridge, either by referencing a previous quote ID or by provid
 
 ```bash
 mm swap execute --quote-id <id> [--password <password>]
-mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>] [--password <password>]
+mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--to-address <address>] [--slippage <percent>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -53,6 +55,7 @@ mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chai
 | `--amount` | Yes (unless `--quote-id`) | Amount to swap |
 | `--from-chain` | Yes (unless `--quote-id`) | Source EVM chain ID |
 | `--to-chain` | No | Destination EVM chain ID; defaults to `--from-chain` for same-chain swaps |
+| `--to-address` | No | Recipient address for swapped/bridged output tokens; defaults to the signer's wallet. Persisted quotes retain the recipient for `--quote-id` execution |
 | `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 

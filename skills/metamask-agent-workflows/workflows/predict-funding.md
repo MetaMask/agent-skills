@@ -17,51 +17,58 @@ mm predict balance --sync
 
 ## Deposit
 
-If the user doesn't specify an amount, ask how much they want to deposit. Then check the user's Polygon balance for USDC.e and POL.
+If the user doesn't specify an amount, ask how much they want to deposit. Get the deposit wallet address from `mm predict balance --sync`, then check the user's Polygon balance.
 
 ```bash
 mm wallet balance --chain 137
 ```
 
-### No POL and no USDC.e
+### Has POL and pUSD on Polygon
 
-Tell the user to acquire POL on Polygon first. Without POL, no on-chain transaction is possible. Check if the user has tokens on another chain to bridge POL from.
-
-```bash
-mm swap quote --from <TOKEN> --to POL --amount 1 --from-chain <SOURCE_CHAIN_ID> --to-chain 137
-```
-
-Once the user has POL, swap to USDC.e.
+Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed.
 
 ```bash
-mm swap quote --from POL --to USDC.e --amount <AMOUNT> --from-chain 137
+mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token pUSD --wait
 ```
 
-### Has POL but not enough to swap for USDC.e
+Get the deposit wallet address from the `mm predict balance` output.
 
-If the user's POL balance is too low for a swap, bridge USDC.e from another chain.
+### Has POL and USDC.e on Polygon
 
-```bash
-mm swap quote --from <TOKEN> --to USDC.e --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 137
-```
-
-### Has enough POL or other tokens on Polygon
-
-Swap directly into USDC.e.
-
-```bash
-mm swap quote --from <TOKEN> --to USDC.e --amount <AMOUNT> --from-chain 137
-```
-
-After the bridge or swap completes, re-check the balance before proceeding.
-
-### Execute deposit
+Run `mm predict deposit`. The CLI converts USDC.e to pUSD in the deposit wallet.
 
 ```bash
 mm predict deposit --amount <AMOUNT> --wait
 ```
 
-`--amount` is in USDC.e. The CLI converts USDC.e to pUSD in the deposit wallet upon deposit. The owner EOA needs enough USDC.e on Polygon and POL for gas to complete the transaction.
+`--amount` is in USDC.e. The owner EOA needs enough USDC.e and POL for gas on Polygon.
+
+### Has POL or another token on Polygon (but no USDC.e or pUSD)
+
+Swap to USDC.e on Polygon, then deposit.
+
+```bash
+mm swap quote --from <TOKEN> --to USDC.e --amount <AMOUNT> --from-chain 137
+mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
+```
+
+After the swap completes, deposit:
+
+```bash
+mm predict deposit --amount <AMOUNT> --wait
+```
+
+### Has assets on another chain
+
+Bridge to send pUSD directly to the deposit wallet address on Polygon.
+
+```bash
+mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 137 --to-address <DEPOSIT_WALLET_ADDRESS>
+mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
+```
+
+Get the deposit wallet address from the `mm predict balance` output. This avoids the extra deposit step.
+
 
 ## Withdraw
 
