@@ -25,10 +25,10 @@ mm wallet balance --chain 137
 
 ### Has POL and pUSD on Polygon
 
-Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed.
+Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed. The `--token` flag requires the pUSD contract address (not the symbol). Get it from `mm wallet balance --chain 137` output.
 
 ```bash
-mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token pUSD --wait
+mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token <PUSD_CONTRACT_ADDRESS> --wait
 ```
 
 Get the deposit wallet address from the `mm predict status` output.
