@@ -163,7 +163,7 @@ mm config get env
 
 ## `config set` Command
 
-Persist a CLI configuration value in `~/.metamask/config.json`. Does not require authentication.
+Persist a CLI configuration value in `~/.metamask/config.json`. Does not require authentication. If the user is logged in, they must log out first with `mm logout` before changing the config.
 
 ### Syntax
 

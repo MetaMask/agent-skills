@@ -9,7 +9,7 @@ Reference command syntax in `references/predict.md`.
 Get a single snapshot of balance, open positions, and redeemable winnings:
 
 ```bash
-mm predict portfolio --json
+mm predict portfolio --toon
 ```
 
 ## Redeem winnings
@@ -17,7 +17,7 @@ mm predict portfolio --json
 After a market resolves, list and claim winning positions:
 
 ```bash
-mm predict redeem list --json
+mm predict redeem list --toon
 ```
 
 Redeem a single position:

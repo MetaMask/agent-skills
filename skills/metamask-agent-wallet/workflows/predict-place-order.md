@@ -6,16 +6,27 @@ Reference command syntax in `references/predict.md`.
 
 ## Flow
 
-1. Inspect the market to get the outcome token ID.
-2. Quote the order.
-3. Confirm with the user and place.
+1. Check setup and balance.
+2. Inspect the market to get the outcome token ID.
+3. Quote the order.
+4. Confirm with the user and place.
+
+## Check setup and balance
+
+```bash
+mm predict balance --sync
+```
+
+If this returns `PREDICT_SETUP_REQUIRED`, follow `predict-setup.md` to run first-time setup. Then re-run `mm predict balance --sync`.
+
+If the balance is zero or insufficient for the order, follow `predict-funding.md` to deposit funds.
 
 ## Get outcome token ID
 
 If the user hasn't already identified the market, follow `predict-markets.md` to find and inspect it.
 
 ```bash
-mm predict markets get <MARKET_SLUG_OR_ID> --json
+mm predict markets get <MARKET_SLUG_OR_ID> --toon
 ```
 
 Map the user's intended outcome to the correct token ID from the market detail.
