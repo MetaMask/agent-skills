@@ -1,6 +1,6 @@
 ---
 name: metamask-agent-workflows
-description: Use when the user needs to perform multi-step operations with the MetaMask Agentic CLI such as onboarding, login, swapping tokens, bridging across chains, opening/closing/modifying perpetual positions, prediction market trading, or troubleshooting CLI issues.
+description: Use when the user needs to perform multi-step operations with the MetaMask Agentic CLI such as onboarding, login, swapping tokens, bridging across chains, opening/closing/modifying perpetual positions, prediction market trading, Aave V3 lending and borrowing, or troubleshooting CLI issues.
 license: MIT
 metadata:
   author: metamask
@@ -31,6 +31,13 @@ Repeatable multi-step patterns for the `mm` CLI. Load a workflow file when the u
 | View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
 | View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
+| Supply assets to Aave V3 | [aave-supply.md](workflows/aave-supply.md) |
+| Withdraw assets from Aave V3 | [aave-withdraw.md](workflows/aave-withdraw.md) |
+| Borrow from Aave V3 | [aave-borrow.md](workflows/aave-borrow.md) |
+| Repay Aave V3 debt | [aave-repay.md](workflows/aave-repay.md) |
+| Toggle Aave V3 collateral | [aave-collateral.md](workflows/aave-collateral.md) |
+| Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
+| Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
 
 Always use `--toon` for command output unless the user explicitly requests a different format.
 

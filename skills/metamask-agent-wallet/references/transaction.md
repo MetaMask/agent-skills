@@ -19,12 +19,13 @@ mm wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--passwo
 | `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
 | `--payload` | Yes | Transaction as a JSON string with at least a `to` address (e.g. `'{"to":"0x...","value":"0x0"}'}`) |
 | `--wait` | No | Block until the transaction completes (server-wallet mode only; BYOK returns immediately) |
+| `--intent` | No | Human-readable summary of what the transaction does, forwarded with the request |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
 ```bash
-mm wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}'
+mm wallet send-transaction --chain-id 1 --payload '{"to":"0x742d...","value":"0xde0b6b3a7640000","data":"0x"}' --intent "Send 1 ETH to 0x742d...f2bD18"
 mm wallet send-transaction --chain-id 1 --payload '{"to":"0x...","value":"0x0","data":"0xabcdef"}' --wait
 mm wallet send-transaction --chain-id 1 --payload '...' --toon
 ```

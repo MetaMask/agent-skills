@@ -1,6 +1,6 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, or authentication via the MetaMask Agentic CLI. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, Aave V3 lending and borrowing, or authentication via the MetaMask Agentic CLI. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
@@ -121,6 +121,13 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
 | View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
+| Supply assets to Aave V3 | [aave-supply.md](workflows/aave-supply.md) |
+| Withdraw assets from Aave V3 | [aave-withdraw.md](workflows/aave-withdraw.md) |
+| Borrow from Aave V3 | [aave-borrow.md](workflows/aave-borrow.md) |
+| Repay Aave V3 debt | [aave-repay.md](workflows/aave-repay.md) |
+| Toggle Aave V3 collateral | [aave-collateral.md](workflows/aave-collateral.md) |
+| Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
+| Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
 
 ## Global Flags
 

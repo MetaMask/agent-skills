@@ -46,13 +46,14 @@ mm wallet sign-typed-data --chain-id <id> --payload '<JSON>' [--wait] [--passwor
 | `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
 | `--payload` | Yes | EIP-712 typed data as a JSON string with `domain`, `types`, `primaryType`, and `message` |
 | `--wait` | No | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
+| `--intent` | No | Human-readable summary of what is being signed, forwarded with the request |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
 
 ```bash
 mm wallet sign-typed-data --chain-id 1 --payload '{"types":...,"primaryType":...,"domain":...,"message":...}'
-mm wallet sign-typed-data --chain-id 137 --payload '{"types":...}' --wait
+mm wallet sign-typed-data --chain-id 137 --payload '{"types":...}' --wait --intent "Approve 10 USDC"
 ```
 
 ## EIP-712 Typed Data
