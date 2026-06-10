@@ -42,6 +42,8 @@ Match the user's intent to a command and reference file, then read the reference
 | Show active wallet details | `mm wallet show` | [wallet.md](references/wallet.md) |
 | Show active wallet address | `mm wallet address` | [wallet.md](references/wallet.md) |
 | Check the active wallet balance | `mm wallet balance` | [wallet.md](references/wallet.md) |
+| Show current trading mode and policies | `mm wallet trading-mode get` | [wallet.md](references/wallet.md) |
+| Set trading mode (guard or beast) | `mm wallet trading-mode set` | [wallet.md](references/wallet.md) |
 | Sign a plaintext message | `mm wallet sign-message` | [signing.md](references/signing.md) |
 | Sign EIP-712 typed data | `mm wallet sign-typed-data` | [signing.md](references/signing.md) |
 | Send a raw EVM transaction | `mm wallet send-transaction` | [transaction.md](references/transaction.md) |
@@ -69,7 +71,7 @@ Match the user's intent to a command and reference file, then read the reference
 | One-time Predict setup | `mm predict setup` | [predict.md](references/predict.md) |
 | Create or refresh Predict credentials | `mm predict auth` | [predict.md](references/predict.md) |
 | Repair Predict approvals | `mm predict approve` | [predict.md](references/predict.md) |
-| Check Predict back-end status | `mm predict status` | [predict.md](references/predict.md) |
+| Check Predict back-end status and account setup | `mm predict status` | [predict.md](references/predict.md) |
 | Check if Polymarket is geoblocked for your IP | `mm predict geoblock` | [predict.md](references/predict.md) |
 | List prediction markets | `mm predict markets list` | [predict.md](references/predict.md) |
 | Search prediction markets | `mm predict markets search` | [predict.md](references/predict.md) |
@@ -192,6 +194,7 @@ Before constructing any command, validate all user-provided values:
 | `--side` (predict) | Must be `buy` or `sell` |
 | `--slippage` | Must be a number between 0 and 100 |
 | `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
+| `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain` differs from `--from-chain`); rejected for same-chain swaps |
 | `--password` | Must be a non-empty string. Never log, display, or store the value. |
 
 Do not pass unvalidated user input into any command.
@@ -204,7 +207,7 @@ Do not pass unvalidated user input into any command.
 | Raw transactions | Always confirm transaction payload, chain, recipient, value, and calldata summary before executing |
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
-| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, and quoted output before executing |
+| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, and recipient address (if `--to-address` is set) before executing |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |

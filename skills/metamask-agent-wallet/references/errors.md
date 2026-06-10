@@ -66,6 +66,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `NO_AUTH_TOKEN` | Missing authentication token for wallet operations |
 | `NO_PROJECT_ID` | Project ID not configured for wallet |
 | `MISSING_PROJECT_ID` | Project ID is not configured |
+| `INVALID_TRADING_MODE` | Invalid trading mode; use `guard` or `beast` |
+| `ALREADY_SET_TRADING_MODE` | Trading mode is already set to the requested value |
 
 ## Command Errors
 

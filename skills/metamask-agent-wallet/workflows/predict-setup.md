@@ -36,16 +36,19 @@ mm predict geoblock
 
 ## Verify status
 
+Confirm `setupComplete` is `true` and note the deposit wallet address:
+
 ```bash
 mm predict status
 ```
 
 ## Refresh credentials or approvals
 
-If setup or approvals look stale later:
+If credentials or approvals look stale later:
 
 ```bash
 mm predict auth --refresh
 mm predict approve --wait
-mm predict balance --sync
 ```
+
+Then verify with `mm predict status`.

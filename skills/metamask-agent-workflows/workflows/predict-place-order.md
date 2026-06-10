@@ -13,13 +13,21 @@ Reference command syntax in `references/predict.md`.
 
 ## Check setup and balance
 
+Verify that Predict is fully set up and get the deposit wallet address:
+
+```bash
+mm predict status
+```
+
+Check `setupComplete` is `true`. If not, follow `predict-setup.md` to run first-time setup.
+
+Then check the deposit wallet balance:
+
 ```bash
 mm predict balance --sync
 ```
 
-If this returns `PREDICT_SETUP_REQUIRED`, follow `predict-setup.md` to run first-time setup. Then re-run `mm predict balance --sync`.
-
-If the balance is zero or insufficient for the order, follow `predict-funding.md` to deposit funds.
+If the balance is zero or insufficient for the order, follow `predict-funding.md` to deposit funds. Use the deposit wallet address from `mm predict status` when funding.
 
 ## Get outcome token ID
 
@@ -59,5 +67,5 @@ mm predict place \
 ## Safety notes
 
 - Prices are 0-1 floats. Treat `--price 1` as suspicious unless the user explicitly confirms.
-- Trades are signed by the deposit wallet address shown by `mm predict balance`, not necessarily the connected owner EOA.
+- Trades are signed by the deposit wallet address from `mm predict status`, not the connected owner EOA.
 - Always inspect the market to map the user's intended outcome to the correct token ID.

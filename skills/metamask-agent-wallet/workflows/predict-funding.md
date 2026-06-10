@@ -17,7 +17,7 @@ mm predict balance --sync
 
 ## Deposit
 
-If the user doesn't specify an amount, ask how much they want to deposit. Get the deposit wallet address from `mm predict balance --sync`, then check the user's Polygon balance.
+If the user doesn't specify an amount, ask how much they want to deposit. Get the deposit wallet address from `mm predict status`, then check the user's Polygon balance.
 
 ```bash
 mm wallet balance --chain 137
@@ -31,7 +31,7 @@ Use `mm transfer` to send pUSD directly to the deposit wallet address. No conver
 mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token pUSD --wait
 ```
 
-Get the deposit wallet address from the `mm predict balance` output.
+Get the deposit wallet address from the `mm predict status` output.
 
 ### Has POL and USDC.e on Polygon
 
@@ -67,7 +67,7 @@ mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain <SOURCE_CH
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 
-Get the deposit wallet address from the `mm predict balance` output. This avoids the extra deposit step.
+Get the deposit wallet address from the `mm predict status` output. This avoids the extra deposit step.
 
 
 ## Withdraw

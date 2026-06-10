@@ -102,6 +102,7 @@ mm swap status --quote-id <quote-id> --tx-hash 0xabc...123
 - Use `mm chains list` to discover supported chain IDs.
 - Same-chain swap: omit `--to-chain` (it defaults to `--from-chain`).
 - Cross-chain bridge: set `--to-chain` to a different chain than `--from-chain`. The CLI automatically routes through a bridge.
+- `--to-address` is only valid for cross-chain swaps. The CLI rejects `--to-address` for same-chain swaps; output always goes to the signer's wallet on the source chain.
 - The typical flow is: `mm swap quote` to preview, then `mm swap execute --quote-id <id>` to submit.
 - You can skip the quote step by passing all swap parameters directly to `mm swap execute`.
 - Use `mm swap status --quote-id <id>` to track progress after execution.

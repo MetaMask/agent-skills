@@ -20,14 +20,10 @@ mm swap quote --from ETH --to USDC --amount 1 --from-chain 1
 
 Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.
 
-If the user wants the output tokens sent to a different wallet, add `--to-address`:
-
-```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-address 0x742d...f2bD18
-```
+`--to-address` isn't supported for same-chain swaps. Output always goes to the signer's wallet.
 
 Persist the quote id for execution. Show the quote to the user before execution.
-Confirm source token, destination token, amount, chain, slippage, expected output, fees, route, and recipient address (if `--to-address` was set).
+Confirm source token, destination token, amount, chain, slippage, expected output, fees, and route.
 
 ## Execute
 

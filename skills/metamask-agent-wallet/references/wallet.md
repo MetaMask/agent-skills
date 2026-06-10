@@ -18,7 +18,7 @@ mm wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode
 | --- | --- | --- |
 | `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
 | `--name` | No | Display name for the wallet |
-| `--trading-mode` | No | Trading mode for server wallets: `guard` (enforces outflow/whitelist policies) or `beast` (skips policy checks). Only applies to server-wallet mode (allowed: `guard`, `beast`) |
+| `--trading-mode` | No | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions. Only applies to server-wallet mode (allowed: `guard`, `beast`) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -125,6 +125,45 @@ mm wallet address [--chain-namespace <namespace>]
 ```bash
 mm wallet address
 mm wallet address --chain-namespace evm
+```
+
+## `wallet trading-mode get` Command
+
+Show the current trading mode, active server-wallet address, and policies for the selected wallet. Server-wallet mode only.
+
+### Syntax
+
+```bash
+mm wallet trading-mode get
+```
+
+### Example
+
+```bash
+mm wallet trading-mode get
+```
+
+## `wallet trading-mode set` Command
+
+Set the trading mode for the active server wallet. Prompts for confirmation when switching to Beast mode. Rejects if the mode is already set or the session isn't in server-wallet mode.
+
+### Syntax
+
+```bash
+mm wallet trading-mode set <guard|beast>
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<mode>` | Yes | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions |
+
+### Example
+
+```bash
+mm wallet trading-mode set guard
+mm wallet trading-mode set beast
 ```
 
 ## `wallet balance` Command
