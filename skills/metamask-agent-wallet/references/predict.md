@@ -92,7 +92,7 @@ mm predict approve --wait
 
 ## `predict status` Command
 
-Probe Predict back-end reachability (Gamma + CLOB).
+Probe Predict back-end reachability (Gamma + CLOB) and report account setup status: deposit wallet address, on-chain deployment, stored CLOB credentials, and a `setupComplete` flag. 
 
 ### Syntax
 
