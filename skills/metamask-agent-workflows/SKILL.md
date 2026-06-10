@@ -24,7 +24,12 @@ Repeatable multi-step patterns for the `mm` CLI. Load a workflow file when the u
 | Open a perpetual position flow | [perps-open-position.md](workflows/perps-open-position.md) |
 | Close a perpetual position flow | [perps-close-position.md](workflows/perps-close-position.md) |
 | Modify a perpetual position flow | [perps-modify-position.md](workflows/perps-modify-position.md) |
-| Predict setup-fund-quote-place flow | [predict-trading.md](workflows/predict-trading.md) |
+| Predict first-time setup and credentials | [predict-setup.md](workflows/predict-setup.md) |
+| Deposit or withdraw pUSD from Predict wallet | [predict-funding.md](workflows/predict-funding.md) |
+| Search and browse prediction markets | [predict-markets.md](workflows/predict-markets.md) |
+| Quote and place a prediction order | [predict-place-order.md](workflows/predict-place-order.md) |
+| View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
+| View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
 | Supply assets to Aave V3 | [aave-supply.md](workflows/aave-supply.md) |
 | Withdraw assets from Aave V3 | [aave-withdraw.md](workflows/aave-withdraw.md) |

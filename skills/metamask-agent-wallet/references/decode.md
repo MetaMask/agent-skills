@@ -12,13 +12,11 @@ Decode hex-encoded EVM calldata into its function name, parameters, and a plain-
 mm decode --payload <0x-calldata> [--toon]
 ```
 
-The payload can also be passed positionally: `mm decode <0x-calldata>`.
-
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--payload` | Yes | Hex-encoded EVM calldata to decode (e.g. `0x095ea7b3...`). Positional index 0 |
+| `--payload` | Yes | Hex-encoded EVM calldata to decode (e.g. `0x095ea7b3...`). |
 
 ### Output
 
@@ -31,8 +29,7 @@ The payload can also be passed positionally: `mm decode <0x-calldata>`.
 ### Example
 
 ```bash
-mm decode --payload 0x095ea7b3000000000000000000000000...
-mm decode 0x095ea7b3000000000000000000000000... --toon
+mm decode --payload 0x095ea7b3000000000000000000000000... --toon
 ```
 
 ## Notes
