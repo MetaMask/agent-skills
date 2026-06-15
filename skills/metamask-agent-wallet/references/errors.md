@@ -74,7 +74,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `ABORTED` | Operation aborted by user |
-| `NOT_INITIALIZED` | Project not initialized — run `mm init` |
+| `NOT_INITIALIZED` | Project not initialized. Run `mm init` |
 | `NO_MNEMONIC` | Mnemonic not stored |
 | `NO_TTY` | No TTY available for interactive prompts |
 | `MISSING_ID` | Missing ID parameter |
@@ -149,6 +149,12 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_ERROR` | Generic Predict error |
 | `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
+
+## Transaction History Errors
+
+| Code | Meaning |
+| --- | --- |
+| `NO_HISTORY_WALLETS` | No EVM wallets found in roster for transaction history |
 
 ## Network & Filesystem Errors
 

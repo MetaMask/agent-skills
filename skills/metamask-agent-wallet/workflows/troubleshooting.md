@@ -4,7 +4,13 @@ Use this workflow when a command fails, hangs, prompts unexpectedly, or behaves 
 
 ## Universal Triage
 
-Run or suggest these in order:
+Run `mm doctor` first to inspect CLI version, skills, environment, and session health in one shot:
+
+```bash
+mm doctor
+```
+
+If you need more detail, run these in order:
 
 ```bash
 mm --version

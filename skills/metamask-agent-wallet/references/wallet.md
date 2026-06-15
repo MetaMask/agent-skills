@@ -127,9 +127,32 @@ mm wallet address
 mm wallet address --chain-namespace evm
 ```
 
+## `wallet add-fund` Command
+
+Show a QR code and address to fund the currently active wallet. In interactive mode (TTY or REPL), renders an ASCII QR code plus the address. In headless mode (`--json`, piped stdout), outputs the address only.
+
+### Syntax
+
+```bash
+mm wallet add-fund [--chain-namespace <namespace>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
+
+### Example
+
+```bash
+mm wallet add-fund
+mm wallet add-fund --toon
+```
+
 ## `wallet trading-mode get` Command
 
-Show the current trading mode, active server-wallet address, and policies for the selected wallet. Server-wallet mode only.
+Show the current trading mode and active server-wallet address for the selected wallet. Server-wallet mode only.
 
 ### Syntax
 
@@ -164,6 +187,70 @@ mm wallet trading-mode set <guard|beast>
 ```bash
 mm wallet trading-mode set guard
 mm wallet trading-mode set beast
+```
+
+## `wallet policy get` Command
+
+Show the policy for the active server wallet. Server-wallet mode only.
+
+### Syntax
+
+```bash
+mm wallet policy get
+```
+
+### Supported Flags
+
+This command does not support additional flags beyond output format options.
+
+### Example
+
+```bash
+mm wallet policy get
+mm wallet policy get --toon
+```
+
+## `wallet policy set` Command
+
+Set the policy for the active server wallet. Server-wallet mode only.
+
+### Syntax
+
+```bash
+mm wallet policy set --policy <yaml>
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--policy` | Yes | Policy string to apply |
+
+### Example
+
+```bash
+mm wallet policy set --policy "maxDailyOutflow: 1000"
+```
+
+## `wallet policy template` Command
+
+Show the project policy template. Server-wallet mode only.
+
+### Syntax
+
+```bash
+mm wallet policy template
+```
+
+### Supported Flags
+
+This command does not support additional flags beyond output format options.
+
+### Example
+
+```bash
+mm wallet policy template
+mm wallet policy template --toon
 ```
 
 ## `wallet balance` Command

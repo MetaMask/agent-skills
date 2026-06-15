@@ -4,7 +4,7 @@ Use these commands to initialize wallet mode, sign in, inspect authentication st
 
 ## `init` Command
 
-Initialize the project by selecting wallet mode and trading mode. Requires an authenticated session — run `mm login` first.
+Initialize the project by selecting wallet mode and trading mode. Requires an authenticated session. Run `mm login` first.
 
 ### Syntax
 
@@ -18,8 +18,8 @@ mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <pas
 | --- | --- | --- |
 | `--wallet` | No | Wallet mode: `server-wallet` or `byok` |
 | `--mode` | No | Trading mode: `guard` or `beast` (server-wallet only) |
-| `--mnemonic` | No | BIP-39 mnemonic phrase for BYOK wallet. Never pass inline — set `MM_MNEMONIC` env var instead. |
-| `--password` | No | Password to encrypt the BYOK mnemonic at rest. Never pass inline — set `MM_PASSWORD` env var instead. If omitted in interactive mode, the CLI prompts. If omitted in non-interactive mode, mnemonic is stored unencrypted. |
+| `--mnemonic` | No | BIP-39 mnemonic phrase for BYOK wallet. Never pass inline. Set `MM_MNEMONIC` env var instead. |
+| `--password` | No | Password to encrypt the BYOK mnemonic at rest. Never pass inline. Set `MM_PASSWORD` env var instead. If omitted in interactive mode, the CLI prompts. If omitted in non-interactive mode, mnemonic is stored unencrypted. |
 
 ### Example
 
@@ -36,11 +36,11 @@ mm init --wallet byok
 
 ### Note
 
-- In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode and policies instead of prompting for a new trading mode or creating a wallet.
+- In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode instead of prompting for a new trading mode or creating a wallet. Use `mm wallet policy get` to view the wallet policy.
 
 ## `init show` Command
 
-Display the current initialization settings (wallet mode, trading mode, policies).
+Display the current initialization settings (wallet mode, trading mode). Use `mm wallet policy get` to view the wallet policy separately.
 
 ### Syntax
 
@@ -150,7 +150,7 @@ mm config get [env|verbose|format]
 | --- | --- |
 | `env` | Target API environment: `prod`, `dev`, or `uat` (defaults to `prod` when unset) |
 | `verbose` | Whether verbose logging is persisted (`true` or `false`) |
-| `format` | Default output format: `json`, `text`, `yaml`, `toml`, or `toon` |
+| `format` | Default output format: `json`, `text`, or `toon` |
 
 Omit the key to return all values.
 
@@ -177,7 +177,7 @@ mm config set <env|verbose|format> <value>
 | --- | --- |
 | `env` | `prod`, `dev`, or `uat` |
 | `verbose` | `true` or `false` |
-| `format` | `json`, `text`, `yaml`, `toml`, or `toon` |
+| `format` | `json`, `text`, or `toon` |
 
 ### Overrides
 
