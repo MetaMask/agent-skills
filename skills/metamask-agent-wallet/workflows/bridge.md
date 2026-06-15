@@ -2,7 +2,7 @@
 
 Use this workflow when the user wants to bridge tokens across chains.
 
-Reference command syntax in `references/swap.md`. The CLI uses the same `swap` commands for bridging — set `--to-chain` to a different chain than `--from-chain`.
+Reference command syntax in `references/swap.md`. The CLI uses the same `swap` commands for bridging. Set `--to-chain` to a different chain than `--from-chain`.
 
 ## Flow
 

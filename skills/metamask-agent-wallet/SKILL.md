@@ -4,8 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "2.2.0"
-  cliVersion: "1.0.0"
+  version: "3.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -35,6 +34,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Change BYOK mnemonic encryption password | `mm wallet password change` | [auth.md](references/auth.md) |
 | Remove BYOK mnemonic encryption password | `mm wallet password remove` | [auth.md](references/auth.md) |
 | Interpret raw CLI error codes | `AuthError`, `ValidationError`, `WALLET_ERROR` | [errors.md](references/errors.md) |
+| Inspect CLI, skills, environment, and session health | `mm doctor` | [doctor.md](references/doctor.md) |
 | Decode EVM calldata into a human-readable intent | `mm decode` | [decode.md](references/decode.md) |
 | Create a wallet | `mm wallet create` | [wallet.md](references/wallet.md) |
 | List all wallets | `mm wallet list` | [wallet.md](references/wallet.md) |
@@ -42,8 +42,12 @@ Match the user's intent to a command and reference file, then read the reference
 | Show active wallet details | `mm wallet show` | [wallet.md](references/wallet.md) |
 | Show active wallet address | `mm wallet address` | [wallet.md](references/wallet.md) |
 | Check the active wallet balance | `mm wallet balance` | [wallet.md](references/wallet.md) |
-| Show current trading mode and policies | `mm wallet trading-mode get` | [wallet.md](references/wallet.md) |
+| Show a QR code and address to fund the active wallet | `mm wallet add-fund` | [wallet.md](references/wallet.md) |
+| Show current trading mode | `mm wallet trading-mode get` | [wallet.md](references/wallet.md) |
 | Set trading mode (guard or beast) | `mm wallet trading-mode set` | [wallet.md](references/wallet.md) |
+| View wallet policy | `mm wallet policy get` | [wallet.md](references/wallet.md) |
+| Set wallet policy | `mm wallet policy set` | [wallet.md](references/wallet.md) |
+| Show project policy template | `mm wallet policy template` | [wallet.md](references/wallet.md) |
 | Sign a plaintext message | `mm wallet sign-message` | [signing.md](references/signing.md) |
 | Sign EIP-712 typed data | `mm wallet sign-typed-data` | [signing.md](references/signing.md) |
 | Send a raw EVM transaction | `mm wallet send-transaction` | [transaction.md](references/transaction.md) |
@@ -95,6 +99,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Withdraw pUSD from Predict deposit wallet | `mm predict withdraw` | [predict.md](references/predict.md) |
 | Fetch prediction order book | `mm predict book` | [predict.md](references/predict.md) |
 | Watch a Predict job | `mm predict watch` | [predict.md](references/predict.md) |
+| List recent transactions for the active wallet | `mm tx history` | [tx-history.md](references/tx-history.md) |
 | Get a swap or bridge quote | `mm swap quote` | [swap.md](references/swap.md) |
 | Execute a token swap or bridge | `mm swap execute` | [swap.md](references/swap.md) |
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
@@ -135,7 +140,7 @@ Every `mm` command accepts these flags:
 
 | Flag | Short | Description |
 | --- | --- | --- |
-| `--format` | `-f` | Output format: `text`, `json`, `yaml`, `toml`, or `toon` (defaults to `text` in TTY, `json` when piped) |
+| `--format` | `-f` | Output format: `text`, `json`, or `toon` (defaults to `text` in TTY, `json` when piped) |
 | `--json` | | Shorthand for `--format=json` |
 | `--toon` | | Shorthand for `--format=toon` |
 | `--verbose` | `-v` | Show debug logs on stderr. Use for troubleshooting |
@@ -148,13 +153,13 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` **v1.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` **v2.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agentic-cli/` (e.g. `@metamask/agentic-cli/1.0.0 darwin-arm64 node-v24.14.1`). Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort; skip silently on network failure):
+The installed version is the value after `@metamask/agentic-cli/` (e.g. `@metamask/agentic-cli/2.0.0 darwin-arm64 node-v22.18.0`). Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort; skip silently on network failure):
 
 ```bash
 npm view @metamask/agentic-cli version
@@ -162,7 +167,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `1.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `2.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
