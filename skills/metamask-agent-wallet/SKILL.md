@@ -5,6 +5,7 @@ license: MIT
 metadata:
   author: metamask
   version: "3.0.0"
+  cliVersion: "2.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
