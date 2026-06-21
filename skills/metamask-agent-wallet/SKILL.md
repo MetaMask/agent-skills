@@ -189,8 +189,6 @@ Remediate, then **re-run `mm doctor` and confirm a clean result before doing any
 - `authenticated: false` → follow `workflows/login.md` (or `workflows/onboarding.md` for first-time setup) to run `mm login`.
 - `authenticated: true` and `initialized: false` → follow `workflows/onboarding.md` to run `mm init` and select a wallet mode (and a trading mode for server-wallet).
 
-**Critical — the hints are sequential, not simultaneous.** When the session is not authenticated, `mm doctor` shows only the login hint and stays silent about initialization (the init hint is gated on being authenticated). So fixing login is **not** a green light: a freshly logged-in session is still uninitialized. Never chain from a remediation straight into operations — always re-run `mm doctor` after each fix and loop until it reports `authenticated: true` and `initialized: true` with no blocking hints. Only then proceed to any wallet, transfer, swap, perps, or predict operation.
-
 ## Safety Rules
 
 These rules apply to every operation, regardless of which reference or workflow is active.
