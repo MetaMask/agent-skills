@@ -51,7 +51,7 @@ First check whether the project is already initialized with `mm doctor` (read it
 mm doctor
 ```
 
-If `initialized` is `true`, skip this step. Do not use `mm init show` to check — it requires an initialized project and throws `NOT_INITIALIZED` on an uninitialized one rather than reporting state.
+If `initialized` is `true`, skip this step.
 
 For server-wallet mode, if the account already has a remote wallet, `mm init` syncs it and reuses the existing trading mode — no trading-mode prompt.
 
