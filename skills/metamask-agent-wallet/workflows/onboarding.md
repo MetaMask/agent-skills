@@ -9,7 +9,7 @@ Reference command syntax in `references/auth.md` and `references/wallet.md`.
 1. Check CLI installation.
 2. Login.
 3. Initialize wallet mode.
-4. Verify auth status.
+4. Verify readiness.
 5. Show wallet address.
 
 ## Check CLI Installation
@@ -45,13 +45,13 @@ mm login --token "<TOKEN>"
 
 ## Initialize Project
 
-First check if the project is already initialized:
+First check whether the project is already initialized with `mm doctor` (read its `initialized` boolean):
 
 ```bash
-mm init show
+mm doctor
 ```
 
-If already initialized, skip this step.
+If `initialized` is `true`, skip this step.
 
 For server-wallet mode, if the account already has a remote wallet, `mm init` syncs it and reuses the existing trading mode — no trading-mode prompt.
 
@@ -94,13 +94,13 @@ mm wallet password set
 
 Once the mnemonic is encrypted, all subsequent operations that need the private key require the `MM_PASSWORD` environment variable to be set. Never instruct the user to pass `--password` inline.
 
-## Verify Auth Status
+## Verify Readiness
 
 ```bash
-mm auth status
+mm doctor
 ```
 
-Confirm the session is authenticated, the wallet mode is correct, and the token is valid.
+Confirm `mm doctor` reports both `authenticated: true` and `initialized: true` with no blocking hints before proceeding. (`mm auth status` reports only authentication and does not reflect initialization, so it cannot confirm readiness on its own.)
 
 ## Show Wallet Address
 
