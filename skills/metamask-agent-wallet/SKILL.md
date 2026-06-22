@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "3.0.0"
+  version: "3.1.0"
   cliVersion: "2.0.0"
 ---
 
