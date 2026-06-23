@@ -60,12 +60,12 @@ mm init show
 
 ## `login` Command
 
-Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (MetaMask Mobile QR, Google, or email). QR is recommended but not auto-selected.
+Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (MetaMask Mobile QR or browser). QR is recommended but not auto-selected. `mm login browser` covers both Google and Email — the user picks interactively in the browser.
 
 ### Syntax
 
 ```bash
-mm login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no-wait]
+mm login [qr | browser] [--token <token>] [--timeout <seconds>] [--no-wait]
 ```
 
 ### Supported Flags
@@ -79,19 +79,18 @@ mm login [qr | google | email] [--token <token>] [--timeout <seconds>] [--no-wai
 ### Example
 
 ```bash
-mm login --no-wait
-mm login google --no-wait
-mm login email --no-wait
+mm login browser --no-wait
 mm login --token "cliToken:cliRefreshToken"
 ```
 
 ### Note
 
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
-- `mm login qr` (scan with MetaMask Mobile) is available on non-production builds (dev/uat). On production it returns `COMING_SOON`; use Google or email sign-in instead.
+- `mm login qr` (scan with MetaMask Mobile) is available on non-production builds (dev/uat). On production it returns `COMING_SOON`; use browser sign-in instead.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
-- Use `mm login google --no-wait` or `mm login email --no-wait` for non-interactive/CI flows. Bare `mm login --no-wait` fails without a TTY because no method is selected.
+- Use `mm login browser --no-wait` for non-interactive/CI flows. The command prints a sign-in URL; the user completes login in the browser (Google or Email). Bare `mm login --no-wait` fails without a TTY because no method is selected.
 - `--no-wait` is not supported with QR login. Complete authentication later with `mm login --token`.
+- After a successful login in server-wallet mode, the CLI automatically syncs existing wallets from the server. Run `mm wallet list` immediately — no need to re-run `mm init`. In BYOK mode, no sync occurs; run `mm init` to configure the wallet.
 
 ## `auth status` Command
 

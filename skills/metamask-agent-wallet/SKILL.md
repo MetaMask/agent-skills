@@ -5,7 +5,7 @@ license: MIT
 metadata:
   author: metamask
   version: "3.1.0"
-  cliVersion: "2.0.0"
+  cliVersion: "2.1.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -25,8 +25,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Choose a wallet mode and set up policies | `mm init` | [auth.md](references/auth.md) |
 | Show current init settings | `mm init show` | [auth.md](references/auth.md) |
 | Sign in via QR code with MetaMask Mobile | `mm login qr` | [auth.md](references/auth.md) |
-| Sign in via Google | `mm login google` | [auth.md](references/auth.md) |
-| Sign in via email OTP | `mm login email` | [auth.md](references/auth.md) |
+| Sign in via browser (Google or Email) | `mm login browser` | [auth.md](references/auth.md) |
 | Sign out | `mm logout` | [auth.md](references/auth.md) |
 | Reset CLI session | `mm reset` | [auth.md](references/auth.md) |
 | Show CLI configuration | `mm config get` | [auth.md](references/auth.md) |
@@ -154,7 +153,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` **v2.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` **v2.1.0** (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -168,7 +167,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `2.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `2.1.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
