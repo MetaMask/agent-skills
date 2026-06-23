@@ -26,8 +26,14 @@ If the user wants the bridged tokens sent to a different wallet on the destinati
 mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137 --to-address 0x742d...f2bD18
 ```
 
+If the recipient may have no native gas on the destination chain, add `--refuel` to bundle a destination gas top-up into the quote (cross-chain only, opt-in, best-effort — see `references/swap.md`). Do **not** add `--refuel` when the destination token is the destination chain's native gas asset (e.g. bridging into ETH on Arbitrum) — the backend returns 0 quotes in that case:
+
+```bash
+mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 --refuel
+```
+
 Persist the quote id for execution. Show the quote to the user before execution.
-Confirm source token, destination token, amount, source chain, destination chain, slippage, expected output, fees, route, and recipient address (if `--to-address` was set).
+Confirm source token, destination token, amount, source chain, destination chain, slippage, expected output, fees, route, recipient address (if `--to-address` was set), and the destination gas top-up (if `--refuel` was set).
 
 ## Execute
 
@@ -53,3 +59,4 @@ Use status polling for bridges where the destination side can lag behind the sou
 - Slippage exceeded: only increase `--slippage` if the user explicitly accepts more slippage. Always warn the user if slippage
   is increased above 1% that it will affect the minimum received.
 - Missing chain: use `mm chains list` before guessing a chain ID.
+- Refuel into a native asset: if `--refuel` is set and the destination token is the destination chain's native gas asset, the backend returns 0 quotes (`NO_QUOTES`). Re-quote without `--refuel`.

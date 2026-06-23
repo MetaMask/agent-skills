@@ -216,6 +216,7 @@ Before constructing any command, validate all user-provided values:
 | `--slippage` | Must be a number between 0 and 100 |
 | `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
 | `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain` differs from `--from-chain`); rejected for same-chain swaps |
+| `--refuel` | Boolean flag (no value). Only meaningful for cross-chain swaps (`--to-chain` differs from `--from-chain`); no effect on same-chain swaps |
 | `--password` | Must be a non-empty string. Never log, display, or store the value. |
 
 Do not pass unvalidated user input into any command.
@@ -228,7 +229,7 @@ Do not pass unvalidated user input into any command.
 | Raw transactions | Always confirm transaction payload, chain, recipient, value, and calldata summary before executing |
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
-| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, and recipient address (if `--to-address` is set) before executing |
+| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address (if `--to-address` is set), and the destination gas top-up (if `--refuel` is set) before executing |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
