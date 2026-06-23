@@ -4,8 +4,8 @@ description: Use when the user needs to perform multi-step operations with the M
 license: MIT
 metadata:
   author: metamask
-  version: "3.0.0"
-  cliVersion: "2.0.0"
+  version: "4.0.0"
+  cliVersion: "3.0.0"
 ---
 
 # MetaMask Agent Workflows
@@ -47,7 +47,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` **v2.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` **v3.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -61,17 +61,26 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `2.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `3.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
-### 2. Authentication
+### 2. Readiness gate (authentication + initialization)
+
+`mm doctor` is the single readiness check. Run it before the first CLI operation in a session:
 
 ```bash
-mm auth status
+mm doctor
 ```
 
-If the user is not authenticated, follow `workflows/onboarding.md` for first time setup, or `workflows/login.md` for login.
+It reports an `authenticated` boolean, an `initialized` boolean, and a list of `hints`. **Do not run any other command until `mm doctor` reports both `authenticated: true` and `initialized: true`.** Authentication and initialization are independent gates: a session can be authenticated while the project has no wallet mode selected, in which case any command that needs a wallet aborts before running with `NOT_INITIALIZED` — "Project not initialized." (hint: Run `mm init` to set up wallet and trading modes.).
+
+A project counts as initialized only when a wallet mode is set — and, for `server-wallet`, a trading mode is set as well (`byok` needs only the wallet mode). Do not use `mm init show` as the check: it requires an initialized project and throws `NOT_INITIALIZED` on an uninitialized one rather than reporting state.
+
+Remediate, then **re-run `mm doctor` and confirm a clean result before doing anything else**:
+
+- `authenticated: false` → follow `workflows/login.md` (or `workflows/onboarding.md` for first-time setup) to run `mm login`.
+- `authenticated: true` and `initialized: false` → follow `workflows/onboarding.md` to run `mm init` and select a wallet mode (and a trading mode for server-wallet).
 
 ## Command Discovery
 

@@ -24,16 +24,15 @@ Then run the version compatibility check from the skill `Preflight` section: com
 
 ## Login Flow
 
-Ask the user which login method they want to use: MetaMask Mobile QR, Google, or Email. QR (`mm login qr`) is available on non-production builds (dev/uat); on production it returns `COMING_SOON`, so fall back to Google or email there.
+Ask the user which login method they want to use: MetaMask Mobile QR or browser (Google or Email). QR (`mm login qr`) is available on non-production builds (dev/uat); on production it returns `COMING_SOON`, so fall back to browser login there.
 
 ### Login
 
 ```bash
-mm login google --no-wait
-mm login email --no-wait
+mm login browser --no-wait
 ```
 
-Use `--no-wait` for non-interactive environments. The command prints a sign-in URL.
+Use `--no-wait` for non-interactive environments. The command prints a sign-in URL; the user completes sign-in in the browser using Google or Email.
 
 ### Verify
 
