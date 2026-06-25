@@ -3,7 +3,10 @@
 Use this when an HTTP request returns `402 Payment Required` (x402), or the user asks to
 fetch/pay for a paywalled API, endpoint, file, or resource over HTTP.
 
-`scripts/x402_pay.py` does the payment. Command details are in `references/x402.md`.
+`scripts/x402_pay.py` does the payment. Command details are in `references/x402.md`. Call it by
+its full path inside this skill's directory (`$SKILL_DIR` is the folder containing `SKILL.md`), not
+a bare `scripts/...`, because the shell working directory is not stable between commands. It is a
+script, not an `mm` command, so do not pass `--toon`/`--format`; it always prints JSON.
 
 ## Flow
 
@@ -15,7 +18,7 @@ fetch/pay for a paywalled API, endpoint, file, or resource over HTTP.
 ## Inspect
 
 ```bash
-python3 scripts/x402_pay.py inspect <url>
+python3 "$SKILL_DIR/scripts/x402_pay.py" inspect <url>
 ```
 
 Prints the payment requirement(s) as JSON: asset, human-readable amount, network, `payTo`, and
@@ -29,7 +32,7 @@ get explicit approval. A signature authorizes a real token debit.
 ## Pay
 
 ```bash
-python3 scripts/x402_pay.py pay <url> --confirm
+python3 "$SKILL_DIR/scripts/x402_pay.py" pay <url> --confirm
 ```
 
 Add `--asset <contract>` or `--network <network>` if the `402` offered more than one eligible
@@ -41,7 +44,10 @@ the resource body.
 
 - `error` with "no eligible option": the server offered no `exact`-scheme payment on a network mm
   supports. Show the offered options to the user.
-- `error` with "multiple eligible options": rerun `pay` with `--asset` or `--network`.
+- `error` with "multiple eligible options": the server offered the same scheme on several networks
+  or assets (e.g. Base and Polygon). Rerun `pay` with `--network` or `--asset` to choose one.
+- `error` mentioning "permit2": the only options use the Permit2 transfer method, which this skill
+  does not sign (it supports EIP-3009 only). Tell the user it is unsupported.
 - `error` with "payment not accepted": surface it. Do not rerun blindly; rerunning makes a new
   payment.
 - `error` with "not a standard x402 challenge": the endpoint returned a 402 in a different payment

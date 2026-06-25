@@ -114,7 +114,7 @@ def _mm_json(args):
     start, end = text.find("{"), text.rfind("}")
     if start == -1 or end == -1:
         raise CeremonyError("mm produced no JSON (%s): %s" % (out.returncode, out.stderr.strip()))
-    return json.loads(text[start:end + 1])
+    return json.loads(text[start : end + 1])
 
 
 _chains_cache = None
@@ -140,7 +140,10 @@ def chain_id_for(network):
         except ValueError:
             raise CeremonyError("unparseable CAIP-2 network: %s" % network)
     for c in _chains():
-        if network in (c.get("key"), c.get("caip2")) or network.lower() == (c.get("name") or "").lower():
+        if (
+            network in (c.get("key"), c.get("caip2"))
+            or network.lower() == (c.get("name") or "").lower()
+        ):
             return c.get("chainId")
     raise CeremonyError("network '%s' is not supported by mm (see `mm chains list`)" % network)
 
@@ -160,8 +163,15 @@ def asset_meta(chain_id, asset):
     if key not in _asset_meta_cache:
         meta = None
         try:
-            res = _mm_json(["token", "assets", "--asset-ids",
-                            "eip155:%s/erc20:%s" % (chain_id, asset), "--json"])
+            res = _mm_json(
+                [
+                    "token",
+                    "assets",
+                    "--asset-ids",
+                    "eip155:%s/erc20:%s" % (chain_id, asset),
+                    "--json",
+                ]
+            )
             assets = (res.get("data") or {}).get("assets") or []
             if assets and assets[0].get("decimals") is not None:
                 meta = {"symbol": assets[0].get("symbol"), "decimals": assets[0]["decimals"]}
@@ -172,7 +182,11 @@ def asset_meta(chain_id, asset):
 
 
 def parse_402(status, headers, body):
-    """Return (version, [normalized_option, ...]). Raises if not a usable 402."""
+    """Return (version, [option, ...], resource_info). Raises if not a usable 402.
+
+    resource_info is the v2 top-level ResourceInfo object (v2 forwards it into
+    the payment payload); it is None for v1, which carries resource per option.
+    """
     if status != 402:
         raise CeremonyError("expected HTTP 402, got %s" % status)
 
@@ -198,26 +212,30 @@ def parse_402(status, headers, body):
             raise CeremonyError(
                 "received HTTP 402 but it is not a standard x402 challenge "
                 "(no PAYMENT-REQUIRED header and no accepts[] in the body); "
-                "this endpoint uses a payment scheme this script does not support")
+                "this endpoint uses a payment scheme this script does not support"
+            )
 
     accepts = (data.get("accepts") if isinstance(data, dict) else None) or []
 
     options = []
     for a in accepts:
         amount = a.get("amount", a.get("maxAmountRequired"))
-        options.append({
-            "scheme": a.get("scheme"),
-            "network": a.get("network"),
-            "amount": str(amount) if amount is not None else None,
-            "payTo": a.get("payTo"),
-            "asset": a.get("asset"),
-            "maxTimeoutSeconds": a.get("maxTimeoutSeconds", 60),
-            "extra": a.get("extra", {}),
-            "resource": a.get("resource"),
-        })
+        options.append(
+            {
+                "scheme": a.get("scheme"),
+                "network": a.get("network"),
+                "amount": str(amount) if amount is not None else None,
+                "payTo": a.get("payTo"),
+                "asset": a.get("asset"),
+                "maxTimeoutSeconds": a.get("maxTimeoutSeconds", 3600),
+                "extra": a.get("extra", {}),
+                "resource": a.get("resource"),
+            }
+        )
     if not options:
         raise CeremonyError("402 had no payment options")
-    return version, options
+    resource_info = data.get("resource") if isinstance(data, dict) else None
+    return version, options, resource_info
 
 
 def describe(option):
@@ -228,7 +246,15 @@ def describe(option):
     except CeremonyError:
         chain_id = None
     out["chainId"] = chain_id
-    out["eligible"] = chain_id is not None and option.get("scheme") == "exact"
+    # extra.assetTransferMethod is absent on v1 and on eip3009 v2 offers; only an
+    # explicit "permit2" is ineligible, since this script signs EIP-3009 only.
+    transfer = (option.get("extra") or {}).get("assetTransferMethod")
+    out["assetTransferMethod"] = transfer or "eip3009"
+    out["eligible"] = (
+        chain_id is not None
+        and option.get("scheme") == "exact"
+        and out["assetTransferMethod"] == "eip3009"
+    )
     meta = asset_meta(chain_id, option.get("asset"))
     if meta:
         out["symbol"] = meta["symbol"]
@@ -257,13 +283,24 @@ def select(options, want_asset=None, want_network=None):
             continue
         eligible.append(d)
     if not eligible:
+        exact_on_chain = [
+            d for d in described if d.get("chainId") is not None and d.get("scheme") == "exact"
+        ]
+        if exact_on_chain and all(d["assetTransferMethod"] == "permit2" for d in exact_on_chain):
+            raise CeremonyError(
+                "the only payable options use the permit2 asset transfer method, which this "
+                "script does not support (it signs EIP-3009 transferWithAuthorization only). "
+                "Offered: %s" % json.dumps(described)
+            )
         raise CeremonyError(
-            "no eligible option (need scheme 'exact' on a network mm supports). "
-            "Offered: %s" % json.dumps(described))
+            "no eligible option (need scheme 'exact', EIP-3009, on a network mm supports). "
+            "Offered: %s" % json.dumps(described)
+        )
     if len(eligible) > 1:
         raise CeremonyError(
             "multiple eligible options; disambiguate with --asset/--network. "
-            "Eligible: %s" % json.dumps(eligible))
+            "Eligible: %s" % json.dumps(eligible)
+        )
     return eligible[0]
 
 
@@ -275,9 +312,20 @@ def wallet_address():
 
 def sign_typed_data(chain_id, payload, intent):
     """Sign EIP-712 typed data with `mm`, keeping the key inside the wallet."""
-    res = _mm_json(["wallet", "sign-typed-data", "--chain-id", str(chain_id),
-                    "--wait", "--json", "--intent", intent,
-                    "--payload", json.dumps(payload)])
+    res = _mm_json(
+        [
+            "wallet",
+            "sign-typed-data",
+            "--chain-id",
+            str(chain_id),
+            "--wait",
+            "--json",
+            "--intent",
+            intent,
+            "--payload",
+            json.dumps(payload),
+        ]
+    )
     sig = (res.get("data") or {}).get("signature")
     if not res.get("ok") or not sig:
         raise CeremonyError("signing failed: %s" % json.dumps(res))
@@ -292,14 +340,18 @@ def build_typed_data(option, chain_id, from_addr):
     authorization may live is the wallet's policy, not a constant here. A random
     nonce keeps each authorization single-use.
     """
+    now = int(time.time())
     nonce = "0x" + secrets.token_bytes(32).hex()
-    valid_before = str(int(time.time()) + int(option["maxTimeoutSeconds"]))
     authorization = {
         "from": from_addr,
         "to": option["payTo"],
         "value": option["amount"],
-        "validAfter": "0",
-        "validBefore": valid_before,
+        # Backdate validAfter: the spec allows "0", and the official Python
+        # client uses it, but the TypeScript reference client backdates 10
+        # minutes because some facilitators reject "0" and it absorbs clock
+        # skew. Follow the safer value.
+        "validAfter": str(now - 600),
+        "validBefore": str(now + int(option["maxTimeoutSeconds"])),
         "nonce": nonce,
     }
     typed_data = {
@@ -331,6 +383,37 @@ def build_typed_data(option, chain_id, from_addr):
     return typed_data, authorization
 
 
+def build_payment(version, option, resource_info, signature, authorization, url):
+    """Assemble the PaymentPayload for the chosen option.
+
+    The envelope differs by version (x402 spec section 5.2): v2 nests the chosen
+    requirements under `accepted` and forwards the `resource`, while v1 puts
+    `scheme`/`network` at the top level. A facilitator rejects a v2 payload that
+    is missing `accepted`.
+    """
+    if version == 2:
+        return {
+            "x402Version": 2,
+            "resource": resource_info or {"url": url},
+            "accepted": {
+                "scheme": option["scheme"],
+                "network": option["network"],
+                "amount": option["amount"],
+                "asset": option["asset"],
+                "payTo": option["payTo"],
+                "maxTimeoutSeconds": option["maxTimeoutSeconds"],
+                "extra": option.get("extra", {}),
+            },
+            "payload": {"signature": signature, "authorization": authorization},
+        }
+    return {
+        "x402Version": 1,
+        "scheme": option["scheme"],
+        "network": option["network"],
+        "payload": {"signature": signature, "authorization": authorization},
+    }
+
+
 def validate(option, chain_id):
     """Check the offer is structurally sound before signing.
 
@@ -344,43 +427,91 @@ def validate(option, chain_id):
     if not option["asset"] or not ADDRESS_RE.match(option["asset"]):
         raise CeremonyError("asset is not a valid contract address: %r" % option.get("asset"))
     if not option["amount"] or not option["amount"].isdigit() or int(option["amount"]) <= 0:
-        raise CeremonyError("amount must be a positive atomic-unit integer, got %r" % option["amount"])
+        raise CeremonyError(
+            "amount must be a positive atomic-unit integer, got %r" % option["amount"]
+        )
     if not option["payTo"] or not ADDRESS_RE.match(option["payTo"]):
         raise CeremonyError("payTo is not a valid address: %r" % option["payTo"])
     if not option["extra"].get("name") or not option["extra"].get("version"):
         raise CeremonyError("402 option missing EIP-712 domain name/version in 'extra'")
 
 
-def settlement(headers, version):
-    """Decode the facilitator's settlement receipt, if the server sent one."""
+def settlement(headers, version, body):
+    """Decode the facilitator's settlement receipt.
+
+    The spec puts it in the X-PAYMENT-RESPONSE / PAYMENT-RESPONSE header, but
+    some servers return it only in the response body, so fall back to the body
+    when the header is absent.
+    """
     name = "X-PAYMENT-RESPONSE" if version == 1 else "PAYMENT-RESPONSE"
     raw = headers.get(name)
-    if not raw:
+    if raw:
+        try:
+            return json.loads(base64.b64decode(raw))
+        except (ValueError, UnicodeDecodeError):
+            pass
+    try:
+        data = json.loads(body.decode("utf-8"))
+    except (ValueError, UnicodeDecodeError):
         return None
-    return json.loads(base64.b64decode(raw))
+    if isinstance(data, dict) and (data.get("transaction") or data.get("txHash")):
+        return data
+    return None
+
+
+def failure_reason(headers, body):
+    """Extract why a paid retry was rejected.
+
+    A v2 server re-challenges with the reason in the PAYMENT-REQUIRED header and
+    often an empty body, so check that header before falling back to the body.
+    """
+    pr = headers.get("PAYMENT-REQUIRED")
+    if pr:
+        try:
+            err = json.loads(base64.b64decode(pr)).get("error")
+            if err:
+                return err
+        except (ValueError, UnicodeDecodeError):
+            pass
+    text = body.decode("utf-8", "replace").strip()
+    try:
+        err = json.loads(text).get("error")
+        if err:
+            return err
+    except (ValueError, AttributeError):
+        pass
+    return text or "(no detail)"
 
 
 def cmd_inspect(url, method, data, content_type):
     """Print the 402 payment requirement(s) without signing or spending."""
     body, headers = request_parts(data, content_type)
     status, rheaders, rbody = http(url, method, headers, body)
-    version, options = parse_402(status, rheaders, rbody)
-    print(json.dumps({
-        "status": "payment_required",
-        "x402Version": version,
-        "options": [describe(o) for o in options],
-    }, indent=2))
+    version, options, resource_info = parse_402(status, rheaders, rbody)
+    print(
+        json.dumps(
+            {
+                "status": "payment_required",
+                "x402Version": version,
+                "resource": resource_info,
+                "options": [describe(o) for o in options],
+            },
+            indent=2,
+        )
+    )
 
 
 def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     """Run the payment for one offered option and print the settlement."""
     if not confirm:
-        raise CeremonyError("refusing to pay without --confirm; run 'inspect' first and "
-                            "get user approval, then re-run 'pay <url> --confirm'")
+        raise CeremonyError(
+            "refusing to pay without --confirm; run 'inspect' first and "
+            "get user approval, then re-run 'pay <url> --confirm'"
+        )
     body, headers = request_parts(data, content_type)
     # Fetch fresh so the short 402 window is never stale.
     status, rheaders, rbody = http(url, method, headers, body)
-    version, options = parse_402(status, rheaders, rbody)
+    version, options, resource_info = parse_402(status, rheaders, rbody)
     option = select(options, want_asset, want_network)
     chain_id = option["chainId"]
     validate(option, chain_id)
@@ -389,13 +520,14 @@ def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     typed_data, authorization = build_typed_data(option, chain_id, from_addr)
 
     intent = "x402: %s %s to %s for %s" % (
-        option.get("humanAmount", option["amount"]), option.get("symbol", ""),
-        option["payTo"], url)
+        option.get("humanAmount", option["amount"]),
+        option.get("symbol", ""),
+        option["payTo"],
+        url,
+    )
     signature = sign_typed_data(chain_id, typed_data, intent)
 
-    payment = {"x402Version": version, "scheme": option["scheme"],
-               "network": option["network"],
-               "payload": {"signature": signature, "authorization": authorization}}
+    payment = build_payment(version, option, resource_info, signature, authorization, url)
     b64 = base64.b64encode(json.dumps(payment).encode()).decode()
     header = "X-PAYMENT" if version == 1 else "PAYMENT-SIGNATURE"
 
@@ -403,42 +535,68 @@ def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     status, rheaders, rbody = http(url, method, dict(headers, **{header: b64}), body)
     if status != 200:
         # One attempt only: do not retry a payment.
-        raise CeremonyError("payment not accepted (HTTP %s): %s" % (status, rbody.decode("utf-8", "replace")))
+        raise CeremonyError(
+            "payment not accepted (HTTP %s): %s" % (status, failure_reason(rheaders, rbody))
+        )
 
-    settle = settlement(rheaders, version)
+    settle = settlement(rheaders, version, rbody)
     try:
         resource = json.loads(rbody.decode("utf-8"))
     except ValueError:
         resource = rbody.decode("utf-8", "replace")
-    print(json.dumps({
-        "status": "settled",
-        "asset": option.get("symbol", option["asset"]),
-        "amount": option.get("humanAmount", option["amount"]),
-        "network": option["network"],
-        "payTo": option["payTo"],
-        "transaction": (settle or {}).get("transaction") or (settle or {}).get("txHash"),
-        "settlement": settle,
-        "resource": resource,
-    }, indent=2))
+    print(
+        json.dumps(
+            {
+                "status": "settled",
+                "asset": option.get("symbol", option["asset"]),
+                "amount": option.get("humanAmount", option["amount"]),
+                "network": option["network"],
+                "payTo": option["payTo"],
+                "transaction": (settle or {}).get("transaction") or (settle or {}).get("txHash"),
+                "settlement": settle,
+                "resource": resource,
+            },
+            indent=2,
+        )
+    )
 
 
 def main(argv=None):
     """Parse arguments and report CeremonyError as JSON on stderr."""
-    parser = argparse.ArgumentParser(description="Pay an HTTP 402 (x402) request with the active wallet.")
+    parser = argparse.ArgumentParser(
+        description="Pay an HTTP 402 (x402) request with the active wallet."
+    )
     sub = parser.add_subparsers(dest="command", required=True)
 
-    for p in (sub.add_parser("inspect", help="Fetch and parse a 402 (read-only)."),
-              sub.add_parser("pay", help="Run the full payment ceremony.")):
+    # The skill tells agents to "always use --toon"; this is a script, not an mm
+    # command, and always prints JSON. Accept and ignore those format flags so
+    # the reflex does not error.
+    fmt = argparse.ArgumentParser(add_help=False)
+    fmt.add_argument("--toon", action="store_true", help=argparse.SUPPRESS)
+    fmt.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
+    fmt.add_argument("-f", "--format", help=argparse.SUPPRESS)
+
+    for p in (
+        sub.add_parser("inspect", parents=[fmt], help="Fetch and parse a 402 (read-only)."),
+        sub.add_parser("pay", parents=[fmt], help="Run the full payment ceremony."),
+    ):
         p.add_argument("url")
-        p.add_argument("--method", default="GET",
-                       help="HTTP method to request the resource with (default GET).")
+        p.add_argument(
+            "--method",
+            default="GET",
+            help="HTTP method to request the resource with (default GET).",
+        )
         p.add_argument("--data", help="Request body to send (and replay on the paid retry).")
-        p.add_argument("--content-type", default="application/json",
-                       help="Content-Type for --data (default application/json).")
+        p.add_argument(
+            "--content-type",
+            default="application/json",
+            help="Content-Type for --data (default application/json).",
+        )
 
     p_pay = sub.choices["pay"]
-    p_pay.add_argument("--confirm", action="store_true",
-                       help="Required. Explicit user approval to sign and spend.")
+    p_pay.add_argument(
+        "--confirm", action="store_true", help="Required. Explicit user approval to sign and spend."
+    )
     p_pay.add_argument("--asset", help="Disambiguate by asset contract when multiple are offered.")
     p_pay.add_argument("--network", help="Disambiguate by network when multiple are offered.")
 
@@ -447,8 +605,15 @@ def main(argv=None):
         if args.command == "inspect":
             cmd_inspect(args.url, args.method.upper(), args.data, args.content_type)
         else:
-            cmd_pay(args.url, args.method.upper(), args.data, args.content_type,
-                    args.confirm, args.asset, args.network)
+            cmd_pay(
+                args.url,
+                args.method.upper(),
+                args.data,
+                args.content_type,
+                args.confirm,
+                args.asset,
+                args.network,
+            )
     except CeremonyError as e:
         print(json.dumps({"status": "error", "error": str(e)}), file=sys.stderr)
         return 1
