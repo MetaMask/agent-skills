@@ -48,4 +48,4 @@ For raw error-code meanings, load `../references/errors.md`. Relay CLI errors ve
 
 ## Reset Last
 
-Use `mm reset` only after checking version, auth status, and the failing command's help output. Reset clears local session state and should not be the first troubleshooting step. Always ask the user for explicit confirmation before running reset.
+Use `mm reset` only after checking version, auth status, and the failing command's help output. Reset clears local session state and should not be the first troubleshooting step. Always ask the user for explicit confirmation before running reset. The command itself also prompts for confirmation; pass `--yes` to skip the prompt in non-interactive sessions.
