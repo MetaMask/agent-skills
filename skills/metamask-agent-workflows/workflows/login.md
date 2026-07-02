@@ -20,7 +20,7 @@ mm login browser --no-wait
 
 The command prints a sign-in URL. The user opens it in a browser and chooses Google or Email to complete sign-in.
 
-`mm login qr` (scan with MetaMask Mobile) is available on non-production builds (dev/uat); on production it returns `COMING_SOON`. QR login keeps the CLI attached to the relay, so it does not support `--no-wait`.
+`mm login qr` (scan with MetaMask Mobile) is available on all environments, including production. QR login keeps the CLI attached to the relay, so it does not support `--no-wait`.
 
 ## Verify
 
