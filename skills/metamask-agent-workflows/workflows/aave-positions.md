@@ -16,30 +16,29 @@ Get the wallet address:
 mm wallet address
 ```
 
-If the user doesn't specify a chain, ask. Aave V3 is deployed on these chains:
+If the user doesn't specify a chain, ask. Fetch all markets for the chain to get pool addresses:
 
-| Chain | Chain ID | Pool address |
-| --- | --- | --- |
-| Ethereum | 1 | `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2` |
-| Polygon | 137 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Arbitrum | 42161 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Optimism | 10 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Avalanche | 43114 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Base | 8453 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
+```bash
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address } }"}'
+```
+
+Collect all returned `address` values as `<POOL_ADDRESSES>`.
 
 ## Query positions
 
-Query supply and borrow positions in a single request:
+Query supply and borrow positions across all markets in a single request. Build the `markets` array from all addresses returned above:
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "{ userSupplies(request: { markets: [{ address: \"<POOL_ADDRESS>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } balance { amount { value } usd } apy { formatted } isCollateral } userBorrows(request: { markets: [{ address: \"<POOL_ADDRESS>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } debt { amount { value } usd } apy { formatted } } }"
+    "query": "{ userSupplies(request: { markets: [{ address: \"<POOL_ADDRESS_1>\", chainId: <CHAIN_ID> }, { address: \"<POOL_ADDRESS_2>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } balance { amount { value } usd } apy { formatted } isCollateral marketAddress } userBorrows(request: { markets: [{ address: \"<POOL_ADDRESS_1>\", chainId: <CHAIN_ID> }, { address: \"<POOL_ADDRESS_2>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } debt { amount { value } usd } apy { formatted } marketAddress } }"
   }'
 ```
 
-The response contains both `userSupplies` and `userBorrows` arrays.
+Include one `{ address, chainId }` entry per market returned by the previous query. The response contains both `userSupplies` and `userBorrows` arrays spanning all markets.
 
 ## Health factor preview
 

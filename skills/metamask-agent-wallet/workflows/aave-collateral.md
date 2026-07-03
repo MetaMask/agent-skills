@@ -11,16 +11,18 @@ Use this workflow to enable or disable an asset as collateral on Aave V3.
 
 ## Resolve chain and addresses
 
-If the user doesn't specify a chain, ask. Look up the pool address:
+If the user doesn't specify a chain, ask. Fetch the available markets for the chain from the Aave API to get pool addresses:
 
-| Chain | Chain ID | Pool address |
-| --- | --- | --- |
-| Ethereum | 1 | `0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2` |
-| Polygon | 137 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Arbitrum | 42161 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Optimism | 10 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Avalanche | 43114 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
-| Base | 8453 | `0x794a61358D6845594F94dc1DB02A252b5b4814aD` |
+```bash
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol } } } }"}'
+```
+
+Each entry in the response is a separate Aave V3 market. Extract `address` from each — this is the pool contract address.
+
+- If one market is returned, use its `address` as `<POOL_ADDRESS>`.
+- If multiple markets are returned, present them to the user (showing the `address` and up to 5 representative token symbols from `reserves[].underlyingToken.symbol`) and ask which market they want to interact with.
 
 ## Check status
 

@@ -52,13 +52,13 @@ mm doctor
 
 If `initialized` is `true`, skip this step.
 
-For server-wallet mode, if the account already has a remote wallet, `mm init` syncs it and reuses the existing trading mode — no trading-mode prompt.
+For server-wallet mode, if the account already has a remote wallet, `mm init` syncs it and reuses the existing trading mode — no trading-mode prompt. For BYOK mode, if a trading mode is already set server-side for the wallet, it is loaded without prompting.
 
 Otherwise, ask the user which wallet mode they want:
 - `server-wallet` (recommended) — keys are hosted by MetaMask infrastructure. No need to manage private keys or mnemonics.
 - `byok` — bring your own mnemonic. The user manages their own keys locally.
 
-Ask the user which trading mode they want (server-wallet only):
+Ask the user which trading mode they want (applies to both server-wallet and BYOK):
 - `guard` — enforces outflow and whitelist policies. When a policy is violated, the CLI requires MFA confirmation before proceeding.
 - `beast` — skips all policy checks and confirmations. Useful for scripting or experienced users who want faster execution.
 
@@ -74,7 +74,7 @@ Never pass `--mnemonic` or `--password` as inline flags. Always instruct the use
 
 ```bash
 export MM_MNEMONIC="word1 word2 ..."
-mm init --wallet byok
+mm init --wallet byok --mode guard
 ```
 
 If the user wants to encrypt their mnemonic with a password during init:
@@ -82,7 +82,7 @@ If the user wants to encrypt their mnemonic with a password during init:
 ```bash
 export MM_MNEMONIC="word1 word2 ..."
 export MM_PASSWORD="mypassword"
-mm init --wallet byok
+mm init --wallet byok --mode guard
 ```
 
 If the mnemonic was stored unencrypted, suggest setting a password afterward:

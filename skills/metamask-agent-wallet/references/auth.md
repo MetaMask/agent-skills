@@ -17,7 +17,7 @@ mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <pas
 | Name | Required | Description |
 | --- | --- | --- |
 | `--wallet` | No | Wallet mode: `server-wallet` or `byok` |
-| `--mode` | No | Trading mode: `guard` or `beast` (server-wallet only) |
+| `--mode` | No | Trading mode: `guard` or `beast` |
 | `--mnemonic` | No | BIP-39 mnemonic phrase for BYOK wallet. Never pass inline. Set `MM_MNEMONIC` env var instead. |
 | `--password` | No | Password to encrypt the BYOK mnemonic at rest. Never pass inline. Set `MM_PASSWORD` env var instead. If omitted in interactive mode, the CLI prompts. If omitted in non-interactive mode, mnemonic is stored unencrypted. |
 
@@ -27,16 +27,17 @@ mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <pas
 mm init
 mm init --wallet server-wallet --mode beast
 export MM_MNEMONIC="word1 word2 ..."
-mm init --wallet byok
+mm init --wallet byok --mode guard
 
 export MM_MNEMONIC="word1 word2 ..."
 export MM_PASSWORD="mypassword"
-mm init --wallet byok
+mm init --wallet byok --mode guard
 ```
 
 ### Note
 
 - In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode instead of prompting for a new trading mode or creating a wallet. Use `mm wallet policy get` to view the wallet policy.
+- In BYOK mode, `mm init` registers the wallet server-side and prompts for trading mode (`guard` or `beast`). If a trading mode is already set server-side, it is loaded without prompting. The `--mode` flag skips the prompt in non-interactive/scripted use.
 
 ## `init show` Command
 
@@ -86,7 +87,7 @@ mm login --token "cliToken:cliRefreshToken"
 ### Note
 
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
-- `mm login qr` (scan with MetaMask Mobile) is available on non-production builds (dev/uat). On production it returns `COMING_SOON`; use browser sign-in instead.
+- `mm login qr` (scan with MetaMask Mobile) is available on all environments, including production.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
 - Use `mm login browser --no-wait` for non-interactive/CI flows. The command prints a sign-in URL; the user completes login in the browser (Google or Email). Bare `mm login --no-wait` fails without a TTY because no method is selected.
 - `--no-wait` is not supported with QR login. Complete authentication later with `mm login --token`.
@@ -115,22 +116,25 @@ mm auth status --toon
 
 ## `logout` Command
 
-Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic.
+Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic. Prompts for confirmation before signing out.
 
 ### Syntax
 
 ```bash
-mm logout
+mm logout [--yes]
 ```
 
 ### Supported Flags
 
-This command does not support flags.
+| Name | Required | Description |
+| --- | --- | --- |
+| `--yes` | No | Skip the confirmation prompt (for non-interactive/scripted use) |
 
 ### Example
 
 ```bash
 mm logout
+mm logout --yes
 ```
 
 ## `config get` Command
@@ -204,22 +208,25 @@ mm config set format toon
 
 ## `reset` Command
 
-Clear the local CLI session entirely, including auth credentials, wallet state, mnemonic, swap quotes, and persisted config.
+Clear the local CLI session entirely, including auth credentials, wallet state, mnemonic, swap quotes, and persisted config. Prompts for confirmation before resetting.
 
 ### Syntax
 
 ```bash
-mm reset
+mm reset [--yes]
 ```
 
 ### Supported Flags
 
-This command does not support flags.
+| Name | Required | Description |
+| --- | --- | --- |
+| `--yes` | No | Skip the confirmation prompt (for non-interactive/scripted use) |
 
 ### Example
 
 ```bash
 mm reset
+mm reset --yes
 ```
 
 ## `wallet password set` Command
@@ -296,5 +303,5 @@ mm wallet password remove --current "mypassword"
 
 | Mode | Behavior |
 | --- | --- |
-| `server-wallet` | Keys hosted by MetaMask infrastructure. Signing and transaction operations may return async job handles. |
-| `byok` | Bring your own local mnemonic. Operation results are returned immediately. If the mnemonic is encrypted with a password, the CLI requires `--password` or interactive prompt to unlock before any operation that needs the private key. |
+| `server-wallet` | Keys hosted by MetaMask infrastructure. Signing and transaction operations return async job handles with a `pollingId`. |
+| `byok` | Bring your own local mnemonic. Keys are held locally and signing is done on-device, but operations still go through a job-polling loop and return a `pollingId`. If the mnemonic is encrypted with a password, the CLI requires `MM_PASSWORD` to unlock before any operation that needs the private key. |

@@ -10,16 +10,7 @@ Use this workflow to discover available Aave V3 tokens, supply/borrow rates, and
 
 ## Resolve chain
 
-If the user doesn't specify a chain, ask. Aave V3 is deployed on these chains:
-
-| Chain | Chain ID |
-| --- | --- |
-| Ethereum | 1 |
-| Polygon | 137 |
-| Arbitrum | 42161 |
-| Optimism | 10 |
-| Avalanche | 43114 |
-| Base | 8453 |
+If the user doesn't specify a chain, ask.
 
 ## Query available markets
 
@@ -27,13 +18,15 @@ If the user doesn't specify a chain, ask. Aave V3 is deployed on these chains:
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
   -d '{
-    "query": "{ markets(request: { chainIds: [<CHAIN_ID>] }) { reserves { underlyingToken { symbol decimals } supplyInfo { apy { formatted } } borrowInfo { apy { formatted } availableLiquidity { amount { value } usd } borrowCapReached } isFrozen isPaused } } }"
+    "query": "{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol decimals } supplyInfo { apy { formatted } } borrowInfo { apy { formatted } availableLiquidity { amount { value } usd } borrowCapReached } isFrozen isPaused } } }"
   }'
 ```
 
+The response returns one entry per market. Each entry has an `address` (the pool contract address) and a `reserves` array.
+
 ## Present results
 
-Filter out reserves where `isFrozen` or `isPaused` is `true`. For each active reserve, show:
+Group reserves by market `address`. Within each market, filter out reserves where `isFrozen` or `isPaused` is `true`. For each active reserve, show:
 
 - Token symbol and decimals (`underlyingToken.symbol`, `underlyingToken.decimals`)
 - Supply APY (`supplyInfo.apy.formatted`)
