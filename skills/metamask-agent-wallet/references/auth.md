@@ -17,7 +17,7 @@ mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <pas
 | Name | Required | Description |
 | --- | --- | --- |
 | `--wallet` | No | Wallet mode: `server-wallet` or `byok` |
-| `--mode` | No | Trading mode: `guard` or `beast` (server-wallet only) |
+| `--mode` | No | Trading mode: `guard` or `beast` |
 | `--mnemonic` | No | BIP-39 mnemonic phrase for BYOK wallet. Never pass inline. Set `MM_MNEMONIC` env var instead. |
 | `--password` | No | Password to encrypt the BYOK mnemonic at rest. Never pass inline. Set `MM_PASSWORD` env var instead. If omitted in interactive mode, the CLI prompts. If omitted in non-interactive mode, mnemonic is stored unencrypted. |
 
@@ -27,16 +27,17 @@ mm init [--wallet <mode>] [--mode <mode>] [--mnemonic <phrase>] [--password <pas
 mm init
 mm init --wallet server-wallet --mode beast
 export MM_MNEMONIC="word1 word2 ..."
-mm init --wallet byok
+mm init --wallet byok --mode guard
 
 export MM_MNEMONIC="word1 word2 ..."
 export MM_PASSWORD="mypassword"
-mm init --wallet byok
+mm init --wallet byok --mode guard
 ```
 
 ### Note
 
 - In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode instead of prompting for a new trading mode or creating a wallet. Use `mm wallet policy get` to view the wallet policy.
+- In BYOK mode, `mm init` registers the wallet server-side and prompts for trading mode (`guard` or `beast`). If a trading mode is already set server-side, it is loaded without prompting. The `--mode` flag skips the prompt in non-interactive/scripted use.
 
 ## `init show` Command
 
@@ -302,5 +303,5 @@ mm wallet password remove --current "mypassword"
 
 | Mode | Behavior |
 | --- | --- |
-| `server-wallet` | Keys hosted by MetaMask infrastructure. Signing and transaction operations may return async job handles. |
-| `byok` | Bring your own local mnemonic. Operation results are returned immediately. If the mnemonic is encrypted with a password, the CLI requires `--password` or interactive prompt to unlock before any operation that needs the private key. |
+| `server-wallet` | Keys hosted by MetaMask infrastructure. Signing and transaction operations return async job handles with a `pollingId`. |
+| `byok` | Bring your own local mnemonic. Keys are held locally and signing is done on-device, but operations still go through a job-polling loop and return a `pollingId`. If the mnemonic is encrypted with a password, the CLI requires `MM_PASSWORD` to unlock before any operation that needs the private key. |

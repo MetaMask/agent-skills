@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "4.2.0"
-  cliVersion: "3.2.0"
+  version: "5.0.0"
+  cliVersion: "4.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -155,7 +155,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` **v3.2.0** (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` **v4.0.0** (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -169,7 +169,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `3.2.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `4.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
@@ -262,15 +262,15 @@ Flag to the user before proceeding if a signing payload or transaction contains:
 
 When raw calldata is unfamiliar or was not constructed by you, run `mm decode --payload <0x-calldata>` first and confirm the decoded intent with the user before signing or sending. See [decode.md](references/decode.md).
 
-## Server Wallet Async Model
+## Async Model
 
-In server-wallet mode, signing and transaction commands return a `pollingId` instead of an immediate result. Handle this consistently:
+In both server-wallet and BYOK mode, signing and transaction commands go through a job-polling loop and return a `pollingId`. Handle this consistently:
 
 1. Prefer `--wait` to block until complete.
 2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
    - `mm wallet requests list`
    - `mm wallet requests watch --polling-id <id>`
-3. In BYOK mode, results are returned immediately. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
+3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`, `Withdraw 10 pUSD to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
 

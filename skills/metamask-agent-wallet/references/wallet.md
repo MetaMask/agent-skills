@@ -18,7 +18,7 @@ mm wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode
 | --- | --- | --- |
 | `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
 | `--name` | No | Display name for the wallet |
-| `--trading-mode` | No | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions. Only applies to server-wallet mode (allowed: `guard`, `beast`) |
+| `--trading-mode` | No | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions (allowed: `guard`, `beast`) |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
