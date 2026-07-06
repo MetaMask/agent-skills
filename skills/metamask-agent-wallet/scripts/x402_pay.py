@@ -276,10 +276,19 @@ def _payment_required_from(result):
     object itself) and content[0].text (its JSON encoding), and tells clients
     to prefer structuredContent; the text form is the fallback for the spec's
     settlement-failure example, whose text is not even parseable JSON.
+
+    Cloudflare's Agents SDK (`agents/x402` `withX402`/`paidTool`) — the most
+    substantial real server implementation found in the wild — puts it in
+    `_meta["x402/error"]` instead of structuredContent (verified by reading
+    its source and a live local run); checked explicitly rather than relying
+    on the content[].text fallback catching it by coincidence.
     """
     sc = result.get("structuredContent")
     if isinstance(sc, dict) and "accepts" in sc:
         return sc
+    meta_error = (result.get("_meta") or {}).get("x402/error")
+    if isinstance(meta_error, dict) and "accepts" in meta_error:
+        return meta_error
     for entry in result.get("content") or []:
         if not (isinstance(entry, dict) and entry.get("type") == "text"):
             continue
@@ -745,6 +754,7 @@ def cmd_mcp_sign(challenge, challenge_file, confirm, want_asset, want_network):
     option, payment = sign_challenge(
         2, options, want_asset, want_network, resource_info, resource_info["url"], "MCP"
     )
+    payment_b64 = base64.b64encode(json.dumps(payment).encode()).decode()
     print(
         json.dumps(
             {
@@ -755,6 +765,15 @@ def cmd_mcp_sign(challenge, challenge_file, confirm, want_asset, want_network):
                 "payTo": option["payTo"],
                 "metaKey": "x402/payment",
                 "payment": payment,
+                "paymentBase64": payment_b64,
+                "note": (
+                    "Use `payment` (the raw object) for servers that follow the MCP "
+                    "transport spec literally (coinbase/x402 specs/transports-v2/mcp.md). "
+                    "Use `paymentBase64` for servers built with Cloudflare's Agents SDK "
+                    "(`agents/x402` withX402/paidTool) — its real implementation "
+                    "base64-decodes _meta[\"x402/payment\"] rather than reading it as an "
+                    "inline object, diverging from the spec text."
+                ),
             },
             indent=2,
         )
