@@ -11,6 +11,9 @@ Usage:
     python3 x402_pay.py inspect <url> [--method M] [--data BODY]
     python3 x402_pay.py pay <url> --confirm [--method M] [--data BODY]
                                   [--asset <contract>] [--network <network>]
+    python3 x402_pay.py inspect-mcp <payment-required-json-or-file>
+    python3 x402_pay.py prepare-mcp <payment-required-json-or-file> --confirm
+                                      [--asset <contract>] [--network <network>]
 
 `inspect` fetches the URL and prints the payment requirement(s) as JSON
 (asset, amount, network, payTo, resource) without signing or spending. Review
@@ -31,6 +34,7 @@ calls at the caller. A local idempotency ledger is a possible future addition.
 Examples:
     python3 x402_pay.py inspect https://api.example.com/premium
     python3 x402_pay.py pay https://api.example.com/premium --confirm
+    python3 x402_pay.py inspect-mcp mcp-payment-required.json
 """
 
 import argparse
@@ -238,12 +242,91 @@ def parse_402(status, headers, body):
     return version, options, resource_info
 
 
+def read_json_source(source):
+    """Read JSON from a file path, stdin (`-`), or an inline JSON string."""
+    if source == "-":
+        text = sys.stdin.read()
+    else:
+        try:
+            with open(source, "r", encoding="utf-8") as f:
+                text = f.read()
+        except OSError:
+            text = source
+    try:
+        return json.loads(text)
+    except ValueError as e:
+        raise CeremonyError("could not parse JSON input: %s" % e)
+
+
+def _looks_like_payment_required(data):
+    return isinstance(data, dict) and data.get("x402Version") is not None and "accepts" in data
+
+
+def parse_mcp_payment_required(data):
+    """Extract PaymentRequired from an MCP tool result or raw PaymentRequired.
+
+    Per the x402 MCP transport, clients should prefer result.structuredContent
+    and fall back to parsing result.content[0].text.
+    """
+    candidate = data
+    if isinstance(data, dict) and "result" in data:
+        candidate = data.get("result")
+
+    if _looks_like_payment_required(candidate):
+        payment_required = candidate
+    elif isinstance(candidate, dict) and _looks_like_payment_required(
+        candidate.get("structuredContent")
+    ):
+        payment_required = candidate["structuredContent"]
+    else:
+        payment_required = None
+        content = candidate.get("content") if isinstance(candidate, dict) else None
+        if isinstance(content, list) and content:
+            text = content[0].get("text") if isinstance(content[0], dict) else None
+            if text:
+                try:
+                    parsed = json.loads(text)
+                except ValueError as e:
+                    raise CeremonyError("could not parse MCP content[0].text as JSON: %s" % e)
+                if _looks_like_payment_required(parsed):
+                    payment_required = parsed
+
+    if not _looks_like_payment_required(payment_required):
+        raise CeremonyError(
+            "input did not contain MCP PaymentRequired data "
+            "(expected x402Version and accepts in structuredContent or content[0].text)"
+        )
+
+    version = payment_required.get("x402Version")
+    if version != 2:
+        raise CeremonyError("MCP transport requires x402Version 2, got %r" % version)
+
+    options = []
+    for a in payment_required.get("accepts") or []:
+        amount = a.get("amount", a.get("maxAmountRequired"))
+        options.append(
+            {
+                "scheme": a.get("scheme"),
+                "network": a.get("network"),
+                "amount": str(amount) if amount is not None else None,
+                "payTo": a.get("payTo"),
+                "asset": a.get("asset"),
+                "maxTimeoutSeconds": a.get("maxTimeoutSeconds", 3600),
+                "extra": a.get("extra", {}),
+                "resource": a.get("resource"),
+            }
+        )
+    if not options:
+        raise CeremonyError("MCP PaymentRequired had no payment options")
+    return version, options, payment_required.get("resource"), payment_required.get("error")
+
+
 def describe(option):
     """Annotate an option with chain and display metadata; never raises."""
     out = dict(option)
     try:
         chain_id = chain_id_for(option["network"])
-    except CeremonyError:
+    except (CeremonyError, OSError):
         chain_id = None
     out["chainId"] = chain_id
     # extra.assetTransferMethod is absent on v1 and on eip3009 v2 offers; only an
@@ -255,7 +338,10 @@ def describe(option):
         and option.get("scheme") == "exact"
         and out["assetTransferMethod"] == "eip3009"
     )
-    meta = asset_meta(chain_id, option.get("asset"))
+    try:
+        meta = asset_meta(chain_id, option.get("asset"))
+    except OSError:
+        meta = None
     if meta:
         out["symbol"] = meta["symbol"]
         out["decimals"] = meta["decimals"]
@@ -501,6 +587,66 @@ def cmd_inspect(url, method, data, content_type):
     )
 
 
+def cmd_inspect_mcp(source):
+    """Print MCP PaymentRequired options without signing or spending."""
+    data = read_json_source(source)
+    version, options, resource_info, error = parse_mcp_payment_required(data)
+    print(
+        json.dumps(
+            {
+                "status": "payment_required",
+                "transport": "mcp",
+                "x402Version": version,
+                "error": error,
+                "resource": resource_info,
+                "options": [describe(o) for o in options],
+                "retryMetaKey": "x402/payment",
+                "settlementMetaKey": "x402/payment-response",
+            },
+            indent=2,
+        )
+    )
+
+
+def cmd_prepare_mcp(source, confirm, want_asset, want_network):
+    """Sign and print an MCP _meta payment payload without calling the tool."""
+    if not confirm:
+        raise CeremonyError(
+            "refusing to sign without --confirm; run 'inspect-mcp' first and "
+            "get user approval, then re-run 'prepare-mcp <json> --confirm'"
+        )
+    data = read_json_source(source)
+    version, options, resource_info, _error = parse_mcp_payment_required(data)
+    option = select(options, want_asset, want_network)
+    chain_id = option["chainId"]
+    validate(option, chain_id)
+
+    from_addr = wallet_address()
+    typed_data, authorization = build_typed_data(option, chain_id, from_addr)
+    resource_url = (resource_info or {}).get("url") or option.get("resource") or "mcp://unknown"
+
+    intent = "x402 MCP: %s %s to %s for %s" % (
+        option.get("humanAmount", option["amount"]),
+        option.get("symbol", ""),
+        option["payTo"],
+        resource_url,
+    )
+    signature = sign_typed_data(chain_id, typed_data, intent)
+    payment = build_payment(version, option, resource_info, signature, authorization, resource_url)
+    print(
+        json.dumps(
+            {
+                "status": "prepared",
+                "transport": "mcp",
+                "meta": {"x402/payment": payment},
+                "payment": payment,
+                "usage": "retry the MCP tools/call with params._meta[\"x402/payment\"] set to this payment object",
+            },
+            indent=2,
+        )
+    )
+
+
 def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     """Run the payment for one offered option and print the settlement."""
     if not confirm:
@@ -600,11 +746,34 @@ def main(argv=None):
     p_pay.add_argument("--asset", help="Disambiguate by asset contract when multiple are offered.")
     p_pay.add_argument("--network", help="Disambiguate by network when multiple are offered.")
 
+    p_inspect_mcp = sub.add_parser(
+        "inspect-mcp", parents=[fmt], help="Parse an MCP PaymentRequired result (read-only)."
+    )
+    p_inspect_mcp.add_argument(
+        "source", help="MCP JSON-RPC result, raw PaymentRequired JSON, file path, or '-' for stdin."
+    )
+
+    p_prepare_mcp = sub.add_parser(
+        "prepare-mcp", parents=[fmt], help="Sign and print an MCP _meta payment payload."
+    )
+    p_prepare_mcp.add_argument(
+        "source", help="MCP JSON-RPC result, raw PaymentRequired JSON, file path, or '-' for stdin."
+    )
+    p_prepare_mcp.add_argument(
+        "--confirm", action="store_true", help="Required. Explicit user approval to sign."
+    )
+    p_prepare_mcp.add_argument(
+        "--asset", help="Disambiguate by asset contract when multiple are offered."
+    )
+    p_prepare_mcp.add_argument(
+        "--network", help="Disambiguate by network when multiple are offered."
+    )
+
     args = parser.parse_args(argv)
     try:
         if args.command == "inspect":
             cmd_inspect(args.url, args.method.upper(), args.data, args.content_type)
-        else:
+        elif args.command == "pay":
             cmd_pay(
                 args.url,
                 args.method.upper(),
@@ -614,6 +783,10 @@ def main(argv=None):
                 args.asset,
                 args.network,
             )
+        elif args.command == "inspect-mcp":
+            cmd_inspect_mcp(args.source)
+        else:
+            cmd_prepare_mcp(args.source, args.confirm, args.asset, args.network)
     except CeremonyError as e:
         print(json.dumps({"status": "error", "error": str(e)}), file=sys.stderr)
         return 1
