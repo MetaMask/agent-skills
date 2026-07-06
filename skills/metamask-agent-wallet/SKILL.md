@@ -104,7 +104,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Execute a token swap or bridge | `mm swap execute` | [swap.md](references/swap.md) |
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
-| Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| Pay an HTTP `402` / x402 paywalled request or prepare MCP x402 payment metadata | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
 
 ## Workflows
 
@@ -134,7 +134,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Toggle Aave V3 collateral | [aave-collateral.md](workflows/aave-collateral.md) |
 | Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
 | Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
-| Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
+| Pay an HTTP `402` (x402) paywalled request or MCP x402 tool call | [x402-pay.md](workflows/x402-pay.md) |
 
 ## Global Flags
 
@@ -236,7 +236,7 @@ Do not pass unvalidated user input into any command.
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
 | Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address (if `--to-address` is set), and the destination gas top-up (if `--refuel` is set) before executing |
-| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL before signing the authorization. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
+| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and HTTP or MCP resource URL before signing the authorization. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |

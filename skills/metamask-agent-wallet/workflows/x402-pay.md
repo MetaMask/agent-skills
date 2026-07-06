@@ -1,7 +1,8 @@
 # x402 pay workflow (buyer)
 
-Use this when an HTTP request returns `402 Payment Required` (x402), or the user asks to
-fetch/pay for a paywalled API, endpoint, file, or resource over HTTP.
+Use this when an HTTP request returns `402 Payment Required` (x402), an MCP tool returns x402
+`PaymentRequired`, or the user asks to fetch/pay for a paywalled API, endpoint, file, tool, or
+resource.
 
 `scripts/x402_pay.py` does the payment. Command details are in `references/x402.md`. Call it by
 its full path inside this skill's directory (`$SKILL_DIR` is the folder containing `SKILL.md`), not
@@ -12,13 +13,14 @@ script, not an `mm` command, so do not pass `--toon`/`--format`; it always print
 
 1. Inspect the resource.
 2. Show the payment to the user and get approval.
-3. Pay.
-4. Report the settlement and return the resource.
+3. Pay for HTTP, or prepare the MCP `_meta["x402/payment"]` payload for an MCP retry.
+4. Report the settlement/resource for HTTP, or hand the MCP payment object to the MCP client retry.
 
 ## Inspect
 
 ```bash
 python3 "$SKILL_DIR/scripts/x402_pay.py" inspect <url>
+python3 "$SKILL_DIR/scripts/x402_pay.py" inspect-mcp <payment-required-json-or-file>
 ```
 
 Prints the payment requirement(s) as JSON: asset, human-readable amount, network, `payTo`, and
@@ -33,12 +35,17 @@ get explicit approval. A signature authorizes a real token debit.
 
 ```bash
 python3 "$SKILL_DIR/scripts/x402_pay.py" pay <url> --confirm
+python3 "$SKILL_DIR/scripts/x402_pay.py" prepare-mcp <payment-required-json-or-file> --confirm
 ```
 
 Add `--asset <contract>` or `--network <network>` if the `402` offered more than one eligible
 option. For a non-GET resource add `--method` (and `--data` for a body); the same request is
 replayed with the payment attached. On success the script prints the settlement transaction and
 the resource body.
+
+For MCP, `prepare-mcp` signs and prints the object to set at
+`params._meta["x402/payment"]` when retrying the MCP `tools/call`. It does not call the tool or
+settle by itself. The MCP server returns settlement at `_meta["x402/payment-response"]`.
 
 ## Edge cases
 
