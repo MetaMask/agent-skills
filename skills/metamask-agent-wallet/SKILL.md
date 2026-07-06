@@ -1,6 +1,6 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, Aave V3 lending and borrowing, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, Aave V3 lending and borrowing, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402), when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
@@ -105,6 +105,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 | Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| Pay an x402 challenge from a paid MCP tool | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
 
 ## Workflows
 
@@ -135,6 +136,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
 | Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
 | Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
+| Pay an x402-gated MCP tool call | [x402-pay.md](workflows/x402-pay.md) |
 
 ## Global Flags
 
@@ -224,6 +226,7 @@ Before constructing any command, validate all user-provided values:
 | x402 `payTo` / authorization `to` | Must match `^0x[0-9a-fA-F]{40}$` and equal the recipient in the `402` |
 | x402 `value` | Atomic-unit integer that exactly equals the offered amount (the `exact` scheme is not a maximum) |
 | x402 resource URL | Must be `https://`. Reject a `402` reached via an unexpected cross-host redirect |
+| x402 MCP challenge | x402 v2 only. The signed `payment` object goes, as-is, in `_meta["x402/payment"]` of the retried tool call; a repeated `isError` result is a new challenge, never re-sign it without new user approval |
 
 Do not pass unvalidated user input into any command.
 
@@ -236,7 +239,7 @@ Do not pass unvalidated user input into any command.
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
 | Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address (if `--to-address` is set), and the destination gas top-up (if `--refuel` is set) before executing |
-| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL before signing the authorization. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
+| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource (URL or MCP tool) before signing the authorization — over HTTP with `pay --confirm`, over MCP with `mcp-sign --confirm`. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
