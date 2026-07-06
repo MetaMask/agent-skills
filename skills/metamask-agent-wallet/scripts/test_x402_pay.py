@@ -14,6 +14,7 @@ CAIP-2 ids (resolved locally) and the asset-metadata cache is pre-seeded.
 Run:  python3 test_x402_pay.py
 """
 
+import base64
 import contextlib
 import io
 import json
@@ -167,6 +168,46 @@ SPEC_SETTLEMENT_FAILURE = json.loads(r"""
 
 SPEC_OPTION = SPEC_CHALLENGE["result"]["structuredContent"]["accepts"][0]
 
+# Captured verbatim from a live local run of Cloudflare's official x402-mcp
+# example (cloudflare/agents examples/x402-mcp, agents/x402 withX402/paidTool)
+# — the most substantial real server implementation found. It diverges from
+# the spec text two ways: the challenge lives in _meta["x402/error"], not
+# structuredContent (there is no structuredContent key at all), and it later
+# expects _meta["x402/payment"] to be a base64 string, not the inline object
+# transports-v2/mcp.md shows.
+CLOUDFLARE_CHALLENGE = json.loads(r"""
+{
+  "result": {
+    "_meta": {
+      "x402/error": {
+        "x402Version": 2,
+        "error": "PAYMENT_REQUIRED",
+        "resource": {
+          "url": "x402://square",
+          "description": "Squares a number",
+          "mimeType": "application/json"
+        },
+        "accepts": [
+          {
+            "scheme": "exact",
+            "network": "eip155:84532",
+            "amount": "10000",
+            "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+            "payTo": "0xa323f50efdc234a8007fe535b1f2c03fd4af2f2d",
+            "maxTimeoutSeconds": 300,
+            "extra": { "name": "USDC", "version": "2" }
+          }
+        ]
+      }
+    },
+    "content": [{ "type": "text", "text": "{}" }],
+    "isError": true
+  },
+  "jsonrpc": "2.0",
+  "id": 3
+}
+""")
+
 
 def seed_asset_meta():
     """Pre-seed asset metadata so describe() never shells out to `mm`."""
@@ -228,6 +269,28 @@ class ParseMcpChallengeTest(unittest.TestCase):
         options, resource_info, error = x402_pay.parse_mcp_challenge(SPEC_SETTLEMENT_FAILURE)
         self.assert_spec_option(options, resource_info)
         self.assertEqual(error, "Settlement failed")
+
+    def test_parses_cloudflare_meta_error_challenge(self):
+        # Captured live from cloudflare/agents' withX402/paidTool: no
+        # structuredContent key at all, payload lives in _meta["x402/error"].
+        x402_pay._asset_meta_cache[(84532, "0x036cbd53842c5426634e7929541ec2318f3dcf7e")] = {
+            "symbol": "USDC",
+            "decimals": 6,
+        }
+        options, resource_info, error = x402_pay.parse_mcp_challenge(CLOUDFLARE_CHALLENGE)
+        self.assertEqual(len(options), 1)
+        self.assertEqual(options[0]["network"], "eip155:84532")
+        self.assertEqual(options[0]["payTo"], "0xa323f50efdc234a8007fe535b1f2c03fd4af2f2d")
+        self.assertEqual(resource_info["url"], "x402://square")
+        self.assertEqual(error, "PAYMENT_REQUIRED")
+
+    def test_meta_error_takes_precedence_over_content_text(self):
+        challenge = clone(CLOUDFLARE_CHALLENGE["result"])
+        conflicting = clone(challenge["_meta"]["x402/error"])
+        conflicting["accepts"][0]["amount"] = "999999"
+        challenge["content"][0]["text"] = json.dumps(conflicting)
+        options, _, _ = x402_pay.parse_mcp_challenge(challenge)
+        self.assertEqual(options[0]["amount"], "10000")
 
     def test_refuses_v1(self):
         v1 = clone(SPEC_CHALLENGE["result"]["structuredContent"])
@@ -414,6 +477,28 @@ class CliTest(unittest.TestCase):
                 rc = x402_pay.main(["mcp-sign", "--challenge", json.dumps(c), "--confirm"])
         self.assertEqual(rc, 1)
         self.assertIn("resource", json.loads(err.getvalue())["error"])
+
+    def test_mcp_sign_emits_base64_payload_for_cloudflare_servers(self):
+        # Verified live against cloudflare/agents' real withX402/paidTool:
+        # it decodes _meta["x402/payment"] via atob(token) then JSON.parse —
+        # a base64 string, not the spec's inline object. paymentBase64 must
+        # decode back to exactly the same object as `payment`.
+        x402_pay._asset_meta_cache[(84532, "0x036cbd53842c5426634e7929541ec2318f3dcf7e")] = {
+            "symbol": "USDC",
+            "decimals": 6,
+        }
+        with mock.patch.object(x402_pay, "wallet_address", return_value="0xbCE7…47Ef"):
+            with mock.patch.object(x402_pay, "sign_typed_data", return_value="0xdeadbeef"):
+                out = io.StringIO()
+                with contextlib.redirect_stdout(out):
+                    rc = x402_pay.main(
+                        ["mcp-sign", "--challenge", json.dumps(CLOUDFLARE_CHALLENGE), "--confirm"]
+                    )
+        self.assertEqual(rc, 0)
+        report = json.loads(out.getvalue())
+        decoded = json.loads(base64.b64decode(report["paymentBase64"]))
+        self.assertEqual(decoded, report["payment"])
+        self.assertEqual(decoded["payload"]["signature"], "0xdeadbeef")
 
 
 if __name__ == "__main__":
