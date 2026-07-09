@@ -30,6 +30,8 @@ This command does not support additional flags beyond output format options.
 
 `mm doctor` detects installed skills from the global skills lock file (`~/.agents/.skill-lock.json` or `$XDG_STATE_HOME/skills/.skill-lock.json`). It parses `SKILL.md` frontmatter for the skill `version` and `cliVersion` metadata, then checks the CLI `major.minor` against the skill `cliVersion` requirement.
 
+As of CLI v4.0.1, `mm doctor` also detects **project-local** MetaMask AI skills: when the global skill lock file exists but contains no MetaMask entries, the command falls back to scanning the current project for installed `metamask-agent-wallet` / `metamask-agent-workflows` skills so locally-installed skills are still reported.
+
 ### Example
 
 ```bash
