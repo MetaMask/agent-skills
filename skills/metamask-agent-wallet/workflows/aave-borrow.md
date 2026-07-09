@@ -1,83 +1,87 @@
-# Aave V3 borrow workflow
+# Aave V3 borrow
 
-Use this workflow to borrow assets from Aave V3 against supplied collateral.
+Use when the user wants to borrow assets from Aave V3 against supplied collateral.
+Supplying collateral: workflows/aave-supply.md. Repaying: workflows/aave-repay.md.
+Shared machinery (endpoint, response types, executing): references/aave.md.
 
-## Flow
+## Preconditions
 
-1. Resolve chain, asset address, and pool address.
-2. Check collateral and borrow capacity.
-3. Preview health factor impact.
-4. Query the Aave API for the borrow transaction and execute.
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: chain, asset, amount. If the chain was not named, ask — do not guess.
+3. The user has supplied collateral with `isCollateral: true` on at least one asset — verify
+   via workflows/aave-positions.md. No collateral → workflows/aave-supply.md; collateral
+   disabled → workflows/aave-collateral.md.
+4. The asset is borrowable: `borrowCapReached` is `false` and the reserve is not frozen or
+   paused — check via workflows/aave-markets.md.
 
-## Resolve chain and addresses
+## Steps
 
-If the user doesn't specify a chain, ask. Fetch the available markets for the chain from the Aave API to get pool addresses:
-
-```bash
-curl -s -X POST https://api.v3.aave.com/graphql \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol } } } }"}'
-```
-
-Each entry in the response is a separate Aave V3 market. Extract `address` from each — this is the pool contract address.
-
-- If one market is returned, use its `address` as `<POOL_ADDRESS>`.
-- If multiple markets are returned, present them to the user (showing the `address` and up to 5 representative token symbols from `reserves[].underlyingToken.symbol`) and ask which market they want to interact with.
-
-## Check collateral
-
-Before borrowing, check the user's positions using `aave-positions.md`. Verify the following.
-
-1. The user has supplied collateral. If not, follow `aave-supply.md` to supply assets first.
-2. Collateral is enabled on at least one supplied asset (`isCollateral` is `true`). If not, follow `aave-collateral.md` to enable it.
-3. Available borrow capacity covers the requested amount.
-
-Query available markets to check the target asset's borrow APY and whether `borrowCapReached` is `true`. See `aave-markets.md`.
-
-## Preview health factor
-
-Preview the health factor impact before borrowing:
+### 1. Discover the market (pool address)
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ healthFactorPreview(request: { action: { borrow: { market: \"<POOL_ADDRESS>\", sender: \"<WALLET_ADDRESS>\", chainId: <CHAIN_ID>, amount: { erc20: { currency: \"<ASSET_ADDRESS>\", value: \"<AMOUNT>\" } } } } }) { before after } }"
-  }'
+  -d '{"query":"{ markets(request: { chainIds: [8453] }) { address reserves { underlyingToken { symbol } } } }"}'
 ```
 
-Show the health factor before and after. If the projected health factor (`after`) drops below 1.5, warn about liquidation risk. If it drops below 1.0, stop and tell the user to reduce the borrow amount or repay existing debt.
+Expected output: `data.markets[]` with `address` and reserve symbols. Multiple markets → ask
+the user which one (references/aave.md § Market discovery).
+Capture: `markets[].address` → `<pool-address>`.
 
-## Query borrow transaction
-
-Get the wallet address and query the Aave V3 GraphQL API. Don't include `onBehalfOf` when borrowing for the user's own account. It triggers a credit delegation requirement even for self-borrows.
-
-```bash
-mm wallet address
-```
+### 2. Preview health factor
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ borrow(request: { market: \"<POOL_ADDRESS>\", amount: { erc20: { currency: \"<ASSET_ADDRESS>\", value: \"<AMOUNT>\" } }, sender: \"<WALLET_ADDRESS>\", chainId: <CHAIN_ID> }) { __typename ... on TransactionRequest { to from data value chainId } ... on ApprovalRequired { approval { to from data value chainId } originalTransaction { to from data value chainId } } ... on InsufficientBalanceError { required { value decimals } available { value decimals } } } }"
-  }'
+  -d '{"query":"{ healthFactorPreview(request: { action: { borrow: { market: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", sender: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\", chainId: 8453, amount: { erc20: { currency: \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\", value: \"100\" } } } } }) { before after } }"}'
 ```
 
-The `value` in the amount is a human-readable decimal string (e.g., `"2"`, `"100"`). The API handles conversion.
+Expected output: `data.healthFactorPreview.before` and `.after`. Sender comes from
+`mm wallet address --toon`.
+If `after` < 1.5 → warn about liquidation risk. If `after` < 1.0 → stop; suggest a smaller
+amount or repaying existing debt.
 
-## Execute borrow
-
-Confirm the asset, amount, chain, and projected health factor with the user. The `value` field must be `0x`-prefixed hex (typically `"0x0"` for ERC-20 borrows).
+### 3. Query the borrow transaction
 
 ```bash
-mm wallet send-transaction --chain-id <CHAIN_ID> --payload '{"to":"<TO>","value":"0x0","data":"<DATA>"}' --wait --intent "Borrow <AMOUNT> <SYMBOL> from Aave V3 on <CHAIN_NAME>"
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ borrow(request: { market: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", amount: { erc20: { currency: \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\", value: \"100\" } }, sender: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\", chainId: 8453 }) { __typename ... on TransactionRequest { to from data value chainId } ... on ApprovalRequired { approval { to from data value chainId } originalTransaction { to from data value chainId } } ... on InsufficientBalanceError { required { value decimals } available { value decimals } } } }"}'
 ```
 
-If the response is `InsufficientBalanceError`, show the required and available amounts and stop.
+Borrow amount is a plain decimal string (references/aave.md § Amount format). Do NOT include
+`onBehalfOf` for a self-borrow — it triggers a credit-delegation requirement.
+Expected output: `__typename` — handle per references/aave.md § Response types.
+Capture: `to` and `data` → step 5 payload.
 
-## Notes
+### 4. Confirm with the user
 
-- After the transaction confirms, use `aave-positions.md` to verify the updated position and health factor.
-- The borrowed amount accrues interest over time. Check debt at any time using `aave-positions.md`.
-- To repay the borrow, see `aave-repay.md`.
+Show: asset symbol + contract address, amount, chain, pool address, borrow APY (from
+workflows/aave-markets.md if known), and the projected health factor from step 2. Remind
+that debt accrues interest. Do not continue until the user explicitly approves.
+
+### 5. Execute
+
+```bash
+mm wallet send-transaction --chain-id 8453 --payload '{"to":"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5","value":"0x0","data":"0xa415bcad000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913"}' --wait --intent "Borrow 100 USDC from Aave V3 on Base" --toon
+```
+
+`"value"` is `"0x0"` for borrows; `to`/`data` come from step 3.
+Expected output: transaction completion (with `--wait`) or a `pollingId`
+(references/concepts.md § Async job model).
+
+## Decision points
+
+- User rejects at step 4 → stop. Do not execute.
+- Projected health factor below 1.0 at step 2 → stop; offer a smaller amount or more collateral.
+- `borrowCapReached` is `true` for the asset → borrowing unavailable; suggest another asset.
+- After completion → verify debt and health factor via workflows/aave-positions.md; repayment
+  via workflows/aave-repay.md.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `InsufficientBalanceError` | Borrow capacity too low; show `required` vs `available`, suggest more collateral or a smaller amount |
+| GraphQL `errors[]` in response | Re-check pool address, asset address, chain ID, amount format (references/aave.md); ensure no `onBehalfOf` |
+| `WALLET_ERROR` (gas) | `mm wallet balance --chain <chain-id>`; top up the native token |

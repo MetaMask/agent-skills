@@ -1,71 +1,80 @@
-# Aave V3 positions workflow
+# Aave V3 positions and health factor
 
-Use this workflow to check Aave V3 positions, health factor, interest rates, or reserve data.
+Use when the user wants to see their Aave V3 supplies, borrows, collateral status, or health
+factor, or to preview the health-factor impact of a planned operation. Read-only — no
+transaction is sent. Rates and available assets: workflows/aave-markets.md.
+Shared machinery (endpoint, market discovery): references/aave.md.
 
-## Flow
+## Preconditions
 
-1. Get wallet address and chain.
-2. Query supply and borrow positions via GraphQL.
-3. Present summary.
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know the chain. If the chain was not named, ask — do not guess. Chain IDs: `mm chains list`.
 
-## Resolve chain
+## Steps
 
-Get the wallet address:
-
-```bash
-mm wallet address
-```
-
-If the user doesn't specify a chain, ask. Fetch all markets for the chain to get pool addresses:
+### 1. Get the wallet address
 
 ```bash
-curl -s -X POST https://api.v3.aave.com/graphql \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address } }"}'
+mm wallet address --toon
 ```
 
-Collect all returned `address` values as `<POOL_ADDRESSES>`.
+Expected output: the active wallet address.
+Capture: `address` → `<address>` in step 3.
 
-## Query positions
-
-Query supply and borrow positions across all markets in a single request. Build the `markets` array from all addresses returned above:
+### 2. Discover the markets (pool addresses)
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ userSupplies(request: { markets: [{ address: \"<POOL_ADDRESS_1>\", chainId: <CHAIN_ID> }, { address: \"<POOL_ADDRESS_2>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } balance { amount { value } usd } apy { formatted } isCollateral marketAddress } userBorrows(request: { markets: [{ address: \"<POOL_ADDRESS_1>\", chainId: <CHAIN_ID> }, { address: \"<POOL_ADDRESS_2>\", chainId: <CHAIN_ID> }], user: \"<WALLET_ADDRESS>\" }) { currency { symbol decimals } debt { amount { value } usd } apy { formatted } marketAddress } }"
-  }'
+  -d '{"query":"{ markets(request: { chainIds: [8453] }) { address } }"}'
 ```
 
-Include one `{ address, chainId }` entry per market returned by the previous query. The response contains both `userSupplies` and `userBorrows` arrays spanning all markets.
+Expected output: `data.markets[]` with one `address` per market.
+Capture: ALL `markets[].address` values → the `markets` array entries in step 3.
 
-## Health factor preview
-
-Preview the health factor impact of a planned operation:
+### 3. Query supplies and borrows across all markets
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ healthFactorPreview(request: { action: { <OPERATION>: { market: \"<POOL_ADDRESS>\", sender: \"<WALLET_ADDRESS>\", chainId: <CHAIN_ID>, amount: { erc20: { currency: \"<ASSET_ADDRESS>\", value: \"<AMOUNT>\" } } } } }) { before after } }"
-  }'
+  -d '{"query":"{ userSupplies(request: { markets: [{ address: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", chainId: 8453 }], user: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\" }) { currency { symbol decimals } balance { amount { value } usd } apy { formatted } isCollateral marketAddress } userBorrows(request: { markets: [{ address: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", chainId: 8453 }], user: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\" }) { currency { symbol decimals } debt { amount { value } usd } apy { formatted } marketAddress } }"}'
 ```
 
-Replace `<OPERATION>` with `supply`, `borrow`, `withdraw`, or `repay`. All action types require `market`, `sender`, and `chainId`.
+Include one `{ address, chainId }` entry per market captured in step 2.
+Expected output: `userSupplies[]` and `userBorrows[]` arrays spanning all markets.
 
-## Present summary
+### 4. (Only if the user is planning an operation) Preview the health factor
 
-Format the data into three sections:
+```bash
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ healthFactorPreview(request: { action: { borrow: { market: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", sender: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\", chainId: 8453, amount: { erc20: { currency: \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\", value: \"100\" } } } } }) { before after } }"}'
+```
 
-Supplied assets:
-- Symbol, balance (`balance.amount.value`), USD value (`balance.usd`), supply APY (`apy.formatted`), used as collateral (`isCollateral`)
+The action key is one of `supply`, `borrow`, `withdraw`, `repay`; its `amount` uses the same
+format as the wrapped operation (references/aave.md § Amount format).
+Expected output: `healthFactorPreview` with `before` and `after`.
 
-Borrowed assets:
-- Symbol, debt amount (`debt.amount.value`), USD value (`debt.usd`), borrow APY (`apy.formatted`)
+### 5. Present the summary
 
-Account summary:
-- Total collateral value, total debt value, available borrows, health factor
-- Health factor guidance: above 2.0 is safe, 1.5–2.0 is moderate, 1.0–1.5 is risky and approaching liquidation, below 1.0 is liquidatable
+1. Supplied assets: symbol, `balance.amount.value`, `balance.usd`, `apy.formatted`, `isCollateral`.
+2. Borrowed assets: symbol, `debt.amount.value`, `debt.usd`, `apy.formatted`.
+3. Health factor with a risk label (see Decision points). `apy.formatted` is already a
+   percentage (`"2.12"` = 2.12%) — do not convert.
 
-The `apy.formatted` field returns a percentage directly (e.g., `"2.12"` means 2.12%). No conversion is needed.
+## Decision points
+
+- Health factor above 2.0 → safe; no warning needed.
+- 1.5–2.0 → moderate; mention it when the user plans to borrow or withdraw more.
+- 1.0–1.5 → risky, approaching liquidation; warn and offer workflows/aave-repay.md or
+  workflows/aave-supply.md (more collateral).
+- Below 1.0 → position is liquidatable; warn urgently and recommend immediate repay/supply.
+- No supplies and no borrows returned → tell the user they have no Aave position on this
+  chain; offer workflows/aave-markets.md and workflows/aave-supply.md.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| GraphQL `errors[]` in response | Re-check pool addresses, chain ID, and wallet address; re-run step 2 |
+| Empty `markets[]` in step 2 | Aave V3 not deployed on this chain; ask the user for another chain |

@@ -1,39 +1,61 @@
-# Login Workflow
+# Login
 
-Use this workflow when the user needs to log in to the CLI.
+Use when the user needs to sign in (or `mm doctor` reports `authenticated: false`) on an
+already-initialized project. Full first-time setup: workflows/onboarding.md.
+Command details: references/auth.md.
 
-Reference command syntax in `references/auth.md`.
+## Preconditions
 
-## Flow
+1. CLI installed: `mm --version` prints a version. If not: `npm install -g @metamask/agentic-cli@latest`.
+2. Not already signed in: `mm auth status --toon` shows `authenticated: false`. If `true`, stop — nothing to do (to switch accounts, `mm logout` first with user approval).
 
-1. Ask the user which login method they want: MetaMask Mobile QR or browser (Google / Email).
-2. Execute login.
-3. Verify with token.
+## Steps
 
-## Login
+### 1. Choose a method
 
-For non-interactive/CI flows, use `mm login browser --no-wait`:
+Ask the user: MetaMask Mobile QR or browser (Google/Email)? Both work on all environments,
+including production.
 
-```bash
-mm login browser --no-wait
-```
+- QR and interactive terminal → `mm login qr` (shows a QR; `--no-wait` not supported)
+- Browser or non-interactive → `mm login browser --no-wait`
 
-The command prints a sign-in URL. The user opens it in a browser and chooses Google or Email to complete sign-in.
-
-`mm login qr` (scan with MetaMask Mobile) is available on all environments, including production. QR login keeps the CLI attached to the relay, so it does not support `--no-wait`.
-
-## Verify
-
-Once the user completes sign-in, verify with:
+### 2. Log in
 
 ```bash
-mm login --token "<TOKEN>"
+mm login browser --no-wait --toon
 ```
 
-## Confirm
+Expected output: a sign-in URL. The user opens it and completes Google or Email sign-in.
+Capture: the token the user receives → `<cli-token>` in step 3.
 
-Run `mm doctor` to verify the session is ready. It reports `authenticated` and `initialized` booleans. Do not proceed until both are `true`. If `initialized` is `false`, follow `workflows/onboarding.md` to run `mm init`.
+### 3. Complete the session (only if `--no-wait` was used)
 
 ```bash
-mm doctor
+mm login --token <cli-token> --toon
 ```
+
+Expected output: `ok: true` with authenticated session. Never log or store the token.
+
+### 4. Verify
+
+```bash
+mm doctor --toon
+```
+
+Expected output: `authenticated: true`. If `initialized: false`, continue with
+workflows/onboarding.md step 4 before running any wallet command.
+
+## Decision points
+
+- Server-wallet mode → login auto-syncs existing wallets; `mm wallet list` works immediately, no re-init needed.
+- BYOK mode → no sync on login; if `initialized: false`, run `mm init` (workflows/onboarding.md).
+- User cannot open a browser and has MetaMask Mobile → use `mm login qr` in a TTY.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `ALREADY_AUTHENTICATED` | Already signed in; `mm logout` first only if the user wants to switch accounts |
+| `TOKEN_INVALID` | Re-paste the full `cliToken:cliRefreshToken`; re-run step 2 if expired |
+| `PAIRING_TIMEOUT` / `PAIRING_EXPIRED` | Re-run `mm login qr`; scan promptly |
+| Login succeeds but commands still fail | workflows/troubleshooting.md |

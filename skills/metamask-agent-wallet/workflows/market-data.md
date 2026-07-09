@@ -1,62 +1,69 @@
-# Market Data Workflow
+# Token discovery and market data
 
-Use this workflow when the user wants to look up token prices, discover tokens, or explore market data.
+Use when the user asks for a token's price, price history, or metadata and you do not yet have
+its CAIP-19 asset ID. Already have the CAIP-19 (or it is a native asset like ETH)? Skip to
+step 3. Command details: references/price.md and references/token.md.
 
-Reference command syntax in `references/market-data.md`.
+## Preconditions
 
-## Find a Token
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know the chain. If the user did not name one, ask — do not guess. Chain IDs:
+   `mm chains list`; token-API coverage: `mm token networks`.
 
-If the user mentions a token by name or symbol, search for it first to get the correct asset ID:
+## Steps
 
-```bash
-mm token list search --query "USDC" --chain 1
-```
+### 1. Resolve the token to a contract address
 
-To browse popular, trending, or top-gainer tokens on a chain:
-
-```bash
-mm token list popular --chain 1
-mm token list trending --chain 1
-mm token list top-gainer --chain 1
-```
-
-Use `mm token networks` to discover which chains support token data.
-
-## Get Token Metadata
-
-Once you have the CAIP-19 asset ID, fetch detailed metadata:
+Native assets (ETH, POL) need no search — build `eip155:<chain-id>/slip44:<coin>` directly
+(references/concepts.md § CAIP identifiers) and skip to step 3. For any other symbol or name:
 
 ```bash
-mm token assets --asset-ids "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" --include-market-data --include-token-security-data
+mm token list search --query USDC --chain 1 --limit 5 --toon
 ```
 
-## Get Spot Price
+Expected output: `data.tokens` rows with `symbol`, `name`, `address`, `decimals`, `chainId`.
+Capture: `address` + `chainId` → build `<caip19>` as `<caip2>/erc20:<address>`, e.g.
+`eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48`.
 
-Fetch the current price for one or more tokens:
+### 2. Disambiguate
+
+If more than one row plausibly matches the user's request (same or similar symbol), show the
+user the candidates (symbol, name, address, market cap) and ask which one they mean. Do not
+pick silently.
+
+### 3. Get the spot price
 
 ```bash
-mm price spot --asset-ids "eip155:1/slip44:60"
-mm price spot --asset-ids "eip155:1/slip44:60,eip155:137/slip44:966" --vs eur --market-data
+mm price spot --asset-ids eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --market-data --toon
 ```
 
-Use `mm price networks` to discover supported CAIP-2 chain IDs and `mm price currencies` to list quote currencies.
+Expected output: `data.prices` rows with `assetId`, `vsCurrency`, `price`.
 
-## Get Historical Price
+### 4. Get historical prices (only if the user asked for a trend or range)
 
-Fetch historical price data for an asset:
+Split the CAIP-19: the part before `/` goes to `--chain-id`, the part after to `--asset-type`.
 
 ```bash
-mm price history --chain-id eip155:1 --asset-type slip44:60 --time-period 7d --interval daily
+mm price history --chain-id eip155:1 --asset-type erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48 --time-period 7d --interval daily --toon
 ```
 
-Common time periods: `1d`, `7d`, `30d`, `2M`, `1y`, `3y`. Intervals: `5m`, `hourly`, `daily`.
+Expected output: `data.prices` rows of `[millisecond-timestamp, price]` pairs.
 
-For a custom date range, use `--from` and `--to` with Unix timestamps instead of `--time-period`.
+## Decision points
 
-## Edge Cases
+- Search returns zero rows → retry with more chains (`--chain 1,137,8453`) or an alternate
+  name; still nothing → ask the user for the contract address.
+- Multiple plausible matches → ask the user (step 2). Never assume the first row.
+- User wants a curated browse instead of a specific token → `mm token list popular|trending|top-gainer --chain <chain-id>` (references/token.md).
+- User wants safety/metadata detail → `mm token assets --asset-ids <caip19> --include-token-security-data --include-market-data`.
+- User names a non-USD currency → check it exists via `mm price currencies`, then add `--vs <currency>`.
+- Custom date range → replace `--time-period` with `--from <unix> --to <unix>` (`date +%s`).
 
-- If the chain is not mentioned by the user, ask for the chain.
-- Use `mm chains list` to discover supported chain IDs.
-- If a token search returns no results, try broader chains or alternate names.
-- CAIP-19 asset IDs follow the format `eip155:<chainId>/slip44:<coinType>` for native tokens or `eip155:<chainId>/erc20:<contractAddress>` for ERC-20s.
-- Use `--include-token-security-data` on `token assets` to surface scam or risk signals before the user trades an unfamiliar token.
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `INVALID_ASSET_ID` | Rebuild the CAIP-19 per references/concepts.md; re-check the address from step 1 |
+| `INVALID_CHAIN` | Chain not covered by the API; run `mm price networks` / `mm token networks` and pick a listed chain |
+| `TOKEN_NOT_FOUND` | Broaden the search chains or ask the user for the contract address |
+| Price looks stale or null | Retry with `--market-data`; for thin tokens warn the user that pricing may be unreliable |

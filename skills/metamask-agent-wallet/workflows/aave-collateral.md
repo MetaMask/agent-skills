@@ -1,66 +1,89 @@
-# Aave V3 collateral workflow
+# Aave V3 collateral toggle
 
-Use this workflow to enable or disable an asset as collateral on Aave V3.
+Use when the user wants to enable or disable a supplied asset as collateral on Aave V3.
+Supplying: workflows/aave-supply.md. Repaying debt first: workflows/aave-repay.md.
+Shared machinery (endpoint, executing, confirm rule): references/aave.md.
 
-## Flow
+## Preconditions
 
-1. Resolve chain, asset address, and pool address.
-2. Check current collateral status and health factor.
-3. Query the Aave API for the collateral toggle transaction.
-4. Execute toggle.
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: chain and asset. If the chain was not named, ask — do not guess.
+   Resolve a symbol to a contract address: `mm token list search --query USDC --chain 8453 --toon`.
+3. The wallet has a non-zero supply of the asset on Aave (check via workflows/aave-positions.md);
+   toggling collateral on an unsupplied asset reverts.
 
-## Resolve chain and addresses
+## Steps
 
-If the user doesn't specify a chain, ask. Fetch the available markets for the chain from the Aave API to get pool addresses:
-
-```bash
-curl -s -X POST https://api.v3.aave.com/graphql \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol } } } }"}'
-```
-
-Each entry in the response is a separate Aave V3 market. Extract `address` from each — this is the pool contract address.
-
-- If one market is returned, use its `address` as `<POOL_ADDRESS>`.
-- If multiple markets are returned, present them to the user (showing the `address` and up to 5 representative token symbols from `reserves[].underlyingToken.symbol`) and ask which market they want to interact with.
-
-## Check status
-
-Query the user's positions using `aave-positions.md`. For the target asset, check whether collateral is enabled or disabled (`isCollateral`).
-
-The user must have a non-zero supply of the asset to toggle collateral.
-
-When disabling collateral, check the health factor. If the user has outstanding borrows, disabling collateral lowers the health factor. Show the impact. If the health factor would drop below 1.0, stop and tell the user to repay debt first via `aave-repay.md`.
-
-## Query collateral toggle transaction
-
-Get the wallet address and query the Aave V3 GraphQL API:
-
-```bash
-mm wallet address
-```
+### 1. Discover the market (pool address)
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ collateralToggle(request: { market: \"<POOL_ADDRESS>\", underlyingToken: \"<ASSET_ADDRESS>\", user: \"<WALLET_ADDRESS>\", chainId: <CHAIN_ID> }) { to from data value chainId } }"
-  }'
+  -d '{"query":"{ markets(request: { chainIds: [8453] }) { address reserves { underlyingToken { symbol } } } }"}'
 ```
 
-The API returns a `TransactionRequest` with `{to, from, data, value, chainId}`. The toggle direction is determined automatically based on the current collateral state.
+Expected output: `data.markets[]` with `address` and reserve symbols. Multiple markets → ask
+the user which one (references/aave.md § Market discovery).
+Capture: `markets[].address` → `<pool-address>`.
 
-## Execute toggle
-
-Confirm the asset, toggle direction (enabling or disabling), and chain with the user. The `value` field must be `0x`-prefixed hex.
+### 2. Get the sender address and current status
 
 ```bash
-mm wallet send-transaction --chain-id <CHAIN_ID> --payload '{"to":"<TO>","value":"0x0","data":"<DATA>"}' --wait --intent "Toggle <SYMBOL> as collateral on Aave V3 on <CHAIN_NAME>"
+mm wallet address --toon
 ```
 
-## Notes
+Expected output: the active wallet address.
+Capture: `address` → `<address>` in step 3.
+Then run the positions query (workflows/aave-positions.md § Steps 3) and read the target
+asset's `isCollateral` field — this tells you which direction the toggle will take.
 
-- Enabling collateral lets the asset back borrows, increasing borrow capacity.
-- Disabling collateral removes it from the borrow calculation. This may trigger liquidation if remaining collateral can't cover existing debt.
-- Not all assets support collateral usage. If the transaction reverts, the reserve may not be eligible.
-- After the transaction confirms, verify the updated status using `aave-positions.md`.
+### 3. Query the collateral toggle transaction
+
+```bash
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ collateralToggle(request: { market: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", underlyingToken: \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\", user: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\", chainId: 8453 }) { to from data value chainId } }"}'
+```
+
+The toggle direction is decided by the API from the current on-chain state.
+Expected output: a `TransactionRequest` `{to, from, data, value, chainId}`.
+Capture: `to` and `data` → step 5 payload.
+
+### 4. Confirm with the user
+
+Show: asset symbol + contract address, chain, pool address, and the toggle direction
+(enabling or disabling, from step 2's `isCollateral`). If DISABLING and the user has any
+borrows: show the current health factor and warn that disabling lowers it; if it would drop
+below 1.0, stop and point to workflows/aave-repay.md. Do not continue until the user
+explicitly approves.
+
+### 5. Execute the toggle
+
+```bash
+mm wallet send-transaction --chain-id 8453 --payload '{"to":"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5","value":"0x0","data":"0x5a3b74b9000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda029130000000000000000000000000000000000000000000000000000000000000001"}' --wait --intent "Enable USDC as collateral on Aave V3 on Base" --toon
+```
+
+Use the `to`/`data` captured in step 3 (`"value"` is always `"0x0"` for a toggle).
+Expected output: transaction completion (with `--wait`) or a `pollingId`
+(references/concepts.md § Async job model).
+
+### 6. Verify
+
+Re-run the positions query (workflows/aave-positions.md) and confirm the asset's
+`isCollateral` flipped as expected.
+
+## Decision points
+
+- User rejects at step 4 → stop. Do not execute.
+- Asset has zero supplied balance → offer workflows/aave-supply.md first.
+- Disabling would push the health factor below 1.0 → stop; offer workflows/aave-repay.md.
+- Transaction reverts → the reserve may not be collateral-eligible; check the market's
+  reserves via workflows/aave-markets.md.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| GraphQL `errors[]` in response | Re-check pool address, asset address, chain ID (references/aave.md) |
+| On-chain revert | Asset not supplied, or reserve not collateral-eligible; verify via workflows/aave-positions.md and workflows/aave-markets.md |
+| `WALLET_ERROR` (gas) | `mm wallet balance --chain <chain-id>`; top up the native token |

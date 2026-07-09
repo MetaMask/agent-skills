@@ -1,49 +1,65 @@
-# Perps Modify Position Workflow
+# Modify a perp position
 
-Use this workflow when the user wants to modify leverage, take-profit, or stop-loss on an existing position.
+Use when the user wants to change leverage, take-profit (TP), or stop-loss (SL) on an
+existing perpetual position. Changing size: close partially (workflows/perps-close-position.md)
+or open more (workflows/perps-open-position.md). Command details: references/perps.md.
 
-Reference command syntax in `references/perps.md`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. An open position exists for the symbol: `mm perps positions --venue hyperliquid --toon`.
+3. At least one change is specified: new leverage, TP price, or SL price. If none, ask —
+   `mm perps modify` requires at least one of `--leverage`, `--tp`, `--sl`.
 
-1. Check open positions.
-2. Dry run the modification.
-3. Confirm with the user and modify.
+## Steps
 
-## Confirm Symbol
-
-If the user does not mention a token symbol, list open positions and confirm with the user:
-
-```bash
-mm perps positions
-```
-
-## Check Positions
-
-`--venue` defaults to `hyperliquid`. It can be omitted.
+### 1. Read the current position
 
 ```bash
-mm perps positions
+mm perps positions --venue hyperliquid --toon
 ```
 
-## Dry Run
+Expected output: a row for the symbol with current side, size, leverage, liquidation price.
+Capture: `symbol` → `<symbol>` in step 3; current leverage/TP/SL → the "old" values in step 2.
 
-Preview the modification before executing:
+### 2. Confirm with the user
+
+Show: symbol, venue, and each changed field as old → new (leverage, TP price, SL price).
+Sanity-check against the position's side: for a long, TP above and SL below the current mark
+price; inverted for a short — warn if not. Warn that raising leverage moves the liquidation
+price closer. Do not continue until the user explicitly approves.
+
+### 3. Modify
 
 ```bash
-mm perps modify --symbol BTC --leverage 10 --dry-run
-mm perps modify --symbol ETH --tp 3000 --sl 2000 --dry-run
+mm perps modify --venue hyperliquid --symbol BTC --leverage 10 --yes --toon
 ```
 
-At least one of `--leverage`, `--tp`, or `--sl` must be provided.
+Include only the flags being changed, e.g. TP/SL only:
+`mm perps modify --venue hyperliquid --symbol ETH --tp 3000 --sl 2000 --yes --toon`.
+Expected output: `ok: true` with the updated values.
 
-## Modify
-
-Remove `--dry-run` only after explicit user confirmation:
+### 4. Verify
 
 ```bash
-mm perps modify --symbol BTC --leverage 10
-mm perps modify --symbol ETH --tp 3000 --sl 2000
+mm perps positions --venue hyperliquid --toon
 ```
 
-Do not add `--yes` unless the user explicitly asked for unattended execution.
+Expected output: the position row reflects the new leverage and/or trigger prices. Report the
+new liquidation price to the user if leverage changed.
+
+## Decision points
+
+- User rejects at step 2 → stop. Do not modify.
+- New leverage exceeds the market's max → check `maxLeverage` via
+  `mm perps markets --venue hyperliquid --symbol BTC --toon`; ask for a valid value.
+- TP/SL on the wrong side of the mark price → warn and re-confirm before running.
+- Uncertain → run step 3 with `--dry-run` instead of `--yes` first, review, re-run.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `ValidationError` (none of `--leverage`/`--tp`/`--sl` given) | Ask the user which field to change; pass at least one |
+| Position not found | Re-run step 1; confirm the exact symbol |
+| Leverage above market max | Read `maxLeverage` from `mm perps markets --symbol <symbol>`; re-confirm a valid value |
