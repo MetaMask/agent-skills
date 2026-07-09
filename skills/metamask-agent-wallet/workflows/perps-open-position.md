@@ -1,102 +1,76 @@
-# Perps open position workflow
+# Open a perp position
 
-Use this workflow when the user wants to open a new perpetual position.
+Use when the user wants to open a new perpetual futures position (long or short).
+Closing or changing an existing position: workflows/perps-close-position.md /
+workflows/perps-modify-position.md. Command details: references/perps.md.
 
-Reference command syntax in `references/perps.md`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: symbol, side (long/short), size (base asset), leverage. If any is missing, ask —
+   do not guess. Symbols: `mm perps markets --venue hyperliquid --toon`.
+3. Venue margin covers the position: `mm perps balance --venue hyperliquid --toon` —
+   `spendableBalance` ≥ quoted notional / leverage. If not, deposit first
+   (`mm perps deposit`, references/perps.md) from Arbitrum USDC.
 
-1. Check balance and deposit if needed.
-2. Quote the position.
-3. Dry run.
-4. Confirm with the user and open.
+## Steps
 
-## Confirm symbol
-
-If the user doesn't mention a token symbol, list available markets and confirm with the user:
-
-```bash
-mm perps markets
-```
-
-## Check balance
-
-`--venue` defaults to `hyperliquid`. You can omit it.
+### 1. Verify the market and max leverage
 
 ```bash
-mm perps balance
+mm perps markets --venue hyperliquid --symbol BTC --toon
 ```
 
-If available margin is zero or insufficient, deposit USDC before proceeding. Hyperliquid only supports deposits from Arbitrum mainnet (`eip155:42161`).
+Expected output: one row with `symbol`, `maxLeverage`, `markPrice`.
+Capture: `maxLeverage` → reject the request if the desired leverage exceeds it.
 
-Check the user's Arbitrum balance for USDC and ETH (for gas).
+### 2. Quote the order
 
 ```bash
-mm wallet balance --chain 42161
+mm perps quote --venue hyperliquid --symbol BTC --side long --size 0.001 --leverage 2 --toon
 ```
 
-### No ETH and no USDC on Arbitrum
+For a limit order append `--type limit --limit-px 60000`.
+Expected output: `entryPrice`, `notional`, `estimatedFee`, `estimatedLiquidationPrice`, `warnings`.
+Capture: those four fields → shown in step 3.
 
-Inform the user that ETH on Arbitrum is required for gas. Without ETH, no on-chain transaction is possible. Bridge from another chain.
+### 3. Confirm with the user
+
+Show: symbol, side, size, leverage, venue, order type (market/limit), limit price if set,
+quoted entry price, notional, estimated fee, estimated liquidation price (note it is an
+estimate). Do not continue until the user explicitly approves.
+
+### 4. Open the position
 
 ```bash
-mm swap quote --from <TOKEN> --to ETH --amount 0.001 --from-chain <SOURCE_CHAIN_ID> --to-chain 42161
-mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
+mm perps open --venue hyperliquid --symbol BTC --side long --size 0.001 --leverage 2 --yes --toon
 ```
 
-Once the user has ETH for gas, swap or bridge to get USDC on Arbitrum.
+If anything is uncertain (first trade, near margin limits), run the identical command with
+`--dry-run` instead of `--yes` first, review, then re-run with `--yes`.
+Expected output: `ok: true` with the order/fill result.
+
+### 5. Verify
 
 ```bash
-mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 42161
-mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
+mm perps positions --venue hyperliquid --toon
 ```
 
-### Has ETH or another token on Arbitrum (but no USDC)
+Expected output: a row for the new position with matching symbol, side, size, leverage.
+Report entry price and liquidation price to the user.
 
-Swap to USDC on Arbitrum.
+## Decision points
 
-```bash
-mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain 42161
-mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
-```
+- User rejects at step 3 → stop. Do not open.
+- Leverage > `maxLeverage` at step 1 → tell the user the market maximum; re-quote only after
+  they pick a valid leverage.
+- Insufficient `spendableBalance` → offer `mm perps deposit` (references/perps.md), then restart at step 2.
+- `--type limit` without a limit price → ask for the price; `--limit-px` is required.
 
-### Has ETH and USDC on Arbitrum
+## Errors
 
-Deposit USDC directly into Hyperliquid.
-
-```bash
-mm perps deposit --amount <AMOUNT> --asset USDC
-```
-
-
-## Quote
-
-Always quote before opening:
-
-```bash
-mm perps quote --symbol BTC --side long --size 0.01 --leverage 5
-```
-
-Show the user estimated entry, notional, fees, liquidation price, side, size, leverage, and venue before proceeding.
-
-## Dry run
-
-Preview the order before signing:
-
-```bash
-mm perps open --symbol BTC --side long --size 0.01 --leverage 5 --dry-run
-```
-
-For limit orders, include `--type limit --limit-px <price>`.
-
-`--max-slippage-bps` is the slippage cap in basis points for IOC market pricing.
-
-## Open
-
-Remove `--dry-run` only after explicit user confirmation:
-
-```bash
-mm perps open --symbol BTC --side long --size 0.01 --leverage 5
-```
-
-Don't add `--yes` unless the user explicitly asked for unattended execution.
+| Error / symptom | Recovery |
+| --- | --- |
+| `ValidationError` (unknown symbol) | `mm perps markets --venue hyperliquid --toon`; confirm the exact symbol with the user |
+| Insufficient margin | `mm perps balance --venue hyperliquid --toon`; deposit USDC or reduce size after user approval |
+| Position missing at step 5 (limit order) | The order is resting, not filled — show it via `mm perps orders --venue hyperliquid --toon` |

@@ -1,48 +1,63 @@
-# Swap workflow
+# Same-chain swap
 
-Use this workflow when the user wants to swap tokens on the same chain.
+Use when the user wants to swap one token for another on a single chain.
+Cross-chain: use workflows/bridge.md instead. Command details: references/swap.md.
 
-Reference command syntax in `references/swap.md`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: source token, destination token, amount, chain. If the chain was not named, ask —
+   do not guess. List chains with `mm chains list`.
+3. Balance covers the amount plus gas: `mm wallet balance --chain <chain-id>`.
 
-1. Quote.
-2. Confirm with the user.
-3. Execute and track status.
+## Steps
 
-Don't skip the quote review step. The user needs to see output amount, fees, route, and slippage before executing.
-
-## Quote
-
-```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1
-```
-
-Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.
-
-`--to-address` isn't supported for same-chain swaps. Output always goes to the signer's wallet.
-
-Persist the quote id for execution. Show the quote to the user before execution.
-Confirm source token, destination token, amount, chain, slippage, expected output, fees, and route.
-
-## Execute
+### 1. Get a quote
 
 ```bash
-mm swap execute --quote-id "$QUOTE_ID"
+mm swap quote --from ETH --to USDC --amount 0.5 --from-chain 1 --toon
 ```
 
-Prefer executing by quote ID. Re-quote-and-execute flags exist, but quote ID execution keeps the reviewed quote tied to the submitted action.
+Do NOT pass `--to-chain`, `--to-address`, or `--refuel` for a same-chain swap. `--to-address`
+is rejected same-chain (`INVALID_SWAP_PARAMS`) — output always goes to the active wallet.
+Expected output: `data.quoteId` plus a `quote` object with `destAssetAmount`,
+`minDestAssetAmount`, and `feeData`.
+Capture: `quoteId` → used as `<quote-id>` in steps 3 and 4.
 
-## Status
+### 2. Confirm with the user
+
+Show: from token, to token, amount, chain, slippage (default 0.5%), quoted output amount
+(`destAssetAmount` scaled by the destination token's `decimals`), minimum received
+(`minDestAssetAmount`), fees. Do not continue until the user explicitly approves.
+
+### 3. Execute by quote id
 
 ```bash
-mm swap status --quote-id "$QUOTE_ID"
+mm swap execute --quote-id <quote-id> --toon
 ```
 
-## Edge cases
+Always execute the reviewed quote by id. Never pass token/amount flags here — that re-quotes
+and executes a price the user never reviewed.
 
-- Quote expired: re-quote and ask the user to review the new quote.
-- Insufficient balance: surface the error verbatim.
-- Slippage exceeded: only increase `--slippage` if the user explicitly accepts more slippage. Always warn the user
-  if slippage is increased above 1% that it will affect the minimum received.
-- Missing chain: use `mm chains list` before guessing a chain ID.
+### 4. Track status
+
+```bash
+mm swap status --quote-id <quote-id> --toon
+```
+
+Repeat until the status is terminal (completed or failed), then report the result.
+
+## Decision points
+
+- User rejects at step 2 → stop. Do not execute.
+- Quote expired or not found at step 3 → return to step 1, then re-confirm at step 2.
+- User wants the output at a different address → impossible same-chain; offer a follow-up
+  `mm transfer` after the swap completes.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `NO_QUOTES` | No route for this pair/amount. Try a different amount or token pair; verify the token exists on the chain with `mm token list search --query <symbol> --chain <chain-id>` |
+| Insufficient balance | `mm wallet balance --chain <chain-id>`; offer a bridge from another chain (workflows/bridge.md) |
+| User asks for higher slippage | Re-quote with `--slippage <percent>` only after explicit user approval; warn above 1% |

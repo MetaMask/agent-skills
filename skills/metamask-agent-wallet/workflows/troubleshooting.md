@@ -1,51 +1,81 @@
-# Troubleshooting Workflow
+# Troubleshooting
 
-Use this workflow when a command fails, hangs, prompts unexpectedly, or behaves differently in a terminal.
+Use when a command fails, hangs, prompts unexpectedly, or returns an unknown error.
+Error code meanings: references/errors.md. Command details: references/doctor.md.
 
-## Universal Triage
+## Preconditions
 
-Run `mm doctor` first to inspect CLI version, skills, environment, and session health in one shot:
+1. CLI reachable: `mm --version` prints a version. If `mm: command not found`: `npm install -g @metamask/agentic-cli@latest` and check `PATH`.
 
-```bash
-mm doctor
-```
+## Steps
 
-If you need more detail, run these in order:
-
-```bash
-mm --version
-mm auth status
-mm <failing-command> --help
-```
-
-If `auth status` reports anything other than authenticated, fix authentication before debugging downstream wallet, signing, swap, perps, or predict commands.
-
-## Common Symptoms
-
-| Symptom | Likely cause | Next step |
-| --- | --- | --- |
-| `mm: command not found` | Binary not installed or not on `PATH` | Check install and PATH |
-| Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch --polling-id <id>` |
-| Auth errors after previously working | Expired token | Check `mm auth status` and session file under `~/.metamask/` |
-| `CHAIN_ID_MISMATCH` on typed data | Payload `domain.chainId` differs from `--chain-id` | Align the two chain IDs |
-| `MNEMONIC_LOCKED` or `WRONG_PASSWORD` | BYOK mnemonic is encrypted and password was wrong or missing | Set the correct `MM_PASSWORD` environment variable and re-run |
-| `ALREADY_ENCRYPTED` on `wallet password set` | Mnemonic already has a password | Use `mm wallet password change` instead |
-| `NOT_ENCRYPTED` on `wallet password change/remove` | Mnemonic is not encrypted | Use `mm wallet password set` instead |
-
-## Verbose Logging
-
-Use `--verbose` when a command appears to hang or hides progress:
+### 1. Triage with doctor
 
 ```bash
-mm wallet balance --json --verbose
+mm doctor --toon
 ```
 
-Structured logs and progress lines go to stderr; command results remain on stdout.
+Expected output: `cli`, `env`, `authenticated`, `initialized`, `hints`.
 
-## Error Codes
+### 2. Branch on the doctor output
 
-For raw error-code meanings, load `../references/errors.md`. Relay CLI errors verbatim before explaining them.
+- If `authenticated: false` → workflows/login.md. Fix auth before anything downstream.
+- If `initialized: false` → workflows/onboarding.md (step 4).
+- If `hints` is non-empty → follow each hint verbatim first.
+- If `env` is not what the user expects → `mm config set env prod` (or `dev`/`uat`) after user approval.
+- If all healthy → step 3.
 
-## Reset Last
+### 3. Check the failing command's contract
 
-Use `mm reset` only after checking version, auth status, and the failing command's help output. Reset clears local session state and should not be the first troubleshooting step. Always ask the user for explicit confirmation before running reset. The command itself also prompts for confirmation; pass `--yes` to skip the prompt in non-interactive sessions.
+```bash
+mm transfer --help
+```
+
+(Substitute the failing command.) Trust the `flags` list over the `usage` string — some usage
+strings are wrong (e.g. `wallet trading-mode` prints `mm mode ...`, which does not exist).
+
+### 4. Match the error code
+
+- `NOT_INITIALIZED` → workflows/onboarding.md.
+- `AUTH_ERROR` / `TOKEN_REFRESH_FAILED` → workflows/login.md.
+- `MNEMONIC_LOCKED` / `WRONG_PASSWORD` → set the correct `MM_PASSWORD` env var, retry.
+- `ALREADY_ENCRYPTED` on `wallet password set` → use `mm wallet password change`.
+- `NOT_ENCRYPTED` on `wallet password change|remove` → use `mm wallet password set`.
+- `CHAIN_ID_MISMATCH` → align payload `domain.chainId` with `--chain-id`.
+- Command returned a `pollingId` and seems stuck → `mm wallet requests list --toon`, then `mm wallet requests watch --polling-id <polling-id>` (references/wallet-requests.md).
+- `NO_TTY` → pass explicit subcommands/flags (`mm login browser`, `--yes` after approval); password prompts need a real terminal.
+- `NETWORK_UNREACHABLE` → check connectivity, retry.
+- Anything else → look it up in references/errors.md and surface the CLI message + hint verbatim.
+
+### 5. If the command hangs or hides progress, re-run with debug logs
+
+```bash
+mm wallet balance --toon --verbose
+```
+
+Expected output: progress/debug lines on stderr; the result stays on stdout.
+
+### 6. Last resort: reset
+
+Only after steps 1-5 fail, and ONLY with the user's explicit confirmation of the scope
+("wipes the entire local CLI session; login + init required again"):
+
+```bash
+mm reset --yes --toon
+```
+
+Expected output: `ok: true`. Then follow workflows/onboarding.md.
+
+## Decision points
+
+- Version mismatch warning in preflight → suggest `npm install -g @metamask/agentic-cli@latest`, then `npx skills add metamask/agent-skills`.
+- Error text is clear and user-fixable (bad address, insufficient balance) → relay it verbatim; do not reset.
+- User declines the reset confirmation → stop; report remaining state.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `RESET_FAILED` | Retry `mm reset`; check `~/.metamask/` file permissions |
+| Auth worked before, fails now | Token expired: workflows/login.md |
+| Unknown flag rejected despite appearing in `usage` | Usage strings can be wrong; trust `flags` list and the reference file |

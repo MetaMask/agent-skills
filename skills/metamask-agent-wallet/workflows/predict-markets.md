@@ -1,45 +1,65 @@
-# Predict markets workflow
+# Browse prediction markets
 
-Use this workflow to search, browse, and inspect prediction markets on Polymarket.
+Use when the user wants to find, browse, or inspect Polymarket prediction markets or read an
+order book. Placing an order: workflows/predict-place-order.md. Command details:
+references/predict-data.md.
 
-Reference command syntax in `references/predict.md`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+   No Predict setup is needed to browse — these commands are all read-only.
+2. You know what the user is looking for (topic, question, or market). If not, ask.
 
-1. Search or browse markets.
-2. Inspect the selected market to get outcome token IDs.
+## Steps
 
-## Search markets
-
-```bash
-mm predict markets search "Knicks NBA Finals" --limit 5 --toon
-```
-
-Search can return loosely related markets, so always inspect the selected market before quoting.
-
-If search is noisy, list active markets and filter manually:
+### 1. Search for markets
 
 ```bash
-mm predict markets list --active --limit 50 --toon
+mm predict markets search "bitcoin above 52k" --limit 5 --toon
 ```
 
-## Browse by topic
+The query is positional — there is no query flag; quote multi-word queries.
+Expected output: `result.markets[]` with `question`, `slug`, `conditionId`, `outcomes`,
+`outcomePrices`, `liquidity`, `active`. Search can return loosely related markets — always
+inspect the chosen market in step 2 before trading.
+Capture: `slug` or `conditionId` → `<slug>` for step 2.
 
-Use events, series, and tags to browse by topic. Resolve a tag slug or ID first, then filter:
+### 2. Inspect the chosen market
 
 ```bash
-mm predict tags list --limit 50 --toon
-mm predict events list --tag-slug sports --active --limit 10 --toon
-mm predict events get <EVENT_SLUG_OR_ID> --toon
-mm predict series list --recurrence weekly --limit 10 --toon
+mm predict markets get --market bitcoin-above-52k-on-july-9-2026 --toon
 ```
 
-These browse commands don't return outcome token IDs. Drill into a specific market with `mm predict markets get` before quoting or placing.
+Expected output: market detail with per-outcome token IDs, prices, tick size, and minimum
+order size. Outcome token IDs are NOT market IDs — map the user's intended outcome (e.g.
+"Yes") to its token ID.
+Capture: outcome token ID → `<token-id>` for step 3 and for quote/place
+(references/predict-trade.md); `conditionId` → `<condition-id>` for cancel/redeem.
 
-## Inspect a market
+### 3. Read the order book (optional)
 
 ```bash
-mm predict markets get <MARKET_SLUG_OR_ID> --toon
+mm predict book --token-id 21742633143463906290569050155826241533067272736897614950488156847949938836455 --toon
 ```
 
-The market detail prints outcome token IDs. Outcome token IDs aren't market IDs. Use the token ID for `quote`, `place`, `book`, and `balance --token-id`.
+Expected output: bids and asks as `{price, size}` levels; prices are per-share in (0, 1].
+Use the best bid/ask to suggest a realistic limit price.
+
+## Decision points
+
+- Search results are noisy → `mm predict markets list --active --limit 50 --toon` and filter
+  manually, or narrow with `--tag <tag-slug>` (get slugs from `mm predict tags list --toon`).
+- User wants to browse by topic instead of a specific question →
+  `mm predict events list --tag-slug sports --active --limit 10 --toon`, then
+  `mm predict events get <event> --toon`; events/series/tags do not return token IDs, so
+  always finish with step 2 on a specific market.
+- User picks a market and wants to trade → workflows/predict-place-order.md with the captured
+  `<token-id>`.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `NOT_FOUND` | Unknown slug/ID/token ID; re-run step 1 and re-copy the exact value |
+| Empty search results | Broaden the query or raise `--limit`; try `markets list --active` |
+| `UNKNOWN` (`fetch failed`) | Transient Gamma/CLOB failure; retry, check `mm predict status` |

@@ -1,103 +1,83 @@
-# Aave V3 repay workflow
+# Aave V3 repay
 
-Use this workflow to repay borrowed assets on Aave V3.
+Use when the user wants to repay borrowed assets on Aave V3.
+Borrowing: workflows/aave-borrow.md. Withdrawing collateral: workflows/aave-withdraw.md.
+Shared machinery (endpoint, response types, approval rule): references/aave.md.
 
-## Flow
+## Preconditions
 
-1. Resolve chain, asset address, and pool address.
-2. Check outstanding debt.
-3. Query the Aave API for the repay transaction.
-4. Handle approval if required, then repay.
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: chain, asset, amount (or "full debt"). If the chain was not named, ask.
+3. Outstanding debt exists — check `userBorrows` via workflows/aave-positions.md and show the
+   user the debt amount (`debt.amount.value`) and borrow APY (`apy.formatted`).
+4. Wallet balance covers the repayment plus gas: `mm wallet balance --chain <chain-id>`.
 
-## Resolve chain and addresses
+## Steps
 
-If the user doesn't specify a chain, ask. Fetch the available markets for the chain from the Aave API to get pool addresses:
-
-```bash
-curl -s -X POST https://api.v3.aave.com/graphql \
-  -H 'Content-Type: application/json' \
-  -d '{"query":"{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol } } } }"}'
-```
-
-Each entry in the response is a separate Aave V3 market. Extract `address` from each — this is the pool contract address.
-
-- If one market is returned, use its `address` as `<POOL_ADDRESS>`.
-- If multiple markets are returned, present them to the user (showing the `address` and up to 5 representative token symbols from `reserves[].underlyingToken.symbol`) and ask which market they want to interact with.
-
-## Check debt
-
-Query the user's outstanding debt using `userBorrows` from `aave-positions.md`. Identify the following.
-
-- The asset being repaid and its contract address
-- Current debt amount (`debt.amount.value`)
-- Current borrow APY (`apy.formatted`)
-
-Show the debt amount and current rate.
-
-## Query repay transaction
-
-Get the wallet address and query the Aave V3 GraphQL API:
-
-```bash
-mm wallet address
-```
-
-For a specific repayment amount:
+### 1. Discover the market (pool address)
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ repay(request: { market: \"<POOL_ADDRESS>\", amount: { erc20: { currency: \"<ASSET_ADDRESS>\", value: { exact: \"<AMOUNT>\" } } }, sender: \"<WALLET_ADDRESS>\", chainId: <CHAIN_ID> }) { __typename ... on TransactionRequest { to from data value chainId } ... on ApprovalRequired { reason requiredAmount { value decimals } currentAllowance { value decimals } approval { to from data value chainId } originalTransaction { to from data value chainId } } ... on InsufficientBalanceError { required { value decimals } available { value decimals } } } }"
-  }'
+  -d '{"query":"{ markets(request: { chainIds: [8453] }) { address reserves { underlyingToken { symbol } } } }"}'
 ```
 
-To repay the full debt, use `{ max: true }` instead of `{ exact: \"<AMOUNT>\" }` in the value field. This lets the contract calculate the exact outstanding debt at execution time, including accrued interest.
+Expected output: `data.markets[]` with `address` and reserve symbols. Multiple markets → ask
+the user which one (references/aave.md § Market discovery).
+Capture: `markets[].address` → `<pool-address>`.
 
-You can't use `{ max: true }` when `onBehalfOf` is set in the request. If repaying on behalf of another address, specify the exact repayment amount. Query the current debt via `userBorrows` and add a small buffer (e.g., 0.5%) to account for interest accrued between query and execution.
-
-## Handle response
-
-The API returns one of three response types:
-
-### `TransactionRequest`
-
-The transaction is ready to send. Confirm with the user, then send. The `value` field must be `0x`-prefixed hex (typically `"0x0"` for ERC-20 repayments).
+### 2. Query the repay transaction
 
 ```bash
-mm wallet send-transaction --chain-id <CHAIN_ID> --payload '{"to":"<TO>","value":"0x0","data":"<DATA>"}' --wait --intent "Repay <AMOUNT> <SYMBOL> on Aave V3 on <CHAIN_NAME>"
+curl -s -X POST https://api.v3.aave.com/graphql \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"{ repay(request: { market: \"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5\", amount: { erc20: { currency: \"0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913\", value: { exact: \"100\" } } }, sender: \"0x7c2b3e65ef2b18235e2d24266f92854a70207483\", chainId: 8453 }) { __typename ... on TransactionRequest { to from data value chainId } ... on ApprovalRequired { reason requiredAmount { value decimals } currentAllowance { value decimals } approval { to from data value chainId } originalTransaction { to from data value chainId } } ... on InsufficientBalanceError { required { value decimals } available { value decimals } } } }"}'
 ```
 
-### `ApprovalRequired`
+Full debt: use `value: { max: true }` instead of `value: { exact: \"100\" }` — the contract
+computes the exact debt (including accrued interest) at execution time. `{ max: true }` is
+NOT allowed with `onBehalfOf`; when repaying for another address, use `exact` with the
+current debt plus a small buffer (about 0.5%) — the contract refunds the excess.
+Sender comes from `mm wallet address --toon`.
+Expected output: `__typename` — handle per references/aave.md § Response types.
+Capture: `to` and `data` (from `approval` and/or the transaction) → step 4 payload.
 
-An ERC-20 approval is needed before repayment. Confirm the token being approved, the spender, and the amount with the user. Then send the approval.
+### 3. Confirm with the user
+
+Show: asset symbol + contract address, amount (or "full debt"), chain, pool address; if
+`ApprovalRequired`, also the spender and that the API default allowance is UNLIMITED,
+offering the exact-amount alternative (references/aave.md § Approval security rule).
+Do not continue until the user explicitly approves. If `InsufficientBalanceError`: show
+`required` vs `available` and stop.
+
+### 4. Execute
 
 ```bash
-mm wallet send-transaction --chain-id <CHAIN_ID> --payload '{"to":"<APPROVAL_TO>","value":"0x0","data":"<APPROVAL_DATA>"}' --wait --intent "Approve <AMOUNT> <SYMBOL> for Aave V3 Pool <POOL_ADDRESS> on <CHAIN_NAME>"
+mm wallet send-transaction --chain-id 8453 --payload '{"to":"0xA238Dd80C259a72e81d7e4664a9801593F98d1c5","value":"0x0","data":"0x573ade81000000000000000000000000833589fcd6edb6e08f4c7c32d4f71b54bda02913"}' --wait --intent "Repay 100 USDC on Aave V3 on Base" --toon
 ```
 
-After the approval confirms, send the original repay transaction.
+`"value"` is `"0x0"` for ERC-20 repayments; `to`/`data` come from step 2. If step 2 returned
+`ApprovalRequired`: send the APPROVAL's `to`/`data` first (`"value":"0x0"`, intent
+"Approve 100 USDC for Aave V3 Pool on Base"), wait for completion, then send
+`originalTransaction`'s `to`/`data`.
+Expected output: transaction completion (with `--wait`) or a `pollingId`
+(references/concepts.md § Async job model).
 
-```bash
-mm wallet send-transaction --chain-id <CHAIN_ID> --payload '{"to":"<ORIGINAL_TX_TO>","value":"0x0","data":"<ORIGINAL_TX_DATA>"}' --wait --intent "Repay <AMOUNT> <SYMBOL> on Aave V3 on <CHAIN_NAME>"
-```
+## Decision points
 
-ERC-20 approvals are consumed by the repay transaction. If the user approved an exact amount and needs to repay again (e.g., for remaining dust debt), a new approval is required. Consider approving slightly more than the debt amount to avoid this.
+- User rejects at step 3 → stop. Do not execute.
+- User wants the debt fully cleared → prefer `{ max: true }`; repaying the exact original
+  borrow amount leaves interest "dust" that blocks full collateral withdrawal.
+- Dust debt remains after an exact repay → re-run with `{ max: true }`, or over-repay with a
+  0.5% buffer; if the wallet holds only the exact original amount, acquire slightly more first.
+- Exact-amount approval already consumed by a prior repay → a new approval is required for
+  the next repay.
+- After completion → verify the debt is cleared or reduced via workflows/aave-positions.md.
 
-### `InsufficientBalanceError`
+## Errors
 
-The user doesn't have enough tokens to repay. Show the required and available amounts, then stop.
-
-## Handling dust debt
-
-Interest accrues continuously between borrow and repay transactions. When repaying an exact amount equal to the original borrow, a small "dust" debt remains.
-
-To handle this:
-1. Use `{ max: true }` (only works without `onBehalfOf`) to let the contract calculate the exact outstanding debt at execution time.
-2. Over-repay slightly: query the current debt via `userBorrows`, then repay with the debt amount plus a small buffer (e.g., 0.5%). The contract only deducts the actual debt and refunds the excess.
-3. Acquire more tokens: if the wallet balance equals the exact original borrow amount, acquire slightly more of the token to cover interest.
-
-## Notes
-
-- After the transaction confirms, use `aave-positions.md` to verify the debt is cleared or reduced.
-- All debt (including dust amounts) must be cleared before a full collateral withdrawal. See `aave-withdraw.md`.
+| Error / symptom | Recovery |
+| --- | --- |
+| `InsufficientBalanceError` | Show `required` vs `available`; offer a swap (workflows/swap.md) or bridge (workflows/bridge.md), then restart at step 2 |
+| GraphQL `errors[]` in response | Re-check pool address, asset address, chain ID, amount format (references/aave.md); `{ max: true }` with `onBehalfOf` is invalid |
+| `WALLET_ERROR` (gas) | `mm wallet balance --chain <chain-id>`; top up the native token |

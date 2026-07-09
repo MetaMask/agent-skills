@@ -1,38 +1,63 @@
-# Decode Commands
+# mm decode
 
-Use `decode` to turn raw EVM calldata into a human-readable intent before signing or sending a transaction. Requires authentication and a completed `init`.
+Turn raw EVM calldata into a human-readable intent before signing or sending. Run this on any
+calldata you did not construct yourself (SKILL.md § Safety invariants).
 
-## `decode` Command
+## Prerequisites
 
-Decode hex-encoded EVM calldata into its function name, parameters, and a plain-language summary.
+- `mm doctor` reports `authenticated: true` and `initialized: true` (SKILL.md § Preflight).
+
+## mm decode
+
+Decode hex calldata into function name, parameters, and a plain-language `intent`. Read-only.
 
 ### Syntax
 
 ```bash
-mm decode --payload <0x-calldata> [--toon]
+mm decode --payload <calldata>
 ```
 
-### Supported Flags
+### Required flags
 
-| Name | Required | Description |
+| Flag | Value format | Description |
 | --- | --- | --- |
-| `--payload` | Yes | Hex-encoded EVM calldata to decode (e.g. `0x095ea7b3...`). |
+| `--payload` | `^0x[0-9a-fA-F]+$` | Hex-encoded EVM calldata to decode |
+
+### Optional flags
+
+None beyond global flags.
+
+Global flags apply — see SKILL.md § Global flags.
 
 ### Output
 
-| Field | Description |
-| --- | --- |
-| `functionName` | Decoded function name, when the selector is recognized |
-| `params` | Array of decoded parameters, each with `name` and `value` |
-| `intent` | Plain-language summary of the call (e.g. `Call approve(spender: 0x..., amount: ...)`) |
-
-### Example
-
-```bash
-mm decode --payload 0x095ea7b3000000000000000000000000... --toon
+```
+ok: true
+data:
+  functionName: transfer
+  params[2]{name,type,value}:
+    param0,address,0x742d35Cc6634C0532925a3b844Bc454e4438f44e
+    param1,uint256,"1000000"
+  intent: "Call transfer(param0: 0x742d35Cc6634C0532925a3b844Bc454e4438f44e, param1: 1000000)"
 ```
 
-## Notes
+Capture: `intent` → show to the user verbatim when confirming a transaction or signature.
 
-- Use this before `mm wallet send-transaction` whenever the calldata is unfamiliar or was not constructed by you, to confirm what the transaction actually does.
-- If the selector is not recognized, `intent` falls back to `Call unknown function`. Treat unrecognized calldata as higher risk and warn the user before proceeding.
+### Examples
+
+```bash
+# ERC-20 transfer(to, amount) calldata — 1 USDC (6 decimals) to 0x742d…
+mm decode --payload 0xa9059cbb000000000000000000000000742d35cc6634c0532925a3b844bc454e4438f44e00000000000000000000000000000000000000000000000000000000000f4240 --toon
+```
+
+## Errors
+
+| Code | Cause | Recovery |
+| --- | --- | --- |
+| `INVALID_DATA` | Payload is not valid hex calldata | Re-check the `0x` prefix and hex characters |
+| `NOT_INITIALIZED` | Project has no wallet mode | Follow workflows/onboarding.md, then retry |
+
+If the selector is not recognized, `intent` falls back to `Call unknown function`. Treat
+unrecognized calldata as higher risk and warn the user before proceeding.
+
+Full code list: references/errors.md.

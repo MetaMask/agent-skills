@@ -1,70 +1,137 @@
-# Signing Commands
+# mm wallet sign-message / sign-typed-data
 
-Use `wallet sign-message` and `wallet sign-typed-data` to produce
-cryptographic signatures with the active wallet.
+Produce cryptographic signatures with the active wallet. Both commands release a signature —
+treat them as state-changing and always confirm first.
 
-## `wallet sign-message` Command
+## Prerequisites
 
-Sign a plaintext message with the active wallet.
+- `mm doctor` reports `authenticated: true` and `initialized: true` (SKILL.md § Preflight).
+- If the user did not name a chain, ask — do not guess. Discover chain IDs with `mm chains list`.
+- If any part of the payload was not constructed by you, apply the suspicious-payload
+  checklist in references/concepts.md before signing.
 
-### Syntax
+## mm wallet sign-message
 
-```bash
-mm wallet sign-message --message <text> --chain-id <id> [--wait] [--password <password>]
-```
-
-### Supported Flags
-
-| Name | Required | Description |
-| --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137). If not mentioned, ask the user. |
-| `--message` | Yes | Plain-text message to sign |
-| `--wait` | No | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
-
-### Example
-
-```bash
-mm wallet sign-message --message "Hello, world!" --chain-id 1
-mm wallet sign-message --message "Hello" --chain-id 1 --wait
-```
-
-## `wallet sign-typed-data` Command
-
-Sign EIP-712 typed data with the active wallet.
+Sign a plaintext message with the active wallet. State-changing (signature release).
 
 ### Syntax
 
 ```bash
-mm wallet sign-typed-data --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
+mm wallet sign-message --message <message> --chain-id <chain-id> [--wait]
 ```
 
-### Supported Flags
+### Required flags
 
-| Name | Required | Description |
+| Flag | Value format | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
-| `--payload` | Yes | EIP-712 typed data as a JSON string with `domain`, `types`, `primaryType`, and `message` |
-| `--wait` | No | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
-| `--intent` | No | Human-readable summary of what is being signed, forwarded with the request |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--message` | plain text, quoted | The exact message to sign |
+| `--chain-id` | integer `^\d+$` | EVM chain ID (`1` = Ethereum, `137` = Polygon) |
 
-### Example
+### Optional flags
+
+| Flag | Default | Value format | Description |
+| --- | --- | --- | --- |
+| `--wait` | off | boolean flag | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
+
+Global flags and `--wallet-timeout` apply — see SKILL.md § Global flags. BYOK with an encrypted
+mnemonic: set `MM_PASSWORD` first (references/concepts.md).
+
+### Output
+
+```json
+{"ok": true, "data": {"pollingId": "..."}}
+```
+<!-- shape from CLI flag metadata; not a captured run -->
+
+Capture: `pollingId` → use as `<polling-id>` in `mm wallet requests watch --polling-id <polling-id>`.
+
+### Async
+
+Without `--wait` the command returns a `pollingId` immediately. Track it via
+references/wallet-requests.md and show the request's `intent` string to the user.
+
+### Confirm before executing
+
+Show the user ALL of: the exact message text, the chain, the signing wallet address.
+Do not run until the user approves.
+
+### Examples
 
 ```bash
-mm wallet sign-typed-data --chain-id 1 --payload '{"types":...,"primaryType":...,"domain":...,"message":...}'
-mm wallet sign-typed-data --chain-id 137 --payload '{"types":...}' --wait --intent "Approve 10 USDC"
+mm wallet sign-message --message "I agree to the terms of service v2" --chain-id 1 --wait --toon
 ```
 
-## EIP-712 Typed Data
+## mm wallet sign-typed-data
 
-The `--payload` must be valid JSON with these required fields:
-- `types` -- type definitions
-- `primaryType` -- the main type being signed
-- `domain` -- domain separator (name, version, chainId, verifyingContract)
-- `message` -- the actual data to sign
+Sign EIP-712 typed data with the active wallet. State-changing (signature release).
 
-## Notes
+### Syntax
 
-- If the Chain is not mentioned by the user, ask for the chain.
-- In server-wallet mode, signing returns a `pollingId` when `--wait` is omitted. See `references/polling.md` to track requests.
+```bash
+mm wallet sign-typed-data --chain-id <chain-id> --payload <payload-json> [--wait] [--intent "<summary>"]
+```
+
+`<payload-json>` must be valid JSON, single-quoted in shell, with ALL of these top-level keys:
+
+| Key | Content |
+| --- | --- |
+| `types` | Type definitions, including `EIP712Domain` |
+| `primaryType` | Name of the main type being signed |
+| `domain` | Domain separator: `name`, `version`, `chainId`, `verifyingContract` |
+| `message` | The actual data to sign |
+
+### Required flags
+
+| Flag | Value format | Description |
+| --- | --- | --- |
+| `--chain-id` | integer `^\d+$` | EVM chain ID. Must match `domain.chainId` in the payload |
+| `--payload` | JSON string, single-quoted | EIP-712 typed data (schema above) |
+
+### Optional flags
+
+| Flag | Default | Value format | Description |
+| --- | --- | --- | --- |
+| `--wait` | off | boolean flag | Block until the signature request completes (server-wallet mode only; BYOK returns immediately) |
+| `--intent` | none | quoted text | Human-readable summary of what is being signed, forwarded with the request |
+
+Global flags and `--wallet-timeout` apply — see SKILL.md § Global flags. BYOK with an encrypted
+mnemonic: set `MM_PASSWORD` first (references/concepts.md).
+
+### Output
+
+```json
+{"ok": true, "data": {"pollingId": "..."}}
+```
+<!-- shape from CLI flag metadata; not a captured run -->
+
+Capture: `pollingId` → use as `<polling-id>` in `mm wallet requests watch --polling-id <polling-id>`.
+
+### Async
+
+Without `--wait` the command returns a `pollingId` immediately. Track it via
+references/wallet-requests.md and show the request's `intent` string to the user.
+
+### Confirm before executing
+
+Show the user ALL of: `domain.name`, `domain.verifyingContract`, chain, `primaryType`, and a
+summary of `message` (flag any `permit`/`approve`/allowance-like fields per
+references/concepts.md). Do not run until the user approves.
+
+### Examples
+
+```bash
+mm wallet sign-typed-data --chain-id 1 --payload '{"types":{"EIP712Domain":[{"name":"name","type":"string"},{"name":"version","type":"string"},{"name":"chainId","type":"uint256"},{"name":"verifyingContract","type":"address"}],"Order":[{"name":"trader","type":"address"},{"name":"amount","type":"uint256"}]},"primaryType":"Order","domain":{"name":"Example DEX","version":"1","chainId":1,"verifyingContract":"0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45"},"message":{"trader":"0x7c2b3e65ef2b18235e2d24266f92854a70207483","amount":"1000000"}}' --wait --intent "Sign Example DEX order for 1 USDC" --toon
+```
+
+## Errors
+
+| Code | Cause | Recovery |
+| --- | --- | --- |
+| `MISSING_TYPED_DATA` | `--payload` missing | Provide the full EIP-712 JSON |
+| `INVALID_TYPED_DATA` | Payload not valid EIP-712 JSON | Re-check the four required keys and JSON syntax |
+| `CHAIN_ID_MISMATCH` | `domain.chainId` differs from `--chain-id` | Make them identical, re-confirm with the user |
+| `MISSING_CHAIN_ID` | `--chain-id` missing | Ask the user for the chain, then retry |
+| `MNEMONIC_LOCKED` / `WRONG_PASSWORD` | BYOK mnemonic locked or wrong `MM_PASSWORD` | Ask the user to set the correct `MM_PASSWORD` env var, then retry |
+| `NOT_INITIALIZED` | Project has no wallet mode | Follow workflows/onboarding.md, then retry |
+
+Full code list: references/errors.md.

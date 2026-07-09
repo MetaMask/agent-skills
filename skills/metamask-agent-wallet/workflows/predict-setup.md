@@ -1,54 +1,80 @@
-# Predict setup workflow
+# Predict first-time setup
 
-Use this workflow for first-time Predict setup, refreshing credentials, or repairing approvals.
+Use when Predict has never been set up for this wallet, or `setupComplete: false` blocks a
+trading/funding command. Repairing stale credentials/approvals only: jump to Decision points.
+Command details: references/predict-account.md.
 
-Reference command syntax in `references/predict.md`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. The owner EOA holds POL on Polygon for gas: `mm wallet balance --chain 137`. If empty,
+   fund the wallet first (references/wallet.md).
+3. You know whether the user wants real trading (`mainnet`) or paper trading (`testnet`).
+   If not stated, ask — do not guess.
 
-1. Choose Predict mode.
-2. Run one-time setup.
-3. Verify status.
+## Steps
 
-## Choose mode
-
-```bash
-mm predict mode mainnet
-```
-
-Replace `mainnet` with `testnet` if the user wants to paper trade.
-
-## Run setup
+### 1. Check geoblock
 
 ```bash
-mm predict setup --wait
+mm predict geoblock --toon
 ```
 
-This blocks until credential, deposit-wallet, and approval jobs complete. Without `--wait`, track returned jobs with `mm predict watch --id <JOB_ID> --wait`.
+Expected output: `data.result.blocked: false`. If `blocked: true`, stop — Predict is
+unavailable from this region; do not attempt setup.
 
-The owner EOA needs POL on Polygon for gas to complete the setup transactions.
-
-Polymarket is geoblocked in some regions. `predict setup` checks the caller's IP first and aborts with `PREDICT_GEOBLOCKED` before any wallet interaction if the region is restricted. To check region status independently:
+### 2. Set the trading mode
 
 ```bash
-mm predict geoblock
+mm predict mode mainnet --toon
 ```
 
-## Verify status
+Positional-only; replace `mainnet` with `testnet` for paper trading.
+Expected output: `data.result.mode` matching the requested mode.
 
-Confirm `setupComplete` is `true` and note the deposit wallet address:
+### 3. Confirm with the user
+
+Show: that setup deploys a Predict deposit wallet, creates trading credentials, and grants
+token approvals on Polygon (chain 137), plus the chosen mode. Do not continue until the user
+explicitly approves.
+
+### 4. Run one-time setup
 
 ```bash
-mm predict status
+mm predict setup --wait --toon
 ```
 
-## Refresh credentials or approvals
+Expected output: success after credential, deposit-wallet, and approval jobs complete.
+Capture: `pollingId` (only if run without `--wait`) → `<polling-id>` for
+`mm predict watch --id <polling-id> --wait`.
 
-If credentials or approvals look stale later:
+### 5. Verify
 
 ```bash
-mm predict auth --refresh
-mm predict approve --wait
+mm predict status --toon
 ```
 
-Then verify with `mm predict status`.
+Expected output: `account.setupComplete: true`, `account.deployed: true`,
+`account.credentials: true`.
+Capture: `account.depositWalletAddress` → report to the user for funding
+(workflows/predict-funding.md).
+
+## Decision points
+
+- Step 1 fails `UNKNOWN` (`fetch failed`) repeatedly → tell the user the geoblock probe is
+  unreachable and continue; `mm predict setup` itself aborts `PREDICT_GEOBLOCKED` if restricted.
+- Step 5 shows `credentials: false` → run `mm predict auth --refresh --toon`, then re-verify.
+- Step 5 shows `deployed: true` but `setupComplete: false` (approvals missing) → confirm with
+  the user, run `mm predict approve --wait --toon`, then re-verify with `mm predict status`.
+- User rejects at step 3 → stop. Nothing has changed on-chain.
+- Setup succeeded and the user wants to trade → workflows/predict-funding.md, then
+  workflows/predict-place-order.md.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `PREDICT_GEOBLOCKED` | Region restricted; stop. Re-check with `mm predict geoblock` |
+| `WALLET_ERROR` / gas failure | Owner EOA lacks POL on Polygon: `mm wallet balance --chain 137`, fund, retry step 4 |
+| `UNKNOWN` (`fetch failed`) | Transient back-end failure; retry, check `mm predict status` |
+| Setup stalls without `--wait` | `mm predict watch --id <polling-id> --wait`, then `mm predict status` |

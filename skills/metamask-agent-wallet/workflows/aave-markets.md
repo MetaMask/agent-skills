@@ -1,39 +1,52 @@
-# Aave V3 markets workflow
+# Aave V3 markets and rates
 
-Use this workflow to discover available Aave V3 tokens, supply/borrow rates, and borrowing capacity on a chain.
+Use when the user wants to discover which assets Aave V3 supports on a chain, their supply
+and borrow APYs, or available borrow liquidity. Read-only — no transaction is sent. Feeds
+workflows/aave-supply.md and workflows/aave-borrow.md. The user's own positions:
+workflows/aave-positions.md. Shared machinery (endpoint): references/aave.md.
 
-## Flow
+## Preconditions
 
-1. Resolve chain.
-2. Query available markets.
-3. Present results.
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know the chain. If the chain was not named, ask — do not guess. Chain IDs: `mm chains list`.
 
-## Resolve chain
+## Steps
 
-If the user doesn't specify a chain, ask.
-
-## Query available markets
+### 1. Query markets with reserve details
 
 ```bash
 curl -s -X POST https://api.v3.aave.com/graphql \
   -H 'Content-Type: application/json' \
-  -d '{
-    "query": "{ markets(request: { chainIds: [<CHAIN_ID>] }) { address reserves { underlyingToken { symbol decimals } supplyInfo { apy { formatted } } borrowInfo { apy { formatted } availableLiquidity { amount { value } usd } borrowCapReached } isFrozen isPaused } } }"
-  }'
+  -d '{"query":"{ markets(request: { chainIds: [8453] }) { address reserves { underlyingToken { symbol decimals } supplyInfo { apy { formatted } } borrowInfo { apy { formatted } availableLiquidity { amount { value } usd } borrowCapReached } isFrozen isPaused } } }"}'
 ```
 
-The response returns one entry per market. Each entry has an `address` (the pool contract address) and a `reserves` array.
+Expected output: `data.markets[]`, one entry per market, each with `address` (the pool
+contract) and a `reserves[]` array.
+Capture: `markets[].address` → `<pool-address>` for a follow-up supply/borrow workflow.
 
-## Present results
+### 2. Present the results
 
-Group reserves by market `address`. Within each market, filter out reserves where `isFrozen` or `isPaused` is `true`. For each active reserve, show:
+1. Group reserves by market `address`; label each group with its pool address.
+2. Drop reserves where `isFrozen` or `isPaused` is `true`.
+3. For each remaining reserve show:
+   - Symbol and decimals (`underlyingToken.symbol`, `underlyingToken.decimals`)
+   - Supply APY (`supplyInfo.apy.formatted`)
+   - Borrow APY (`borrowInfo.apy.formatted`)
+   - Available liquidity (`borrowInfo.availableLiquidity.amount.value` and `.usd`)
+   - Borrow cap reached (`borrowInfo.borrowCapReached`)
+4. `apy.formatted` is already a percentage (`"2.12"` = 2.12%) — do not convert.
 
-- Token symbol and decimals (`underlyingToken.symbol`, `underlyingToken.decimals`)
-- Supply APY (`supplyInfo.apy.formatted`)
-- Borrow APY (`borrowInfo.apy.formatted`)
-- Available liquidity (`borrowInfo.availableLiquidity.amount.value`, `borrowInfo.availableLiquidity.usd`)
-- Borrow cap reached (`borrowInfo.borrowCapReached`)
+## Decision points
 
-The `apy.formatted` field returns a percentage directly (e.g., `"2.12"` means 2.12%). No conversion is needed.
+- `borrowCapReached` is `true` for an asset → tell the user borrowing that asset is
+  unavailable; supplying may still work.
+- User picks an asset to supply → workflows/aave-supply.md (reuse the captured `<pool-address>`).
+- User picks an asset to borrow → workflows/aave-borrow.md (reuse the captured `<pool-address>`).
+- Empty `markets[]` → Aave V3 not deployed on this chain; ask the user for another chain.
 
-If `borrowCapReached` is `true`, tell the user that borrowing isn't available for that asset.
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| GraphQL `errors[]` in response | Re-check the chain ID and query syntax against references/aave.md § Endpoint |
+| Asset the user wants is missing or frozen/paused | Offer another asset from the list or another chain |

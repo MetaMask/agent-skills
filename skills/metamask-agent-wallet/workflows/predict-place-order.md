@@ -1,72 +1,79 @@
-# Predict place order workflow
+# Quote and place a prediction order
 
-Use this workflow to quote and place a prediction market order.
+Use when the user wants to buy or sell shares in a Polymarket outcome. Cancelling or viewing
+orders: workflows/predict-manage-orders.md. Command details: references/predict-trade.md.
 
-Reference command syntax in `references/predict.md`.
+## Preconditions
 
-## Flow
+1. `mm predict status` shows `account.setupComplete: true`. If not: workflows/predict-setup.md.
+2. pUSD balance covers the order (size × price for buys): `mm predict balance --sync --toon`.
+   If insufficient: workflows/predict-funding.md.
+3. You know: market, outcome, side (buy/sell), size (shares), and price or "market". If any
+   is missing, ask — do not guess.
 
-1. Check setup and balance.
-2. Inspect the market to get the outcome token ID.
-3. Quote the order.
-4. Confirm with the user and place.
+## Steps
 
-## Check setup and balance
-
-Verify that Predict is fully set up and get the deposit wallet address:
-
-```bash
-mm predict status
-```
-
-Check `setupComplete` is `true`. If not, follow `predict-setup.md` to run first-time setup.
-
-Then check the deposit wallet balance:
+### 1. Get the outcome token ID
 
 ```bash
-mm predict balance --sync
+mm predict markets get --market bitcoin-above-52k-on-july-9-2026 --toon
 ```
 
-If the balance is zero or insufficient for the order, follow `predict-funding.md` to deposit funds. Use the deposit wallet address from `mm predict status` when funding.
+Find the market first if needed: workflows/predict-markets.md.
+Expected output: market detail with per-outcome token IDs, tick size, and minimum order size.
+Map the user's intended outcome to its token ID — token IDs are not market IDs.
+Capture: outcome token ID → `<token-id>` for steps 2 and 4.
 
-## Get outcome token ID
-
-If the user hasn't already identified the market, follow `predict-markets.md` to find and inspect it.
+### 2. Quote the order
 
 ```bash
-mm predict markets get <MARKET_SLUG_OR_ID> --toon
+mm predict quote --token-id 21742633143463906290569050155826241533067272736897614950488156847949938836455 --side buy --size 10 --limit-price 0.55 --toon
 ```
 
-Map the user's intended outcome to the correct token ID from the market detail.
+Expected output: estimated cost, average fill price, and fillable size.
 
-## Quote
+### 3. Confirm with the user
 
-Preview the order cost and fill before placing:
+Show ALL of: market question, outcome, token ID, side, size (shares), price per share, order
+type (`GTC` default; `GTD` needs `--expiration <unix>`; `FOK`/`FAK` are market-style), total
+cost for buys, and the quote from step 2. Warn if the price is 1 or the market's end date has
+passed but UMA resolution is pending — prices then do not reflect true odds. Do not continue
+until the user explicitly approves.
+
+### 4. Place the order
 
 ```bash
-mm predict quote \
-  --token-id <OUTCOME_TOKEN_ID> \
-  --side buy --size 100 --limit-price 0.55
+mm predict place --token-id 21742633143463906290569050155826241533067272736897614950488156847949938836455 --side buy --size 10 --price 0.55 --order-type GTC --toon
 ```
 
-Show the user the estimated cost and fill.
+Orders are signed by the Predict deposit wallet, not the owner EOA.
+Expected output: order record with `orderId` and status, or a job ID.
+Capture: `orderId` → `<order-id>` for cancel; a job ID → `<polling-id>` for
+`mm predict watch --id <polling-id> --wait`.
 
-## Place
-
-After the user confirms token ID, outcome, side, size, price, and order type:
+### 5. Verify
 
 ```bash
-mm predict place \
-  --token-id <OUTCOME_TOKEN_ID> \
-  --side buy --size 100 --price 0.55 \
-  --order-type GTC
+mm predict orders --toon
 ```
 
-`--order-type` is one of `GTC`, `GTD`, `FOK`, or `FAK`. `--post-only` only applies to GTC/GTD. `--expiration` is unix seconds for GTD.
+Expected output: the new order listed as open (limit orders), or absent because it filled
+(FOK/FAK / crossing limit). Check fills with `mm predict positions --toon` and report.
 
-## Safety notes
+## Decision points
 
-- Placing orders between a market's end date and its final UMA resolution carries major financial risk. Prices during this window don't reflect true odds and arbitrage strategies can fail if UMA resolves unexpectedly. If the order creation time is after the market end date but before UMA resolution, warn the user about potential financial loss and get explicit confirmation before proceeding.
-- Prices are 0-1 floats. Treat `--price 1` as suspicious unless the user explicitly confirms.
-- Trades are signed by the deposit wallet address from `mm predict status`, not the connected owner EOA.
-- Always inspect the market to map the user's intended outcome to the correct token ID.
+- User rejects at step 3 → stop. Do not place.
+- Quote shows insufficient fillable size or a bad price → show the book
+  (`mm predict book --token-id <token-id> --toon`) and re-confirm a new price at step 3.
+- GTD order → add `--expiration <unix>` (`date +%s` plus the desired lifetime); `--post-only`
+  is invalid with FOK/FAK.
+- Job ID returned at step 4 → `mm predict watch --id <polling-id> --wait --toon` before step 5.
+
+## Errors
+
+| Error / symptom | Recovery |
+| --- | --- |
+| `PREDICT_SETUP_REQUIRED` | workflows/predict-setup.md, then retry |
+| `WALLET_ERROR` (insufficient pUSD) | `mm predict balance --sync`; deposit via workflows/predict-funding.md |
+| `ValidationError` | Price outside (0, 1], size below market minimum, `--post-only` with FOK/FAK, or `--expiration` without GTD; fix and retry |
+| `NOT_FOUND` on token ID | Re-run step 1 and copy the exact token ID |

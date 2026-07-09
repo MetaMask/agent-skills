@@ -1,128 +1,208 @@
-# Swap & Bridge Commands
+# mm swap
 
-Use the `swap` commands to perform same-chain token swaps or cross-chain bridges. When `--from-chain` and `--to-chain` differ, the CLI automatically routes through a bridge.
+Same-chain token swaps and cross-chain bridges. Same commands for both: when `--from-chain`
+and `--to-chain` differ, the CLI routes through a bridge.
 
-## `swap quote` Command
+## Prerequisites
 
-Get a swap or bridge quote showing expected output, fees, and route.
+- `mm doctor` reports `authenticated: true` and `initialized: true` (SKILL.md § Preflight).
+- If the user did not name a chain, ask — do not guess. Discover chain IDs with `mm chains list`.
+- Amounts in quote output (`srcAssetAmount`, `destAssetAmount`, `minDestAssetAmount`, fee
+  `amount`) are ATOMIC units — divide by `10^decimals` of the matching asset before showing
+  them to the user. The `--amount` input flag stays human-readable.
+- Multi-step patterns: workflows/swap.md (same-chain), workflows/bridge.md (cross-chain).
 
-### Syntax
+## mm swap quote
 
-```bash
-mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--to-address <address>] [--slippage <percent>] [--refuel]
-```
-
-### Supported Flags
-
-| Name | Required | Description |
-| --- | --- | --- |
-| `--from` | Yes | Source token symbol (e.g. ETH, POL, USDC) |
-| `--to` | Yes | Destination token symbol (e.g. USDC, USDT) |
-| `--amount` | Yes | Human-readable amount to swap (e.g. 0.5, 100) |
-| `--from-chain` | Yes | Source EVM chain ID (e.g. 1 for Ethereum, 137 for Polygon) |
-| `--to-chain` | No | Destination EVM chain ID. Defaults to `--from-chain` for same-chain swaps |
-| `--to-address` | No | Recipient address for bridged output tokens. Only valid for cross-chain swaps. Defaults to the signer's wallet |
-| `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
-| `--refuel` | No | Bundle a small destination native-gas top-up into a cross-chain quote. Only valid when `--to-chain` differs from `--from-chain`. See [Refuel](#refuel) |
-
-### Example
-
-```bash
-mm swap quote --from ETH --to USDC --amount 0.5 --from-chain 1
-mm swap quote --from USDC --to USDT --amount 100 --from-chain 137
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137
-mm swap quote --from ETH --to USDC --amount 0.5 --from-chain 1 --slippage 1
-mm swap quote --from ETH --to pUSD --amount 0.5 --from-chain 1 --to-chain 137 --to-address 0x742d...f2bD18
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 42161 --refuel
-```
-
-## `swap execute` Command
-
-Execute a swap or bridge, either by referencing a previous quote ID or by providing parameters for an automatic re-quote and execute.
+Get a swap or bridge quote showing expected output, fees, and route. Read-only.
 
 ### Syntax
 
 ```bash
-mm swap execute --quote-id <id> [--password <password>]
-mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--to-address <address>] [--slippage <percent>] [--refuel] [--password <password>]
+mm swap quote --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>] [--to-address <address>] [--refuel]
 ```
 
-### Supported Flags
+### Required flags
 
-| Name | Required | Description |
+| Flag | Value format | Description |
 | --- | --- | --- |
-| `--quote-id` | Yes (unless re-quote args given) | Quote ID returned by `mm swap quote`. If omitted, provide `--from`, `--to`, `--amount`, and `--from-chain` to re-quote |
-| `--from` | Yes (unless `--quote-id`) | Source token symbol |
-| `--to` | Yes (unless `--quote-id`) | Destination token symbol |
-| `--amount` | Yes (unless `--quote-id`) | Amount to swap |
-| `--from-chain` | Yes (unless `--quote-id`) | Source EVM chain ID |
-| `--to-chain` | No | Destination EVM chain ID. Defaults to `--from-chain` for same-chain swaps |
-| `--to-address` | No | Recipient address for bridged output tokens. Only valid for cross-chain swaps. Defaults to the signer's wallet. Persisted quotes retain the recipient for `--quote-id` execution |
-| `--slippage` | No | Maximum slippage as a percentage, 0-100 (defaults to 0.5) |
-| `--refuel` | No | Bundle a destination native-gas top-up into a cross-chain re-quote. Only valid when `--to-chain` differs from `--from-chain`; ignored when executing by `--quote-id` (the persisted quote already carries the flag). See [Refuel](#refuel) |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--from` | token symbol | Source token symbol (`ETH`, `POL`, `USDC`) |
+| `--to` | token symbol | Destination token symbol (`USDC`, `USDT`) |
+| `--amount` | decimal `^\d+\.?\d*$`, > 0 | Human-readable amount to swap (`0.5`, `100`). Not wei. |
+| `--from-chain` | integer `^\d+$` | Source EVM chain ID (`1` = Ethereum, `137` = Polygon) |
 
-### Validation Rules
+### Optional flags
 
-- Either `--quote-id` OR the full set of re-quote flags (`--from`, `--to`, `--amount`, `--from-chain`) must be provided.
-- When `--quote-id` is given, re-quote flags are ignored.
+| Flag | Default | Value format | Description |
+| --- | --- | --- | --- |
+| `--to-chain` | same as `--from-chain` | integer `^\d+$` | Destination chain ID. Different value = cross-chain bridge |
+| `--slippage` | `0.5` | decimal 0–100 | Maximum slippage percent. Warn the user above 1% |
+| `--to-address` | active wallet | `^0x[0-9a-fA-F]{40}$` | Recipient of bridged output. Cross-chain only — rejected same-chain |
+| `--refuel` | off | boolean flag | Bundle a destination native-gas top-up. Cross-chain only; best-effort (falls back to a regular quote if no aggregator offers it). Do not use when `--to` is the destination chain's native gas asset — that route returns `NO_QUOTES` |
 
-### Example
+Global flags apply — see SKILL.md § Global flags.
+
+### Output
+
+```json
+{
+  "ok": true,
+  "data": {
+    "quoteId": "0x20a57409b6f9702cd1919983ec7a480b6e20e70d22e9af051c9622f7ab50f2e4",
+    "request": {
+      "walletAddress": "0x7c2b3e65ef2b18235e2d24266f92854a70207483",
+      "srcChainId": 1, "destChainId": 1,
+      "srcAsset": {"symbol": "ETH", "decimals": 18},
+      "destAsset": {"symbol": "USDC", "decimals": 6},
+      "srcAssetAmount": "1000000000000000000",
+      "slippage": 0.5
+    },
+    "quote": {
+      "bridgeId": "okx",
+      "srcAssetAmount": "991250000000000000",
+      "destAssetAmount": "1724960864",
+      "minDestAssetAmount": "1716336059",
+      "feeData": {"metabridge": {"amount": "8750000000000000", "usd": "15.24…"}}
+    }
+  }
+}
+```
+
+All `*AssetAmount` and fee `amount` values are atomic units — scale by each asset's
+`decimals` before display (here `destAssetAmount` 1724960864 / 10^6 = 1724.96 USDC).
+When a refuel-bearing quote is selected, the quote includes a `refuel` step and the
+resolved request shows `refuel: true`.
+
+Capture: `quoteId` → use as `<quote-id>` in `mm swap execute` and `mm swap status`.
+
+### Examples
+
+```bash
+# Same-chain swap quote: 1 ETH -> USDC on Ethereum
+mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --toon
+# Cross-chain bridge quote: 100 USDC Ethereum -> Polygon, 1% slippage
+mm swap quote --from USDC --to USDC --amount 100 --from-chain 1 --to-chain 137 --slippage 1 --toon
+# Bridge to another recipient with destination gas top-up
+mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 --to-address 0x742d35Cc6634C0532925a3b844Bc454e4438f44e --refuel --toon
+```
+
+## mm swap execute
+
+Execute a swap or bridge. State-changing.
+
+Two disjoint modes — choose exactly one:
+
+- If the user reviewed a quote from `mm swap quote` → use mode A (`--quote-id`). Always prefer this.
+- If the user explicitly waived quote review and asked for immediate execution → mode B (re-quote and execute). Otherwise never use mode B: it executes a price the user never saw.
+
+### Mode A: execute a reviewed quote (preferred)
+
+#### Syntax
 
 ```bash
 mm swap execute --quote-id <quote-id>
-mm swap execute --from ETH --to USDC --amount 0.5 --from-chain 1
-mm swap execute --from USDC --to USDT --amount 100 --from-chain 137 --to-chain 137 --slippage 1
 ```
 
-## `swap status` Command
+| Flag | Value format | Description |
+| --- | --- | --- |
+| `--quote-id` | string from `mm swap quote` | The reviewed quote to execute. A persisted quote retains its recipient and refuel setting |
 
-Check the status of a previously executed swap or bridge by its quote ID.
+When `--quote-id` is given, all re-quote flags are ignored.
+
+### Mode B: re-quote and execute (only on explicit user request)
+
+#### Syntax
+
+```bash
+mm swap execute --from <token> --to <token> --amount <amount> --from-chain <chain-id> [--to-chain <chain-id>] [--slippage <percent>] [--to-address <address>] [--refuel]
+```
+
+Required: `--from`, `--to`, `--amount`, `--from-chain`. Optional: `--to-chain`, `--slippage`,
+`--to-address`, `--refuel` — same formats and same cross-chain-only rules as `mm swap quote`.
+
+Global flags and `--wallet-timeout` apply — see SKILL.md § Global flags. BYOK with an encrypted
+mnemonic: set `MM_PASSWORD` first (references/concepts.md).
+
+### Output
+
+```json
+{"ok": true, "data": {"pollingId": "...", "quoteId": "...", "txHash": "..."}}
+```
+<!-- shape from CLI flag metadata; not a captured run -->
+
+Capture: `quoteId` → use as `<quote-id>` in `mm swap status --quote-id <quote-id>`.
+
+### Async
+
+Execution creates a wallet job (`pollingId`) — track via references/wallet-requests.md and show the
+job's `intent` to the user. Then poll `mm swap status --quote-id <quote-id>` until terminal.
+
+### Confirm before executing
+
+Show the user ALL of: from token, to token, amount, source chain, destination chain (if
+cross-chain), slippage, expected output (`destAssetAmount` scaled by decimals), minimum
+received (`minDestAssetAmount` scaled), fees, recipient (if `--to-address`), destination gas
+top-up (if `--refuel`). Do not run until the user approves.
+
+### Examples
+
+```bash
+# Mode A: execute the reviewed quote
+mm swap execute --quote-id 0x20a57409b6f9702cd1919983ec7a480b6e20e70d22e9af051c9622f7ab50f2e4 --toon
+# Mode B (user explicitly waived quote review): swap 0.5 ETH -> USDC on Ethereum
+mm swap execute --from ETH --to USDC --amount 0.5 --from-chain 1 --toon
+```
+
+## mm swap status
+
+Check the status of a previously executed swap or bridge by its quote ID. Read-only.
 
 ### Syntax
 
 ```bash
-mm swap status --quote-id <id> [--tx-hash <hash>]
+mm swap status --quote-id <quote-id> [--tx-hash <tx-hash>]
 ```
 
-### Supported Flags
+### Required flags
 
-| Name | Required | Description |
+| Flag | Value format | Description |
 | --- | --- | --- |
-| `--quote-id` | Yes | Quote ID returned by `mm swap quote` |
-| `--tx-hash` | No | Source transaction hash. Overrides the stored hash from execute |
+| `--quote-id` | string from `mm swap quote` | Quote that was executed |
 
-### Example
+### Optional flags
+
+| Flag | Default | Value format | Description |
+| --- | --- | --- | --- |
+| `--tx-hash` | stored hash from execute | `^0x[0-9a-fA-F]{64}$` | Source transaction hash override |
+
+Global flags apply — see SKILL.md § Global flags.
+
+### Output
+
+```json
+{"ok": true, "data": {"status": "...", "srcTxHash": "...", "destTxHash": "..."}}
+```
+<!-- shape from CLI flag metadata; not a captured run -->
+
+Repeat until the status is terminal (completed or failed). Bridges: the destination side can
+lag well behind the source transaction.
+
+### Examples
 
 ```bash
-mm swap status --quote-id <quote-id>
-mm swap status --quote-id <quote-id> --tx-hash 0xabc...123
+mm swap status --quote-id 0x20a57409b6f9702cd1919983ec7a480b6e20e70d22e9af051c9622f7ab50f2e4 --toon
 ```
 
-## Refuel
+## Errors
 
-Refuel bundles a small amount of the **destination chain's native gas token** into a cross-chain quote, so the recipient lands with gas to spend even if they arrive with a zero native balance. This is useful when bridging to a chain where the recipient holds none of the gas token (e.g. bridging USDC to Arbitrum with no ETH there).
+| Code | Cause | Recovery |
+| --- | --- | --- |
+| `NO_QUOTES` | No route for this pair/amount; or `--refuel` used with a native-gas destination token | Try another amount/pair; verify the token exists on the chain (`mm token list search`); if `--refuel` was set, re-quote without it |
+| `INVALID_SWAP_PARAMS` | `--to-address is not supported for same-chain swaps; output always goes to your wallet.` | Omit `--to-address`, or use a cross-chain swap (different `--from-chain` and `--to-chain`) to redirect output |
+| `MISSING_QUOTE_ID` / `MISSING_SWAP_PARAMS` | Neither `--quote-id` nor the full re-quote flag set was provided | Provide `--quote-id`, or all of `--from --to --amount --from-chain` |
+| `QUOTE_NOT_FOUND` | Quote ID expired or unknown | Re-run `mm swap quote`, re-confirm with the user, execute the new ID |
+| `NATIVE_ASSET_UNSUPPORTED` | Native asset not supported for this swap route | Use the wrapped token or another pair |
+| `EXECUTE_FAILED` | Swap execution failed (e.g. insufficient balance or gas) | Check `mm wallet balance --chain <chain-id>`; re-quote and retry |
+| `STATUS_UNAVAILABLE` | Status backend temporarily unavailable | Retry `mm swap status` after a short delay |
 
-- **Opt-in only.** Refuel is never enabled automatically — pass `--refuel` to request it.
-- **Cross-chain only.** `--refuel` is only meaningful when `--to-chain` differs from `--from-chain`. It has no effect on same-chain swaps.
-- **Not for native-asset destinations.** Do not use `--refuel` when the destination token is the destination chain's native gas asset (e.g. bridging ETH from Base into ETH on Arbitrum). There is nothing to top up, and the backend returns **0 quotes** for the route — surfaced as a `NO_QUOTES` error. Only use `--refuel` when bridging into a non-native token (e.g. USDC).
-- **Best-effort.** Only some bridge aggregators offer a gas top-up. When `--refuel` is set, the CLI prefers a quote that includes the top-up; if no aggregator offers one for that route, it falls back to the best regular quote (no error).
-- **Output.** When a refuel-bearing quote is selected, the quote includes a `refuel` step describing the native-gas top-up (source amount spent and destination native amount received), and the resolved request shows `refuel: true`.
-
-```bash
-# Bridge USDC to Arbitrum and top up ETH for gas on arrival
-mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 --refuel
-```
-
-## Notes
-
-- If the chain is not mentioned by the user, ask for the chain.
-- Use `mm chains list` to discover supported chain IDs.
-- Same-chain swap: omit `--to-chain` (it defaults to `--from-chain`).
-- Cross-chain bridge: set `--to-chain` to a different chain than `--from-chain`. The CLI automatically routes through a bridge.
-- The typical flow is: `mm swap quote` to preview, then `mm swap execute --quote-id <id>` to submit.
-- You can skip the quote step by passing all swap parameters directly to `mm swap execute`.
-- Use `mm swap status --quote-id <id>` to track progress after execution.
-- If the user asks to "bridge" tokens, use the `swap` commands with different `--from-chain` and `--to-chain` values.
-- If the user is bridging to a chain where they hold no native gas token, suggest `--refuel` to top up gas on the destination (cross-chain only). See [Refuel](#refuel).
-- After execution, track swap progress with `mm swap status --quote-id <id>`.
+Full code list: references/errors.md.

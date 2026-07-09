@@ -1,8 +1,14 @@
-# Doctor command
+# mm doctor
 
-Use `mm doctor` to inspect CLI version, AI skills, environment, and session health. This command does not require authentication or initialization.
+One-shot health check: CLI version, environment, authentication, initialization, and installed MetaMask AI skills. Requires neither auth nor init — it is always the first command to run.
 
-## `doctor` command
+## Prerequisites
+
+- None. `mm doctor` works on a fresh, logged-out install.
+
+## mm doctor
+
+Inspect CLI, skills, environment, and session health. Read-only.
 
 ### Syntax
 
@@ -10,37 +16,57 @@ Use `mm doctor` to inspect CLI version, AI skills, environment, and session heal
 mm doctor
 ```
 
-### Supported flags
-
-This command does not support additional flags beyond output format options.
+No non-global flags. Global flags apply — see SKILL.md § Global flags.
 
 ### Output
 
-| Field | Type | Description |
-| --- | --- | --- |
-| `cli` | string | Installed CLI version |
-| `env` | string | Current environment (`prod`, `dev`, or `uat`) |
-| `authenticated` | boolean | Whether the CLI session is valid |
-| `initialized` | boolean | Whether you have run `mm init` (wallet mode and trading mode are set for server wallets) |
-| `recommendedSkills` | object | Installed MetaMask AI skill status for `metamask-agent-wallet` and `metamask-agent-workflows` |
-| `compatible` | boolean or null | Whether the installed CLI version is compatible with the installed skills. `null` if no skills are detected |
-| `hints` | string[] | Actionable guidance, for example missing skills, auth issues, init needed, or version mismatch |
+```
+ok: true
+data:
+  cli: 4.0.1
+  env: prod
+  authenticated: true
+  initialized: true
+  recommendedSkills:
+    "metamask-agent-wallet":
+      found: false
+      name: metamask-agent-wallet
+    "metamask-agent-workflows":
+      found: false
+      name: metamask-agent-workflows
+  compatible: null
+  hints[1]: No MetaMask AI skills found. Install with `npx skills add metamask/agent-skills`.
+```
 
-### Skill detection
+| Field | Meaning |
+| --- | --- |
+| `cli` | Installed CLI version |
+| `env` | Active environment: `prod`, `dev`, or `uat` |
+| `authenticated` | Session is valid. `false` → workflows/login.md |
+| `initialized` | `mm init` has been completed. `false` → workflows/onboarding.md |
+| `recommendedSkills` | Detected MetaMask AI skills (global lock file, falling back to the project directory) |
+| `compatible` | CLI `major.minor` matches the installed skill's pinned `cliVersion`; `null` when no skills detected |
+| `hints` | Actionable next steps (missing skills, auth needed, init needed, version mismatch) |
 
-`mm doctor` detects installed skills from the global skills lock file (`~/.agents/.skill-lock.json` or `$XDG_STATE_HOME/skills/.skill-lock.json`). It parses `SKILL.md` frontmatter for the skill `version` and `cliVersion` metadata, then checks the CLI `major.minor` against the skill `cliVersion` requirement.
+### Gates and readiness
 
-As of CLI v4.0.1, `mm doctor` also detects **project-local** MetaMask AI skills: when the global skill lock file exists but contains no MetaMask entries, the command falls back to scanning the current project for installed `metamask-agent-wallet` / `metamask-agent-workflows` skills so locally-installed skills are still reported.
+1. If `authenticated: false` → every wallet/trading command will fail with an auth error. Fix first (workflows/login.md).
+2. If `initialized: false` → wallet operations fail with `NOT_INITIALIZED`. Fix second (workflows/onboarding.md).
+3. Only when BOTH are `true` and no blocking `hints` remain is the session ready.
+4. Follow any `hints` verbatim — they are the CLI's own remediation guidance.
+5. NEVER use `mm init show` as a readiness check: it throws `NOT_INITIALIZED` on an uninitialized project instead of reporting state. `mm auth status` reports only authentication, not initialization.
 
-### Example
+### Examples
 
 ```bash
-mm doctor
 mm doctor --toon
 ```
 
-### Notes
+### Errors
 
-- Use as the first step in troubleshooting to check if CLI, auth, init, and skills are healthy.
-- Run after a CLI upgrade to verify skill compatibility.
-- Use in CI or scripting to confirm environment and session state.
+| Code | Cause | Recovery |
+| --- | --- | --- |
+| `mm: command not found` (shell) | CLI not installed or not on `PATH` | `npm install -g @metamask/agentic-cli@latest`, then re-run |
+| `NETWORK_UNREACHABLE` | No network to backend | Check connectivity; retry |
+
+Full code list: references/errors.md.

@@ -1,62 +1,76 @@
-# Bridge workflow
+# Cross-chain bridge
 
-Use this workflow when the user wants to bridge tokens across chains.
+Use when the user wants to move tokens from one chain to another.
+Same-chain: use workflows/swap.md instead. Command details: references/swap.md.
 
-Reference command syntax in `references/swap.md`. The CLI uses the same `swap` commands for bridging. Set `--to-chain` to a different chain than `--from-chain`.
+## Preconditions
 
-## Flow
+1. `mm doctor` reports `authenticated: true` and `initialized: true`. If not: SKILL.md § Preflight.
+2. You know: source token, destination token, amount, source chain, destination chain. If a
+   chain was not named, ask — do not guess. List chains with `mm chains list`.
+3. Source-chain balance covers the amount plus gas: `mm wallet balance --chain <chain-id>`.
 
-1. Quote.
-2. Confirm with the user.
-3. Execute and track status.
+## Steps
 
-Don't skip the quote review step. The user needs to see output amount, fees, route, and slippage before executing.
-
-## Quote
-
-```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137 --slippage 0.5
-```
-
-Required flags: `--from`, `--to`, `--amount`, `--from-chain`, and `--to-chain`.
-
-If the user wants the bridged tokens sent to a different wallet on the destination chain, add `--to-address`:
+### 1. Get a bridge quote
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137 --to-address 0x742d...f2bD18
+mm swap quote --from USDC --to USDC --amount 100 --from-chain 1 --to-chain 137 --toon
 ```
 
-If the recipient may have no native gas on the destination chain, add `--refuel` to bundle a destination gas top-up into the quote (cross-chain only, opt-in, best-effort — see `references/swap.md`). Do **not** add `--refuel` when the destination token is the destination chain's native gas asset (e.g. bridging into ETH on Arbitrum) — the backend returns 0 quotes in that case:
+Cross-chain only, add as needed: `--to-address <address>` to send output to another wallet;
+`--refuel` to bundle a destination native-gas top-up (skip it when the destination token IS
+the destination chain's native gas asset — that route returns `NO_QUOTES`).
+Expected output: `data.quoteId` plus a `quote` object with `destAssetAmount`,
+`minDestAssetAmount`, `bridgeId`, and `feeData`.
+Capture: `quoteId` → used as `<quote-id>` in steps 3 and 4.
+
+### 2. Confirm with the user
+
+Show: from token, to token, amount, source chain, destination chain, slippage (default 0.5%),
+expected output (`destAssetAmount` scaled by the destination token's `decimals`), minimum
+received (`minDestAssetAmount` scaled), fees, bridge route (`bridgeId`), recipient address
+(only if `--to-address` was set), destination gas top-up (only if `--refuel` was set).
+Do not continue until the user explicitly approves.
+
+### 3. Execute by quote id
 
 ```bash
-mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 --refuel
+mm swap execute --quote-id <quote-id> --toon
 ```
 
-Persist the quote id for execution. Show the quote to the user before execution.
-Confirm source token, destination token, amount, source chain, destination chain, slippage, expected output, fees, route, recipient address (if `--to-address` was set), and the destination gas top-up (if `--refuel` was set).
+Always execute the reviewed quote by id. Never pass token/amount flags here — that re-quotes
+and executes a price the user never reviewed. The persisted quote already carries the
+recipient and refuel settings.
+Expected output: a wallet job (`pollingId`) — show its `intent` to the user.
 
-## Execute
+### 4. Track status until terminal
 
 ```bash
-mm swap execute --quote-id "QUOTE_ID"
+mm swap status --quote-id <quote-id> --toon
 ```
 
-Prefer executing by quote ID. Re-quote-and-execute flags exist, but quote ID execution keeps the reviewed quote tied to the submitted action.
+Repeat until the status is terminal (completed or failed). The destination-chain side can lag
+minutes behind the source transaction — keep polling; do not re-execute. Then report both
+source and destination results.
 
-## Status
+## Decision points
 
-```bash
-mm swap status --quote-id "QUOTE_ID"
-mm swap status --quote-id "QUOTE_ID" --tx-hash 0xabc123
-```
+- User rejects at step 2 → stop. Do not execute.
+- Quote expired or `QUOTE_NOT_FOUND` at step 3 → return to step 1, then re-confirm at step 2.
+- `NO_QUOTES` with `--refuel` → the destination token is likely the native gas asset; retry
+  step 1 without `--refuel`.
+- User wants output at a different address → valid only cross-chain via `--to-address`
+  (same-chain it is rejected with `INVALID_SWAP_PARAMS`).
+- Recipient may have no gas on the destination chain and destination token is non-native →
+  offer `--refuel` before quoting.
 
-Use status polling for bridges where the destination side can lag behind the source transaction.
+## Errors
 
-## Edge cases
-
-- Quote expired: re-quote and ask the user to review the new quote.
-- Insufficient balance: surface the error verbatim.
-- Slippage exceeded: only increase `--slippage` if the user explicitly accepts more slippage. Always warn the user if slippage
-  is increased above 1% that it will affect the minimum received.
-- Missing chain: use `mm chains list` before guessing a chain ID.
-- Refuel into a native asset: if `--refuel` is set and the destination token is the destination chain's native gas asset, the backend returns 0 quotes (`NO_QUOTES`). Re-quote without `--refuel`.
+| Error / symptom | Recovery |
+| --- | --- |
+| `NO_QUOTES` | No route for this pair/amount/chains. Drop `--refuel` if set; try a different amount or token; verify the token exists on both chains with `mm token list search --query USDC --chain 137` |
+| `INVALID_SWAP_PARAMS` (`--to-address` same-chain) | Ensure `--to-chain` differs from `--from-chain`, or omit `--to-address` |
+| Insufficient balance | `mm wallet balance --chain <chain-id>`; fund the source chain first, then re-quote |
+| Slippage exceeded / user asks for higher slippage | Re-quote with `--slippage <percent>` only after explicit user approval; warn above 1% |
+| Status stuck non-terminal | Keep polling `mm swap status`; destination settlement can take minutes. Do not re-execute |

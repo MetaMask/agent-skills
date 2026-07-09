@@ -1,90 +1,92 @@
-# Predict funding workflow
+# Predict deposit / withdraw pUSD
 
-Use this workflow to deposit or withdraw pUSD from the Predict deposit wallet.
+Use when the user wants to fund the Predict deposit wallet or take funds out. Trading:
+workflows/predict-place-order.md. Command details: references/predict-account.md.
 
-Reference command syntax in `references/predict.md`.
+Chooser: if money moves INTO the deposit wallet → Deposit path (steps 2a-4a). If money moves
+OUT to an EOA → Withdraw path (steps 2b-4b).
 
-## Flow
+## Preconditions
 
-1. Check deposit wallet balance.
-2. Deposit or withdraw.
+1. `mm predict status` shows `account.setupComplete: true`. If not: workflows/predict-setup.md.
+2. You know the amount. If not stated, ask — do not guess.
+3. Deposit only: owner EOA holds enough USDC.e plus POL for gas on Polygon:
+   `mm wallet balance --chain 137`.
 
-## Check deposit wallet balance
+## Steps
 
-```bash
-mm predict balance --sync
-```
-
-## Deposit
-
-If the user doesn't specify an amount, ask how much they want to deposit. Get the deposit wallet address from `mm predict status`, then check the user's Polygon balance.
+### 1. Check the deposit-wallet balance
 
 ```bash
-mm wallet balance --chain 137
+mm predict balance --sync --toon
 ```
 
-### Has POL and pUSD on Polygon
+Expected output: current pUSD balance, approvals, and setup status.
 
-Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed. Get the pUSD contract address from `mm wallet balance --chain 137` output.
+### 2a. Deposit — confirm with the user
+
+Show: amount, source (owner EOA USDC.e on Polygon, chain 137), destination (Predict deposit
+wallet, credited as pUSD — the CLI converts USDC.e to pUSD). Do not continue until the user
+explicitly approves.
+
+### 3a. Deposit
 
 ```bash
-mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token <PUSD_CONTRACT_ADDRESS> --wait
+mm predict deposit --amount 5 --wait --toon
 ```
 
-Get the deposit wallet address from the `mm predict status` output.
+Amount is human-readable USDC.e (`5`, `100`), not atomic units.
+Expected output: success once the deposit job completes.
+Capture: `pollingId` (only if run without `--wait`) → `<polling-id>` for
+`mm predict watch --id <polling-id> --wait`.
 
-### Has POL and USDC.e on Polygon
-
-Run `mm predict deposit`. The CLI converts USDC.e to pUSD in the deposit wallet.
+### 4a. Verify the deposit
 
 ```bash
-mm predict deposit --amount <AMOUNT> --wait
+mm predict balance --sync --toon
 ```
 
-`--amount` is in USDC.e. The owner EOA needs enough USDC.e and POL for gas on Polygon.
+Expected output: pUSD increased by the deposited amount. Report the new balance.
 
-### Has POL or another token on Polygon (but no USDC.e or pUSD)
+### 2b. Withdraw — confirm with the user
 
-Swap to pUSD on Polygon, then transfer directly to the deposit wallet. The owner EOA needs POL for gas.
+Show: amount and recipient. When `--to` is omitted, say "owner EOA" explicitly. Do not
+continue until the user explicitly approves.
+
+### 3b. Withdraw
 
 ```bash
-mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain 137
-mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
+mm predict withdraw --amount 10 --wait --toon
 ```
 
-After the swap completes, check the balance to verify pUSD arrived
+Different recipient: add `--to 0x742d35Cc6634C0532925a3b844Bc454e4438f44e`. The CLI validates
+the amount against the on-chain deposit-wallet balance before signing.
+Expected output: success once the withdraw job completes.
+Capture: `pollingId` (only if run without `--wait`) → `<polling-id>` for
+`mm predict watch --id <polling-id> --wait`.
+
+### 4b. Verify the withdrawal
 
 ```bash
-mm wallet balance --chain 137
+mm wallet balance --chain 137 --toon
 ```
 
-Get the pUSD contract address from the balance output, then transfer to the deposit wallet:
+Expected output: recipient balance increased; `mm predict balance --sync` shows the reduced
+pUSD balance.
 
-```bash
-mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token <PUSD_CONTRACT_ADDRESS> --wait
-```
+## Decision points
 
-Get the deposit wallet address from the `mm predict status` output.
+- User rejects at the confirmation step → stop. Do not execute.
+- Owner EOA has POL but no USDC.e on Polygon → swap to USDC.e first (workflows/swap.md), or
+  bridge from another chain (workflows/bridge.md), then return to step 2a.
+- Withdraw amount exceeds the pUSD balance → report the balance from step 1 and ask for a
+  smaller amount.
 
-### Has assets on another chain
+## Errors
 
-Bridge to send pUSD directly to the deposit wallet address on Polygon.
-
-```bash
-mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 137 --to-address <DEPOSIT_WALLET_ADDRESS>
-mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
-```
-
-Get the deposit wallet address from the `mm predict status` output. This avoids the extra deposit step.
-
-
-## Withdraw
-
-Withdraw pUSD from the deposit wallet to the owner EOA (default) or a specified address.
-
-```bash
-mm predict withdraw --amount <AMOUNT> --wait
-mm predict withdraw --amount <AMOUNT> --to <RECIPIENT_ADDRESS> --wait
-```
-
-Confirm the amount and recipient with the user before executing. The CLI validates the amount against the on-chain deposit wallet balance before signing.
+| Error / symptom | Recovery |
+| --- | --- |
+| `WALLET_ERROR` (deposit) | Insufficient USDC.e or POL gas: `mm wallet balance --chain 137`; fund or reduce amount |
+| `WALLET_ERROR` (withdraw) | Insufficient pUSD: `mm predict balance --sync`; reduce amount |
+| `PREDICT_SETUP_REQUIRED` | Run workflows/predict-setup.md, then retry |
+| Job stalls without `--wait` | `mm predict watch --id <polling-id> --wait` |
