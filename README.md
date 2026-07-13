@@ -15,7 +15,3 @@ Install with [Vercel's Skills CLI](https://skills.sh):
 ```bash
 npx skills add metaMask/agent-skills
 ```
-
-## Changelog
-
-See [CHANGELOG.md](./CHANGELOG.md) for skill updates and how to catch up from an older version.
