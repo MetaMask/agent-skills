@@ -108,7 +108,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 | Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
-| Pay an x402 challenge from a paid MCP tool | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| Pay an x402-gated MCP tool call | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
 | List earn vaults and APYs | `mm earn markets` | [earn.md](references/earn.md) |
 | View earn vault positions | `mm earn positions` | [earn.md](references/earn.md) |
 | Supply tokens to an earn vault | `mm earn supply` | [earn.md](references/earn.md) |
@@ -139,7 +139,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Supply tokens to earn yield | [earn-supply.md](workflows/earn-supply.md) |
 | Withdraw tokens from an earn vault | [earn-withdraw.md](workflows/earn-withdraw.md) |
 | Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
-| Pay an x402-gated MCP tool call | [x402-pay.md](workflows/x402-pay.md) |
+| Pay an x402-gated MCP tool call | [x402-mcp.md](workflows/x402-mcp.md) |
 
 ## Global Flags
 
