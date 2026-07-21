@@ -31,6 +31,9 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_TO` | Recipient address is invalid |
 | `INVALID_DATA` | Transaction data is invalid |
 | `INVALID_INPUT` | Invalid user input |
+| `UNKNOWN_FLAG` | Unrecognized CLI flag; the error lists valid flags for the command |
+| `MISSING_ARG` | Required positional argument is missing |
+| `UNEXPECTED_ARG` | Unexpected positional argument provided |
 | `INVALID_QUANTITY` | EVM quantity is invalid |
 | `INVALID_LIMIT` | Invalid limit value |
 | `INVALID_INTERVAL` | Invalid time interval |
@@ -45,6 +48,10 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_TYPED_DATA` | EIP-712 typed data payload is missing |
 | `INVALID_TYPED_DATA` | EIP-712 typed data payload is invalid |
 | `CHAIN_ID_MISMATCH` | Typed-data domain chain ID differs from `--chain-id` |
+| `UNKNOWN_CHAIN` | Unrecognized chain ID |
+| `UNSUPPORTED_CHAIN` | The command is not supported on this chain. Run `mm chains list` to see supported chains and their features |
+| `INVALID_GAS_TOKEN` | Invalid gas token symbol or address |
+| `TOKEN_NO_ADDRESS` | Token symbol could not be resolved to a contract address |
 | `INVALID_MNEMONIC` | BYOK mnemonic is invalid |
 
 ## Wallet Errors
@@ -68,6 +75,14 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_PROJECT_ID` | Project ID is not configured |
 | `INVALID_TRADING_MODE` | Invalid trading mode; use `guard` or `beast` |
 | `ALREADY_SET_TRADING_MODE` | Trading mode is already set to the requested value |
+| `WRONG_WALLET_MODE` | Operation not supported in the current wallet mode |
+| `WALLET_MODE_APPROVAL_IN_PROGRESS` | A wallet mode change approval is already in progress |
+| `TRADING_MODE_APPROVAL_REJECTED` | Trading mode change was rejected via MFA |
+| `TRADING_MODE_APPROVAL_EXPIRED` | Trading mode change MFA approval expired |
+| `WALLET_POLICY_APPROVAL_IN_PROGRESS` | A wallet policy change approval is already in progress |
+| `WALLET_POLICY_APPROVAL_REJECTED` | Wallet policy change was rejected via MFA |
+| `WALLET_POLICY_APPROVAL_EXPIRED` | Wallet policy change MFA approval expired |
+| `INSUFFICIENT_FUNDS` | Insufficient native balance or token balance for the operation |
 
 ## Command Errors
 
@@ -80,6 +95,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_ID` | Missing ID parameter |
 | `MISSING_QUOTE_ID` | Missing quote ID |
 | `MISSING_SWAP_PARAMS` | Missing swap parameters |
+| `TX_NOT_FOUND` | Transaction not found for the given hash |
+| `INVALID_TX_HASH` | Invalid transaction hash format |
 | `COMING_SOON` | Feature not yet available (e.g. `mm login qr` on production) |
 | `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
 | `INVALID_CONFIG_VALUE` | Invalid value for a config key (e.g. env not in `prod|dev|uat`) |
@@ -91,13 +108,25 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `NO_QUOTES` | No swap or bridge quotes available |
 | `BRIDGE_API_ERROR` | Bridge API error |
 | `TOKEN_NOT_FOUND` | Token not found |
-| `INVALID_SWAP_PARAMS` | Invalid swap parameters |
+| `TOKEN_NOT_SUPPORTED` | Token not supported for this swap route |
+| `INVALID_SWAP_PARAMS` | Invalid swap parameters (includes `--all-quotes` and `--yes` used together) |
 | `NATIVE_ASSET_UNSUPPORTED` | Native asset not supported for this swap route |
+| `INSUFFICIENT_GAS` | Insufficient native gas to cover the swap; add native gas or use `--strategy output` / `--all-quotes` to pick a gasless quote |
+| `REFUEL_UNSUPPORTED_ROUTE` | Refuel is not supported on this route (same-chain or native destination token). Drop `--refuel` and re-run |
+| `AMOUNT_TOO_HIGH` | Amount too high for available liquidity |
+| `AMOUNT_TOO_LOW` | Amount below provider minimum |
+| `SLIPPAGE_TOO_HIGH` | Slippage too high for this route |
+| `SLIPPAGE_TOO_LOW` | Slippage too low for this route |
+| `RWA_GEO_RESTRICTED` | RWA asset not available in your region |
+| `RWA_NATIVE_TOKEN_UNSUPPORTED` | RWA cannot be swapped against native asset |
+| `RWA_MARKET_UNAVAILABLE` | RWA market temporarily unavailable |
 | `QUOTE_PERSIST_FAILED` | Failed to persist quote |
 | `QUOTE_NOT_FOUND` | Quote not found |
 | `EXECUTE_FAILED` | Swap execution failed |
 | `NO_TRADE_DATA` | No trade data available |
 | `STATUS_UNAVAILABLE` | Swap status unavailable |
+| `GASLESS_UNSUPPORTED` | Gasless relay is not supported on this chain |
+| `GASLESS_NOT_CONFIGURED` | Gasless relay is not configured for this operation |
 | `SWAP_ERROR` | Generic swap error |
 
 ## Perps Errors
@@ -161,4 +190,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `NETWORK_UNREACHABLE` | Network unreachable |
+| `NETWORK_TIMEOUT` | Network request timed out |
 | `RESET_FAILED` | Failed to reset CLI session |
+| `MNEMONIC_STORE_FAILED` | Failed to store mnemonic to disk |
+| `FILESYSTEM_ERROR` | Generic filesystem error |
