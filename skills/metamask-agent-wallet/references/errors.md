@@ -179,6 +179,17 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
 
+## Earn Errors
+
+| Code | Meaning |
+| --- | --- |
+| `VAULT_NOT_FOUND` | No matching vault found for the token/chain/protocol |
+| `NOT_REDEEMABLE` | Vault does not support withdrawals |
+| `EARN_API_ERROR` | LiFi API error or rate limit |
+| `QUOTE_FAILED` | LiFi returned no executable transaction |
+| `EXECUTE_FAILED` | Transaction reverted, no hash returned, or cross-chain timeout |
+| `EARN_ERROR` | Generic earn error |
+
 ## Transaction History Errors
 
 | Code | Meaning |

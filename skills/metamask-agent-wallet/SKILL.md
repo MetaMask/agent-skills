@@ -1,6 +1,6 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, Aave V3 lending and borrowing, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
@@ -10,7 +10,7 @@ metadata:
 
 # MetaMask Agentic CLI Skill
 
-This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, and cross-chain bridges.
+This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, cross-chain bridges, and DeFi earn/yield vaults.
 
 Use the routing table to select the relevant reference file. CLI behavior lives in `references/`. Repeatable operational patterns live in `workflows/`.
 
@@ -105,6 +105,10 @@ Match the user's intent to a command and reference file, then read the reference
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 | Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| List earn vaults and APYs | `mm earn markets` | [earn.md](references/earn.md) |
+| View earn vault positions | `mm earn positions` | [earn.md](references/earn.md) |
+| Supply tokens to an earn vault | `mm earn supply` | [earn.md](references/earn.md) |
+| Withdraw tokens from an earn vault | `mm earn withdraw` | [earn.md](references/earn.md) |
 
 ## Workflows
 
@@ -127,13 +131,8 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
 | View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
-| Supply assets to Aave V3 | [aave-supply.md](workflows/aave-supply.md) |
-| Withdraw assets from Aave V3 | [aave-withdraw.md](workflows/aave-withdraw.md) |
-| Borrow from Aave V3 | [aave-borrow.md](workflows/aave-borrow.md) |
-| Repay Aave V3 debt | [aave-repay.md](workflows/aave-repay.md) |
-| Toggle Aave V3 collateral | [aave-collateral.md](workflows/aave-collateral.md) |
-| Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
-| Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
+| Supply tokens to earn yield | [earn-supply.md](workflows/earn-supply.md) |
+| Withdraw tokens from an earn vault | [earn-withdraw.md](workflows/earn-withdraw.md) |
 | Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
 
 ## Global Flags
@@ -246,6 +245,8 @@ Do not pass unvalidated user input into any command.
 | Predict deposit | Always confirm amount before executing |
 | Predict withdraw | Always confirm amount and recipient (`--to` defaults to owner EOA) before executing |
 | Predict redeem | Always confirm the target (condition ID or `--all`) before executing; `--all` redeems every winning position |
+| Earn supply | Always confirm token, amount, chain, vault/protocol, and APY before executing. For cross-chain supply, also confirm source chain and source token |
+| Earn withdraw | Always confirm token, amount (or full balance), chain, and vault/protocol before executing |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
 | Wallet policy changes | Broadening policy changes require MFA approval; non-broadening changes apply immediately |
 | Trading mode changes | Broadening (guard → beast) requires MFA approval; tightening (beast → guard) applies immediately |
