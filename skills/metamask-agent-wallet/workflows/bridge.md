@@ -37,14 +37,14 @@ mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 
 Persist the quote id for execution. Show the quote to the user before execution.
 Confirm source token, destination token, amount, source chain, destination chain, recipient address (if `--to-address` was set), destination gas top-up (if `--refuel` was set), and present the following from the quote:
 
-- \1 — `destAssetAmount` converted to human-readable units
-- \1 — `minDestAssetAmount` (worst case after slippage)
-- \1 — `priceData.priceImpact` as percentage; warn if above 1%
-- \1 — `feeData.metabridge.usd`
-- \1 — `slippage` as percentage
-- \1 — `priceData.totalToAmountUsd`
-- \1 — `gasIncludedBreakdown.gaslessRelayFee.usd` (only when `gasIncluded: true`)
-- \1 — `protocols` list
+- Output amount — `destAssetAmount` converted to human-readable units
+- Min output — `minDestAssetAmount` (worst case after slippage)
+- Price impact — `priceData.priceImpact` as percentage; warn if above 1%
+- Fee (USD) — `feeData.metabridge.usd`
+- Slippage — `slippage` as percentage
+- USD value — `priceData.totalToAmountUsd`
+- Gasless relay fee — `gasIncludedBreakdown.gaslessRelayFee.usd` (only when `gasIncluded: true`)
+- Route — `protocols` list
 
 ## Execute
 
