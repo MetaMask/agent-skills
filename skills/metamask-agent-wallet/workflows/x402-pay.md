@@ -1,7 +1,8 @@
 # x402 pay workflow (buyer)
 
 Use this when an HTTP request returns `402 Payment Required` (x402), or the user asks to
-fetch/pay for a paywalled API, endpoint, file, or resource over HTTP.
+fetch/pay for a paywalled API, endpoint, file, or resource. For a paid MCP tool call, use
+[x402-mcp.md](x402-mcp.md) instead.
 
 `scripts/x402_pay.py` does the payment. Command details are in `references/x402.md`. Call it by
 its full path inside this skill's directory (`$SKILL_DIR` is the folder containing `SKILL.md`), not
