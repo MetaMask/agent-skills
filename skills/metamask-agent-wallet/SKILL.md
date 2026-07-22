@@ -1,16 +1,16 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, Aave V3 lending and borrowing, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "5.0.1"
-  cliVersion: "4.0.1"
+  version: "6.0.0"
+  cliVersion: "5.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
 
-This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, and cross-chain bridges.
+This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, cross-chain bridges, and DeFi earn/yield vaults.
 
 Use the routing table to select the relevant reference file. CLI behavior lives in `references/`. Repeatable operational patterns live in `workflows/`.
 
@@ -105,6 +105,10 @@ Match the user's intent to a command and reference file, then read the reference
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 | Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| List earn vaults and APYs | `mm earn markets` | [earn.md](references/earn.md) |
+| View earn vault positions | `mm earn positions` | [earn.md](references/earn.md) |
+| Supply tokens to an earn vault | `mm earn supply` | [earn.md](references/earn.md) |
+| Withdraw tokens from an earn vault | `mm earn withdraw` | [earn.md](references/earn.md) |
 
 ## Workflows
 
@@ -127,13 +131,8 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
 | View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
-| Supply assets to Aave V3 | [aave-supply.md](workflows/aave-supply.md) |
-| Withdraw assets from Aave V3 | [aave-withdraw.md](workflows/aave-withdraw.md) |
-| Borrow from Aave V3 | [aave-borrow.md](workflows/aave-borrow.md) |
-| Repay Aave V3 debt | [aave-repay.md](workflows/aave-repay.md) |
-| Toggle Aave V3 collateral | [aave-collateral.md](workflows/aave-collateral.md) |
-| Check Aave V3 positions and health factor | [aave-positions.md](workflows/aave-positions.md) |
-| Discover Aave V3 tokens, rates, and liquidity | [aave-markets.md](workflows/aave-markets.md) |
+| Supply tokens to earn yield | [earn-supply.md](workflows/earn-supply.md) |
+| Withdraw tokens from an earn vault | [earn-withdraw.md](workflows/earn-withdraw.md) |
 | Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
 
 ## Global Flags
@@ -155,7 +154,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` **v4.0.1** (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` v5.0.0 (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -169,7 +168,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `4.0.1`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
@@ -181,11 +180,11 @@ Run this check once per session. Do not block operations on it.
 mm doctor
 ```
 
-It reports an `authenticated` boolean, an `initialized` boolean, and a list of `hints`. **Do not run any other command until `mm doctor` reports both `authenticated: true` and `initialized: true`.** Authentication and initialization are independent gates: a session can be authenticated while the project has no wallet mode selected, in which case any command that needs a wallet aborts before running with `NOT_INITIALIZED` — "Project not initialized." (hint: Run `mm init` to set up wallet and trading modes.).
+It reports an `authenticated` boolean, an `initialized` boolean, and a list of `hints`. Do not run any other command until `mm doctor` reports both `authenticated: true` and `initialized: true`. Authentication and initialization are independent gates: a session can be authenticated while the project has no wallet mode selected, in which case any command that needs a wallet aborts before running with `NOT_INITIALIZED` — "Project not initialized." (hint: Run `mm init` to set up wallet and trading modes.).
 
 A project counts as initialized only when a wallet mode is set — and, for `server-wallet`, a trading mode is set as well (`byok` needs only the wallet mode). Do not use `mm init show` as the check: it requires an initialized project and throws `NOT_INITIALIZED` on an uninitialized one rather than reporting state.
 
-Remediate, then **re-run `mm doctor` and confirm a clean result before doing anything else**:
+Remediate, then re-run `mm doctor` and confirm a clean result before doing anything else:
 
 - `authenticated: false` → follow `workflows/login.md` (or `workflows/onboarding.md` for first-time setup) to run `mm login`.
 - `authenticated: true` and `initialized: false` → follow `workflows/onboarding.md` to run `mm init` and select a wallet mode (and a trading mode for server-wallet).
@@ -219,6 +218,9 @@ Before constructing any command, validate all user-provided values:
 | `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
 | `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain` differs from `--from-chain`); rejected for same-chain swaps |
 | `--refuel` | Boolean flag (no value). Only meaningful for cross-chain swaps (`--to-chain` differs from `--from-chain`); no effect on same-chain swaps |
+| `--gas-token` | Must be a valid token symbol or ERC-20 contract address |
+| `--strategy` | Comma-separated list from: `cost`, `speed`, `impact`, `output` |
+| `--wallet-timeout` | Must be a positive integer between 1 and 600 |
 | `--password` | Must be a non-empty string. Never log, display, or store the value. |
 | x402 `asset` | Must be a valid contract address on a network returned by `mm chains list`. The currency choice is the server's offer confirmed by the user; the script keeps no currency allowlist. |
 | x402 `payTo` / authorization `to` | Must match `^0x[0-9a-fA-F]{40}$` and equal the recipient in the `402` |
@@ -243,7 +245,11 @@ Do not pass unvalidated user input into any command.
 | Predict deposit | Always confirm amount before executing |
 | Predict withdraw | Always confirm amount and recipient (`--to` defaults to owner EOA) before executing |
 | Predict redeem | Always confirm the target (condition ID or `--all`) before executing; `--all` redeems every winning position |
+| Earn supply | Always confirm token, amount, chain, vault/protocol, and APY before executing. For cross-chain supply, also confirm source chain and source token |
+| Earn withdraw | Always confirm token, amount (or full balance), chain, and vault/protocol before executing |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
+| Wallet policy changes | Broadening policy changes require MFA approval; non-broadening changes apply immediately |
+| Trading mode changes | Broadening (guard → beast) requires MFA approval; tightening (beast → guard) applies immediately |
 | Auth / wallet management | May execute without confirmation, except `reset` which requires explicit user confirmation |
 | Read-only queries | May execute without confirmation |
 

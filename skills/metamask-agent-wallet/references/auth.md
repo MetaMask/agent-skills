@@ -66,7 +66,7 @@ Sign in to the CLI. On a TTY, bare `mm login` shows a method picker (MetaMask Mo
 ### Syntax
 
 ```bash
-mm login [qr | browser] [--token <token>] [--timeout <seconds>] [--no-wait]
+mm login [qr | browser] [--token <token>] [--timeout <seconds>] [--otp-pair] [--no-wait]
 ```
 
 ### Supported Flags
@@ -75,22 +75,27 @@ mm login [qr | browser] [--token <token>] [--timeout <seconds>] [--no-wait]
 | --- | --- | --- |
 | `--token` | No | Pre-minted CLI token in `cliToken:cliRefreshToken` format [env: `MM_CLI_TOKEN`] |
 | `--timeout` | No | Seconds to wait for QR or browser callback |
-| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login. Complete later with `mm login --token` |
+| `--otp-pair` | No | Use the legacy MWP 6-digit pairing-code flow for browser login instead of the default paste-token flow. Only valid with `browser`. Cannot be combined with `--no-wait` or `--token` |
+| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login or `--otp-pair`. Complete later with `mm login --token` |
 
 ### Example
 
 ```bash
+mm login browser
 mm login browser --no-wait
+mm login browser --otp-pair
 mm login --token "cliToken:cliRefreshToken"
 ```
 
 ### Note
 
+- `mm login browser` (default) opens the dashboard URL and prompts the user to paste a CLI token (`cliToken:cliRefreshToken`). This is the recommended flow for agents.
+- `mm login browser --otp-pair` restores the legacy MWP 6-digit pairing-code flow.
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
 - `mm login qr` (scan with MetaMask Mobile) is available on all environments, including production.
 - Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
 - Use `mm login browser --no-wait` for non-interactive/CI flows. The command prints a sign-in URL; the user completes login in the browser (Google or Email). Bare `mm login --no-wait` fails without a TTY because no method is selected.
-- `--no-wait` is not supported with QR login. Complete authentication later with `mm login --token`.
+- `--no-wait` is not supported with QR login or `--otp-pair`. Complete authentication later with `mm login --token`.
 - After a successful login in server-wallet mode, the CLI automatically syncs existing wallets from the server. Run `mm wallet list` immediately — no need to re-run `mm init`. In BYOK mode, no sync occurs; run `mm init` to configure the wallet.
 
 ## `auth status` Command

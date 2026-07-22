@@ -152,7 +152,7 @@ mm wallet add-fund --toon
 
 ## `wallet trading-mode get` Command
 
-Show the current trading mode and active server-wallet address for the selected wallet. Server-wallet mode only.
+Show the current trading mode and active wallet address for the selected wallet.
 
 ### Syntax
 
@@ -168,12 +168,12 @@ mm wallet trading-mode get
 
 ## `wallet trading-mode set` Command
 
-Set the trading mode for the active server wallet. Prompts for confirmation when switching to Beast mode. Rejects if the mode is already set or the session isn't in server-wallet mode.
+Set the trading mode for the active wallet. Broadening changes (guard → beast) require MFA approval; tightening changes (beast → guard) apply immediately. Returns `confirmed` when applied, or `pending_approval` while awaiting MFA.
 
 ### Syntax
 
 ```bash
-mm wallet trading-mode set <guard|beast>
+mm wallet trading-mode set <guard|beast> [--wait] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -181,17 +181,20 @@ mm wallet trading-mode set <guard|beast>
 | Name | Required | Description |
 | --- | --- | --- |
 | `<mode>` | Yes | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions |
+| `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
+| `--wallet-timeout` | No | Seconds to wait per wallet job (MFA/signing), max 600; overrides config `walletTimeoutSeconds` |
 
 ### Example
 
 ```bash
 mm wallet trading-mode set guard
-mm wallet trading-mode set beast
+mm wallet trading-mode set beast --wait
+mm wallet trading-mode set beast --wallet-timeout 300
 ```
 
 ## `wallet policy get` Command
 
-Show the policy for the active server wallet. Server-wallet mode only.
+Show the policy for the active wallet.
 
 ### Syntax
 
@@ -212,12 +215,12 @@ mm wallet policy get --toon
 
 ## `wallet policy set` Command
 
-Set the policy for the active server wallet. Server-wallet mode only.
+Set the policy for the active wallet. Broadening policy changes (e.g. increasing outflow limits) require MFA approval; non-broadening changes (e.g. tightening limits) apply immediately. Returns `confirmed` when applied immediately, or `pending_approval` when MFA is required.
 
 ### Syntax
 
 ```bash
-mm wallet policy set --policy <yaml>
+mm wallet policy set --policy <yaml> [--wait] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -225,16 +228,19 @@ mm wallet policy set --policy <yaml>
 | Name | Required | Description |
 | --- | --- | --- |
 | `--policy` | Yes | Policy string to apply |
+| `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
+| `--wallet-timeout` | No | Seconds to wait per wallet job (MFA/signing), max 600; overrides config `walletTimeoutSeconds` |
 
 ### Example
 
 ```bash
 mm wallet policy set --policy "maxDailyOutflow: 1000"
+mm wallet policy set --policy "maxDailyOutflow: 5000" --wait
 ```
 
 ## `wallet policy template` Command
 
-Show the project policy template. Server-wallet mode only.
+Show the project policy template.
 
 ### Syntax
 

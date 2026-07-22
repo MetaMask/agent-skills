@@ -10,6 +10,33 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] — targets CLI v5.0.0
+
+### Added
+
+- Earn commands: `mm earn markets`, `mm earn positions`, `mm earn supply`, `mm earn withdraw` for DeFi yield vaults via LiFi. New reference (`references/earn.md`) and workflows (`workflows/earn-supply.md`, `workflows/earn-withdraw.md`). Earn error codes added to `references/errors.md`.
+- ERC-7821 batch execution: on eligible chains and accounts, the CLI batches approval + trade into a single transaction. Documented in swap and bridge workflows.
+- Intelligent quote selection: the CLI skips quotes the wallet cannot cover gas for and prefers gasless (EIP-7702) quotes when native balance is low. New `INSUFFICIENT_GAS` error code.
+- New swap/bridge error codes: `INSUFFICIENT_GAS`, `REFUEL_UNSUPPORTED_ROUTE`, `AMOUNT_TOO_LOW`, `AMOUNT_TOO_HIGH`, `SLIPPAGE_TOO_HIGH`, `SLIPPAGE_TOO_LOW`, `TOKEN_NOT_SUPPORTED`, `RWA_GEO_RESTRICTED`, `RWA_NATIVE_TOKEN_UNSUPPORTED`, `RWA_MARKET_UNAVAILABLE`.
+- New validation error codes: `UNKNOWN_FLAG`, `MISSING_ARG`, `UNEXPECTED_ARG`, `UNSUPPORTED_CHAIN`.
+- `--strategy` flag on `mm swap execute` (re-quote mode).
+- `--otp-pair` flag on `mm login browser` to restore the legacy MWP 6-digit pairing-code flow.
+- `INSUFFICIENT_FUNDS` error in swap execute path with pre-execute balance check.
+- Transaction notification guidance for QR login users in troubleshooting workflow (`AWAITING_MFA` row).
+
+### Changed
+
+- `mm login browser` default changed from MWP pairing to paste-token flow. The user pastes a `cliToken:cliRefreshToken` from the dashboard.
+- Swap and bridge workflows now default to `--all-quotes` to show all available routes.
+- Quote presentation: when showing multiple quotes, show a summary comparison table, then full details for the recommended quote. Show full details for any user-selected route before executing.
+- `--all-quotes` and `--yes` cannot be used together (`INVALID_SWAP_PARAMS`).
+- Removed bold formatting from all skill files.
+- Removed interactive TTY section from `references/swap.md` (not relevant for agents).
+
+### Removed
+
+- Aave V3 workflow files (`aave-borrow.md`, `aave-collateral.md`, `aave-markets.md`, `aave-positions.md`, `aave-repay.md`, `aave-supply.md`, `aave-withdraw.md`). Replaced by the generic earn commands which support Aave and other protocols.
+
 ## [5.0.1] — targets CLI v4.0.1
 
 ### Removed
