@@ -12,23 +12,19 @@ Reference command syntax in `references/auth.md`.
 
 ## Login
 
-For non-interactive/CI flows, use `mm login browser --no-wait`:
+Always use `--no-wait` for browser login since the agent runs non-interactively:
 
 ```bash
 mm login browser --no-wait
 ```
 
-The command prints a sign-in URL. The user opens it in a browser and chooses Google or Email to complete sign-in.
-
-`mm login qr` (scan with MetaMask Mobile) is available on all environments, including production. QR login keeps the CLI attached to the relay, so it does not support `--no-wait`.
-
-## Verify
-
-Once the user completes sign-in, verify with:
+The command prints a sign-in URL and exits. The user opens the URL in a browser, signs in via Google or Email, and receives a CLI token. Complete login with:
 
 ```bash
 mm login --token "<TOKEN>"
 ```
+
+`mm login qr` (scan with MetaMask Mobile) keeps the CLI attached to the relay, so it does not support `--no-wait`.
 
 ## Confirm
 

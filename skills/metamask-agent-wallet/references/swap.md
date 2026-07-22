@@ -59,7 +59,13 @@ When presenting a quote to the user, always show these fields:
 | Route | `protocols` | DEX/aggregator(s) used |
 | Warnings | `warnings` | Any CLI warnings (e.g. low swap value) |
 
-Show the gasless relay fee only when present (`gasIncluded: true`). When presenting multiple quotes (`--all-quotes`), show a comparison table with the above fields per quote. Mark the recommended quote.
+Show the gasless relay fee only when present (`gasIncluded: true`).
+
+When presenting multiple quotes (`--all-quotes`):
+
+1. Show a summary comparison table with route, output amount, relay fee (if gasless), and price impact for all quotes. Mark the recommended quote.
+2. Show the full detail breakdown (all fields above) for the recommended quote.
+3. If the user picks a different route, show its full details before executing.
 
 ## `swap execute` Command
 

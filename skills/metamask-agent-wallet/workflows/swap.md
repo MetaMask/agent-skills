@@ -14,8 +14,10 @@ Don't skip the quote review step. The user needs to see output amount, fees, rou
 
 ## Quote
 
+Always use `--all-quotes` to show all available routes so the user can compare and choose:
+
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1
+mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --all-quotes
 ```
 
 Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.

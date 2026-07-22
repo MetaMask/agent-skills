@@ -127,6 +127,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `STATUS_UNAVAILABLE` | Swap status unavailable |
 | `GASLESS_UNSUPPORTED` | Gasless relay is not supported on this chain |
 | `GASLESS_NOT_CONFIGURED` | Gasless relay is not configured for this operation |
+| `INSUFFICIENT_FUNDS` | Insufficient source token balance to execute swap. Check `mm wallet balance`, fund the wallet, or lower `--amount` and re-quote |
 | `SWAP_ERROR` | Generic swap error |
 
 ## Perps Errors
