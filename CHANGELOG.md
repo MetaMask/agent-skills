@@ -10,6 +10,13 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.0.0] — targets CLI v5.0.1
+
+### Changed
+
+- `mm doctor` no longer checks for the removed `metamask-agent-workflows` skill. Only `metamask-agent-wallet` is checked.
+- Bumped `cliVersion` to `5.0.1`.
+
 ## [6.0.0] — targets CLI v5.0.0
 
 ### Added
