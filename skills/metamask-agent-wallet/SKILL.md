@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "6.0.0"
-  cliVersion: "5.0.1"
+  version: "6.1.0"
+  cliVersion: "5.1.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -154,7 +154,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` v5.0.1 (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` v5.1.0 (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version

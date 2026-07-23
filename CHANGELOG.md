@@ -10,6 +10,21 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.1.0] — targets CLI v5.1.0
+
+### Added
+
+- `--wait` flag on `mm earn supply` to poll and confirm the position is reflected after deposit.
+- New error codes: `JOB_TIMEOUT`, `REQUEST_NOT_FOUND`, `TX_DENIED`, `TX_EXPIRED`, `TX_FAILED`.
+- New troubleshooting rows for `JOB_TIMEOUT`, `TX_DENIED`, `TX_EXPIRED`, `AUTH_FAILED` after session expiry.
+
+### Changed
+
+- Default wallet job poll timeout raised from 5 minutes to 10 minutes.
+- Perps deposit/withdraw/order errors now show actionable hints with minimum amounts.
+- Auth failures during operations now consistently produce `AUTH_FAILED` with login guidance.
+- Bumped `cliVersion` to `5.1.0`.
+
 ## [6.0.0] — targets CLI v5.0.1
 
 ### Changed
