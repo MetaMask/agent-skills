@@ -89,6 +89,11 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `ABORTED` | Operation aborted by user |
+| `JOB_TIMEOUT` | Wallet job poll timed out. Approve on your paired device if prompted, or check `mm wallet requests list` before retrying |
+| `REQUEST_NOT_FOUND` | Wallet job/request not found on remote |
+| `TX_DENIED` | Transaction was denied via MFA |
+| `TX_EXPIRED` | Transaction MFA approval expired |
+| `TX_FAILED` | Transaction failed after submission |
 | `NOT_INITIALIZED` | Project not initialized. Run `mm init` |
 | `NO_MNEMONIC` | Mnemonic not stored |
 | `NO_TTY` | No TTY available for interactive prompts |

@@ -30,24 +30,26 @@ mm wallet balance --chain 8453 --token USDC
 
 ## Supply
 
-Same-chain:
+Same-chain (use `--wait` to confirm the position is reflected):
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453
+mm earn supply --token USDC --amount 100 --chain 8453 --wait
 ```
 
 With a specific vault or protocol:
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453 --protocol aave
-mm earn supply --vault 0xabc...def --amount 100 --chain 8453
+mm earn supply --token USDC --amount 100 --chain 8453 --protocol aave --wait
+mm earn supply --vault 0xabc...def --amount 100 --chain 8453 --wait
 ```
 
 Cross-chain (supply from a different chain):
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453 --from-chain 1 --from-token USDC
+mm earn supply --token USDC --amount 100 --chain 8453 --from-chain 1 --from-token USDC --wait
 ```
+
+Without `--wait`, the CLI shows a hint to check positions shortly. Positions can take 15-30s to appear in `mm earn positions`.
 
 ## Confirm
 

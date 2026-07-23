@@ -68,7 +68,7 @@ Supply tokens to an earn vault to earn yield. Requires authentication. Handles E
 ### Syntax
 
 ```bash
-mm earn supply --token <symbol|address> --amount <amount> --chain <chain-id> [--vault <address>] [--protocol <name>] [--from-chain <chain-id>] [--from-token <symbol|address>] [--password <password>] [--wallet-timeout <seconds>]
+mm earn supply --token <symbol|address> --amount <amount> --chain <chain-id> [--vault <address>] [--protocol <name>] [--from-chain <chain-id>] [--from-token <symbol|address>] [--wait] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -82,6 +82,7 @@ mm earn supply --token <symbol|address> --amount <amount> --chain <chain-id> [--
 | `--protocol` | No | Restrict vault auto-selection to a specific protocol (e.g. aave, compound) |
 | `--from-chain` | No | Source chain ID for cross-chain deposits |
 | `--from-token` | No | Source token symbol or address for cross-chain deposits. Required when `--from-chain` differs from `--chain` |
+| `--wait` | No | Poll after deposit to confirm the position is reflected (up to ~45s). Without `--wait`, the CLI shows a hint to check positions shortly |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 | `--wallet-timeout` | No | Seconds to wait per wallet job (MFA/signing), max 600; overrides config `walletTimeoutSeconds` |
 

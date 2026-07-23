@@ -43,6 +43,10 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `TRADING_MODE_APPROVAL_REJECTED` or `_EXPIRED` | MFA approval for trading mode change was rejected or timed out | Retry `mm wallet trading-mode set` and approve via MFA |
 | `WALLET_POLICY_APPROVAL_REJECTED` or `_EXPIRED` | MFA approval for policy change was rejected or timed out | Retry `mm wallet policy set` and approve via MFA |
 | Command hangs on `AWAITING_MFA` | MFA approval needed | Approve via MetaMask Mobile (QR login) or email/dashboard (browser login). For QR login users: the MFA request appears in the notifications menu inside MetaMask Mobile. If push notifications are not showing, check that notifications are enabled in both MetaMask Mobile settings (Settings > Notifications) and at the device level (iOS/Android system settings). The notification permission may have been declined during MetaMask onboarding — re-enable it from the device settings. Regardless of push notification settings, the MFA request is always available in the MetaMask Mobile notifications menu |
+| `JOB_TIMEOUT` | Wallet job poll timed out (default 10 minutes) | Approve on your paired device if prompted, or check `mm wallet requests list` before retrying |
+| `TX_DENIED` | Transaction was denied via MFA | Retry the command and approve when prompted |
+| `TX_EXPIRED` | Transaction MFA approval expired | Retry the command and approve promptly |
+| `AUTH_FAILED` after a working session | Session token expired during operation | Run `mm login` to re-authenticate |
 
 ## Verbose Logging
 
