@@ -4,13 +4,13 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "6.1.0"
-  cliVersion: "5.1.0"
+  version: "6.2.0"
+  cliVersion: "5.2.0"
 ---
 
 # MetaMask Agentic CLI Skill
 
-This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, cross-chain bridges, and DeFi earn/yield vaults.
+This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, cross-chain bridges, DeFi earn/yield vaults, and EVM calldata decoding.
 
 Use the routing table to select the relevant reference file. CLI behavior lives in `references/`. Repeatable operational patterns live in `workflows/`.
 
@@ -154,7 +154,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` v5.1.0 (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` v5.2.0 (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -168,7 +168,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.0.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
@@ -215,6 +215,7 @@ Before constructing any command, validate all user-provided values:
 | `--order-type` | Must be one of `GTC`, `GTD`, `FOK`, `FAK` |
 | `--side` (predict) | Must be `buy` or `sell` |
 | `--slippage` | Must be a number between 0 and 100 |
+| `--tick-size` | Must be one of `0.1`, `0.01`, `0.001`, `0.0001` |
 | `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
 | `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain` differs from `--from-chain`); rejected for same-chain swaps |
 | `--refuel` | Boolean flag (no value). Only meaningful for cross-chain swaps (`--to-chain` differs from `--from-chain`); no effect on same-chain swaps |

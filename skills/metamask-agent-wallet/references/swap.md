@@ -43,6 +43,35 @@ mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --all-quotes
 mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --yes
 ```
 
+## Unavailable Quote
+
+When the bridge returns zero routes for an actionable reason, `mm swap quote` returns a soft unavailable outcome (exit code 0, not an error) instead of failing. The JSON output has this shape:
+
+```json
+{
+  "kind": "unavailable",
+  "reason": "<reason>",
+  "message": "<explanation>",
+  "hint": "<suggested fix>"
+}
+```
+
+Possible `reason` values:
+
+| Reason | Meaning | Suggested action |
+| --- | --- | --- |
+| `NO_QUOTES` | No routes found for this request | Try a different token pair or route |
+| `AMOUNT_TOO_HIGH` | Amount too high for available liquidity | Lower `--amount` |
+| `AMOUNT_TOO_LOW` | Amount below the provider minimum | Increase `--amount` |
+| `SLIPPAGE_TOO_HIGH` | Slippage too high | Lower `--slippage` |
+| `SLIPPAGE_TOO_LOW` | Slippage too low | Increase `--slippage` |
+| `TOKEN_NOT_SUPPORTED` | Token not supported for this route | Try a different token |
+| `RWA_GEO_RESTRICTED` | This asset is restricted in your region | N/A |
+| `RWA_NATIVE_TOKEN_UNSUPPORTED` | This RWA can't be traded against the native token | Use a non-native token |
+| `RWA_MARKET_UNAVAILABLE` | This RWA market is currently unavailable | Retry later |
+
+When you receive an unavailable outcome, surface the `message` and `hint` to the user and suggest adjusting the parameters per the table above. Do not treat this as an error. Only `QUOTE_RETRY` (transient bridge hiccup) is a hard error (exit 1) — re-run the same quote to retry.
+
 ## Quote Presentation
 
 When presenting a quote to the user, always show these fields:
