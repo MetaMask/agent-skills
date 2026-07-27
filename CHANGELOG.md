@@ -10,6 +10,22 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.0] — targets CLI v5.2.0
+
+### Added
+
+- `--tick-size` flag on `mm predict quote` and `mm predict place` to override the market tick size. Supported values: `0.1`, `0.01`, `0.001`, `0.0001`. Defaults to the CLOB tick for the token.
+- Swap quote soft-unavailable outcomes: `mm swap quote` now returns a soft `{ kind: "unavailable", reason, message, hint }` envelope (exit 0) when the bridge returns zero routes for actionable reasons (`NO_QUOTES`, `AMOUNT_TOO_LOW`, `AMOUNT_TOO_HIGH`, `SLIPPAGE_TOO_HIGH`, `SLIPPAGE_TOO_LOW`, `TOKEN_NOT_SUPPORTED`, `RWA_GEO_RESTRICTED`, `RWA_NATIVE_TOKEN_UNSUPPORTED`, `RWA_MARKET_UNAVAILABLE`). Only `QUOTE_RETRY` remains a hard error.
+- New error codes: `WALLET_NOT_REGISTERED` (BYOK init registration failure), `QUOTE_RETRY` (transient bridge retry signal), `PREDICT_INSUFFICIENT_GAS` (POL gas shortfall on Polygon deposits).
+- `--tick-size` validation rule added to SKILL.md input validation table.
+
+### Changed
+
+- `mm init --wallet byok` now requires server-side wallet registration to succeed. Failure throws `WALLET_NOT_REGISTERED` and rolls back the wallet mode.
+- Predict deposit gas errors now surface as `PREDICT_INSUFFICIENT_GAS` with a POL-specific hint instead of collapsing to generic `PREDICT_ERROR`.
+- Transfer MFA intents show token symbol instead of contract address; swap/bridge intents include approximate destination amount.
+- Bumped `cliVersion` to `5.2.0`.
+
 ## [6.1.0] — targets CLI v5.1.0
 
 ### Added

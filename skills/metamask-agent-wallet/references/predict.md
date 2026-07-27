@@ -376,7 +376,7 @@ Preview order cost and fill before placing.
 ### Syntax
 
 ```bash
-mm predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> [--limit-price <price>] [--password <password>]
+mm predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> [--limit-price <price>] [--tick-size <tick>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -388,6 +388,7 @@ mm predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> 
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
 | `--limit-price` | No | Execution price per share, between 0 and 1 |
+| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
 | `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
 
 ### Example
@@ -395,6 +396,7 @@ mm predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> 
 ```bash
 mm predict quote --token-id <token-id> --side buy --size 1
 mm predict quote --token-id <token-id> --side sell --size 5 --limit-price 0.60
+mm predict quote --token-id <token-id> --side buy --size 10 --tick-size 0.01
 ```
 
 ## `predict place` Command
@@ -404,7 +406,7 @@ Place a Predict order (GTC/GTD limit, FOK/FAK market).
 ### Syntax
 
 ```bash
-mm predict place <token-id> [--token-id <token-id>] --side <side> --size <size> --price <price> [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
+mm predict place <token-id> [--token-id <token-id>] --side <side> --size <size> --price <price> [--tick-size <tick>] [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
 ```
 
 ### Supported Flags
@@ -416,6 +418,7 @@ mm predict place <token-id> [--token-id <token-id>] --side <side> --size <size> 
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
 | `--price` | Yes | Worst price per share (0-1); limit price for GTC/GTD, worst fill for FOK/FAK |
+| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
 | `--order-type` | No | Order type: `GTC`, `GTD`, `FOK`, or `FAK` (defaults to `GTC`) |
 | `--post-only` | No | Reject if the order would cross the book. Not supported with FOK/FAK orders |
 | `--expiration` | If `GTD` | Expiration as a Unix timestamp in seconds (only valid for GTD orders) |

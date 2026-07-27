@@ -37,7 +37,7 @@ mm init --wallet byok --mode guard
 ### Note
 
 - In server-wallet mode, if the account already has a remote EVM wallet, `mm init` syncs it and loads the existing trading mode instead of prompting for a new trading mode or creating a wallet. Use `mm wallet policy get` to view the wallet policy.
-- In BYOK mode, `mm init` registers the wallet server-side and prompts for trading mode (`guard` or `beast`). If a trading mode is already set server-side, it is loaded without prompting. The `--mode` flag skips the prompt in non-interactive/scripted use.
+- In BYOK mode, `mm init` registers the wallet server-side and prompts for trading mode (`guard` or `beast`). If a trading mode is already set server-side, it is loaded without prompting. The `--mode` flag skips the prompt in non-interactive/scripted use. Server-side registration must succeed — if it fails, the CLI throws `WALLET_NOT_REGISTERED` and rolls back the wallet mode so subsequent commands are blocked by the init gate.
 
 ## `init show` Command
 

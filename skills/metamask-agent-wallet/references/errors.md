@@ -68,6 +68,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `WALLET_NOT_FOUND` | Wallet not found |
 | `WALLET_ERROR` | Wallet provider or wallet operation error (includes on-chain reverts and network failures from wallet paths) |
 | `WALLET_METADATA` | Wallet metadata error |
+| `WALLET_NOT_REGISTERED` | Server-side BYOK wallet registration failed. Re-run `mm init --wallet byok` |
 | `WRONG_NAMESPACE` | Wrong namespace for wallet |
 | `UNSUPPORTED_NAMESPACE` | Unsupported wallet namespace |
 | `NO_AUTH_TOKEN` | Missing authentication token for wallet operations |
@@ -110,7 +111,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 
 | Code | Meaning |
 | --- | --- |
-| `NO_QUOTES` | No swap or bridge quotes available |
+| `NO_QUOTES` | No swap or bridge quotes available. When returned as a soft unavailable outcome (exit 0), adjust amount, slippage, or token and retry |
+| `QUOTE_RETRY` | Transient bridge hiccup — re-run the exact same quote to get routes |
 | `BRIDGE_API_ERROR` | Bridge API error |
 | `TOKEN_NOT_FOUND` | Token not found |
 | `TOKEN_NOT_SUPPORTED` | Token not supported for this swap route |
@@ -182,6 +184,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
 | `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
 | `PREDICT_ERROR` | Generic Predict error |
+| `PREDICT_INSUFFICIENT_GAS` | Insufficient native POL for gas on Polygon. Top up wallet with POL, check balances with `mm wallet balance`, then retry |
 | `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
 
