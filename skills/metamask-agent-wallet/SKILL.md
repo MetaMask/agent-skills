@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "6.2.0"
-  cliVersion: "5.2.0"
+  version: "6.2.1"
+  cliVersion: "5.2.1"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -99,6 +99,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Withdraw pUSD from Predict deposit wallet | `mm predict withdraw` | [predict.md](references/predict.md) |
 | Fetch prediction order book | `mm predict book` | [predict.md](references/predict.md) |
 | Watch a Predict job | `mm predict watch` | [predict.md](references/predict.md) |
+| Look up a transaction by hash | `mm tx` | [tx-history.md](references/tx-history.md) |
 | List recent transactions for the active wallet | `mm tx history` | [tx-history.md](references/tx-history.md) |
 | Get a swap or bridge quote | `mm swap quote` | [swap.md](references/swap.md) |
 | Execute a token swap or bridge | `mm swap execute` | [swap.md](references/swap.md) |
@@ -154,7 +155,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` v5.2.0 (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` v5.2.1 (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version
@@ -168,7 +169,7 @@ npm view @metamask/agentic-cli version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.0`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.1`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 

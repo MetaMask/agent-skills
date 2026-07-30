@@ -168,22 +168,27 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 
 | Code | Meaning |
 | --- | --- |
-| `PREDICT_SETUP_REQUIRED` | Predict setup required before operation |
-| `PREDICT_AUTH_REQUIRED` | Predict authentication required |
-| `PREDICT_AUTH_INVALID` | Predict credentials invalid or incomplete |
-| `PREDICT_RELAYER_CONFIG_REQUIRED` | Relayer configuration required |
-| `PREDICT_INVALID_DEPOSIT_AMOUNT` | Invalid deposit amount |
-| `PREDICT_WITHDRAW_ZERO` | Withdraw amount must be greater than zero |
-| `PREDICT_WITHDRAW_INSUFFICIENT_BALANCE` | Withdraw amount exceeds deposit wallet pUSD balance |
-| `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported |
-| `PREDICT_INSUFFICIENT_BALANCE` | Insufficient Predict balance |
-| `PREDICT_INSUFFICIENT_ALLOWANCE` | Insufficient Predict allowance |
-| `PREDICT_INSUFFICIENT_FUNDING_BALANCE` | Insufficient funding balance for Predict deposit |
-| `PREDICT_CANCEL_TARGET_REQUIRED` | Cancel target not specified |
+| `PREDICT_SETUP_REQUIRED` | Predict setup required before operation. Run `mm predict setup` for this owner, then retry |
+| `PREDICT_AUTH_REQUIRED` | Predict authentication required. Run `mm predict auth`, then retry |
+| `PREDICT_AUTH_INVALID` | Predict credentials invalid or incomplete. Run `mm predict auth --refresh`, then retry |
+| `PREDICT_RELAYER_CONFIG_REQUIRED` | Relayer configuration required. Configure the Predict relayer URL and retry |
+| `PREDICT_INVALID_DEPOSIT_AMOUNT` | Invalid deposit amount. Pass a positive pUSD amount with up to 6 decimal places |
+| `PREDICT_WITHDRAW_ZERO` | Withdraw amount must be greater than zero. Pass a `--amount` greater than zero |
+| `PREDICT_WITHDRAW_INSUFFICIENT_BALANCE` | Withdraw amount exceeds deposit wallet pUSD balance. Lower `--amount` or check `mm predict balance` |
+| `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported. Deposit funding is only configured for Polygon (137) |
+| `PREDICT_INSUFFICIENT_BALANCE` | Insufficient Predict balance. Lower `--size`, or deposit more collateral with `mm predict deposit`; check `mm predict balance` |
+| `PREDICT_INSUFFICIENT_ALLOWANCE` | Insufficient Predict allowance. Run `mm predict approve`, then retry the order |
+| `PREDICT_INSUFFICIENT_FUNDING_BALANCE` | Insufficient funding balance for Predict deposit. Fund the deposit wallet with USDC.e, or lower the deposit amount |
+| `PREDICT_CANCEL_TARGET_REQUIRED` | Cancel target not specified. Pass `orderId`, `orderIds`, market/assetId, or `--all` |
+| `PREDICT_ORDER_SIZE_TOO_SMALL` | Order size is below the exchange minimum. Raise `--size` to at least the minimum stated in the error; inspect liquidity with `mm predict book` |
+| `PREDICT_ORDER_NOT_FILLED` | Order could not be fully filled. Adjust `--size`/`--price`, check liquidity with `mm predict book`, or use GTC instead of FOK |
+| `PREDICT_REDEEM_NONE` | No redeemable positions. Check `mm predict redeem list` |
+| `PREDICT_REDEEM_NOT_FOUND` | Redeem target not found. Check the condition/token ID against `mm predict redeem list` |
+| `PREDICT_REDEEM_MISSING_TARGET` | Missing redeem target. Pass a condition or token ID |
 | `PREDICT_WALLET_STATE_REQUIRED` | Wallet state required for Predict |
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
 | `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
-| `PREDICT_ERROR` | Generic Predict error |
+| `PREDICT_ERROR` | Generic Predict error. Re-check inputs and mode (`mm predict mode`); run `mm predict status` to verify back-end reachability |
 | `PREDICT_INSUFFICIENT_GAS` | Insufficient native POL for gas on Polygon. Top up wallet with POL, check balances with `mm wallet balance`, then retry |
 | `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
