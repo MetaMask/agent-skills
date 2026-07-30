@@ -1,6 +1,31 @@
-# Transaction history command
+# Transaction Commands
 
-Use `mm tx history` to list recent transactions for the active wallet or specific addresses.
+Use `mm tx` to look up a transaction by hash, or `mm tx history` to list recent transactions for the active wallet or specific addresses.
+
+## `tx` command
+
+Look up a transaction by hash.
+
+### Syntax
+
+```bash
+mm tx --hash <hash> [--chain <chain-id-or-caip2>]
+```
+
+### Supported flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--hash` | Yes | 0x-prefixed transaction hash |
+| `--chain` | No | Chain ID or CAIP-2 (e.g. `1` or `eip155:1`). When omitted, common EVM chains are probed |
+
+### Example
+
+```bash
+mm tx --hash 0xabc123...
+mm tx --hash 0xabc123... --chain 137
+mm tx --hash 0xabc123... --chain eip155:1
+```
 
 ## `tx history` command
 

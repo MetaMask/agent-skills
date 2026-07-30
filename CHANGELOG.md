@@ -10,6 +10,19 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.2.1] — targets CLI v5.2.1
+
+### Added
+
+- New predict error codes: `PREDICT_ORDER_SIZE_TOO_SMALL` (order size below exchange minimum), `PREDICT_ORDER_NOT_FILLED` (FOK order could not be fully filled). These are classified from unstructured CLOB place rejections.
+- New predict error codes with actionable hints: `PREDICT_REDEEM_NONE`, `PREDICT_REDEEM_NOT_FOUND`, `PREDICT_REDEEM_MISSING_TARGET`.
+- `mm tx --hash <hash>` command: look up a transaction by hash. Added to SKILL.md routing table and `references/tx-history.md`.
+
+### Changed
+
+- All expected predict error codes now return actionable, per-code hints instead of a generic "Re-check inputs and mode" fallback. Affected codes include `PREDICT_SETUP_REQUIRED`, `PREDICT_AUTH_REQUIRED`, `PREDICT_AUTH_INVALID`, `PREDICT_INSUFFICIENT_BALANCE`, `PREDICT_INSUFFICIENT_FUNDING_BALANCE`, `PREDICT_INSUFFICIENT_ALLOWANCE`, `PREDICT_CANCEL_TARGET_REQUIRED`, and others.
+- Bumped `cliVersion` to `5.2.1`.
+
 ## [6.2.0] — targets CLI v5.2.0
 
 ### Added
