@@ -10,6 +10,28 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.3.0] — targets CLI v5.3.0
+
+### Added
+
+- `mm predict history` command: list deposit-wallet activity (trades by default, or `--type redeem` for past redemptions). Supports pagination (`--limit`, `--offset`), time range (`--start`, `--end`), sorting (`--sort-by`, `--sort-direction`), and side filtering (`--side`). Each trade row includes settlement `result` (`won`, `lost`, `pending`), `redeemed` flag, and `amountWon` payout.
+- `mm predict history get <condition-id>` command: show trade/redeem history for a specific market condition.
+- New workflow: `workflows/predict-history.md` for browsing and filtering predict trade/redeem history.
+- New error codes: `INVALID_EVM_ADDRESS` (invalid transfer recipient), `RELAY_TIMEOUT` (gasless relay poll timeout with recovery hint), `TX_REVERTED` (on-chain RPC revert with `failure_reason`), `RATE_LIMITED` (venue rate limit, e.g. Hyperliquid HTTP 429), `INVALID_AMOUNT` (non-positive/malformed amount on transfers).
+- `ALREADY_LOGGED_OUT` reason on `mm logout` when no active session exists (exit 0, not an error).
+- `mm tx history` output enriched with `chainName`, `chainId`, `explorerUrl`, and `protocol` metadata fields.
+
+### Changed
+
+- Swap MFA timeouts now return `RELAY_TIMEOUT` (gasless relay) or `JOB_TIMEOUT` (sequential legs) instead of generic `SWAP_ERROR`, with recovery hint to check `mm wallet requests watch --polling-id <id>`.
+- Gasless relay polling now respects `--wallet-timeout` (default 10 minutes) instead of the fox-sdk ~5-minute default.
+- Perps HTTP 429 errors from Hyperliquid now map to `RATE_LIMITED` instead of `HYPERLIQUID_ERROR`.
+- Token and route discovery errors (`TOKEN_NOT_FOUND`, `TOKEN_NO_ADDRESS`, `TOKEN_NOT_SUPPORTED`, `NATIVE_ASSET_UNSUPPORTED`, `INVALID_GAS_TOKEN`, `NO_QUOTES`) now suggest `mm token list search` in recovery hints.
+- Earn wallet approval intents now use human-readable amounts and token symbols (e.g. "Supply 0.998 USDC to Fluid") instead of base units and contract addresses.
+- `mm login qr` aborts promptly with `MWP_CANCELLED` when MetaMask Mobile cancels dashboard authorization, instead of hanging until timeout.
+- `mm wallet balance` tolerates missing `nativeCurrency` metadata (falls back to built-in metadata or ETH/18).
+- Bumped `cliVersion` to `5.3.0`.
+
 ## [6.2.1] — targets CLI v5.2.1
 
 ### Added

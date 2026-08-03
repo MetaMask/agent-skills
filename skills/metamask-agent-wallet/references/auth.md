@@ -121,7 +121,7 @@ mm auth status --toon
 
 ## `logout` Command
 
-Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic. Prompts for confirmation before signing out.
+Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic. Prompts for confirmation before signing out. If no active session exists, returns `reason: ALREADY_LOGGED_OUT` with a hint to run `mm login` (exit 0, not an error).
 
 ### Syntax
 

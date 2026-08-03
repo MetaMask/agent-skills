@@ -4,13 +4,13 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "6.2.1"
-  cliVersion: "5.2.1"
+  version: "6.3.0"
+  cliVersion: "5.3.0"
 ---
 
 # MetaMask Agentic CLI Skill
 
-This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, token swaps, cross-chain bridges, DeFi earn/yield vaults, and EVM calldata decoding.
+This skill documents the `mm` CLI surface for MetaMask Agent Wallet authentication, wallet lifecycle, balance queries, token transfers, message and typed-data signing, raw transactions, chain discovery, market data, token discovery, perpetual futures trading, prediction market trading, prediction trade/redeem history, token swaps, cross-chain bridges, DeFi earn/yield vaults, and EVM calldata decoding.
 
 Use the routing table to select the relevant reference file. CLI behavior lives in `references/`. Repeatable operational patterns live in `workflows/`.
 
@@ -99,6 +99,8 @@ Match the user's intent to a command and reference file, then read the reference
 | Withdraw pUSD from Predict deposit wallet | `mm predict withdraw` | [predict.md](references/predict.md) |
 | Fetch prediction order book | `mm predict book` | [predict.md](references/predict.md) |
 | Watch a Predict job | `mm predict watch` | [predict.md](references/predict.md) |
+| List Predict trade or redeem history | `mm predict history` | [predict.md](references/predict.md) |
+| Inspect Predict history for a specific market | `mm predict history get` | [predict.md](references/predict.md) |
 | Look up a transaction by hash | `mm tx` | [tx-history.md](references/tx-history.md) |
 | List recent transactions for the active wallet | `mm tx history` | [tx-history.md](references/tx-history.md) |
 | Get a swap or bridge quote | `mm swap quote` | [swap.md](references/swap.md) |
@@ -131,6 +133,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Quote and place a prediction order | [predict-place-order.md](workflows/predict-place-order.md) |
 | View or cancel Predict orders and positions | [predict-manage-orders.md](workflows/predict-manage-orders.md) |
 | View Predict portfolio and redeem winnings | [predict-portfolio.md](workflows/predict-portfolio.md) |
+| View Predict trade and redeem history | [predict-history.md](workflows/predict-history.md) |
 | Token discovery, prices, and market data | [market-data.md](workflows/market-data.md) |
 | Supply tokens to earn yield | [earn-supply.md](workflows/earn-supply.md) |
 | Withdraw tokens from an earn vault | [earn-withdraw.md](workflows/earn-withdraw.md) |
@@ -155,7 +158,7 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` v5.2.1 (see `cliVersion` in the frontmatter). Check the installed version:
+This skill is written for `@metamask/agentic-cli` v5.3.0 (see `cliVersion` in the frontmatter). Check the installed version:
 
 ```bash
 mm --version

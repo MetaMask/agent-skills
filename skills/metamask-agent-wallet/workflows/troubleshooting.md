@@ -47,6 +47,10 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `TX_DENIED` | Transaction was denied via MFA | Retry the command and approve when prompted |
 | `TX_EXPIRED` | Transaction MFA approval expired | Retry the command and approve promptly |
 | `AUTH_FAILED` after a working session | Session token expired during operation | Run `mm login` to re-authenticate |
+| `RELAY_TIMEOUT` on swap execute | Gasless relay MFA/signing timed out | Run `mm wallet requests watch --polling-id <id>` — the job may still complete. Do not re-run execute while the job is pending |
+| `RATE_LIMITED` on perps commands | Hyperliquid rate limit (HTTP 429) | Wait briefly and retry |
+| `ALREADY_LOGGED_OUT` on logout | No active session to sign out of | Run `mm login` to authenticate |
+| `INVALID_EVM_ADDRESS` on transfer | Malformed recipient address | Check the `--to` address is a valid `0x`-prefixed 40-hex-char EVM address |
 
 ## Verbose Logging
 
