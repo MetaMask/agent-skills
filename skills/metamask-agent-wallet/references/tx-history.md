@@ -54,6 +54,19 @@ mm tx history --type out
 mm tx history --addresses 0x742d...f2bD18 --chain 137 --limit 100
 ```
 
+### Output
+
+Each history row includes enriched metadata:
+
+| Field | Description |
+| --- | --- |
+| `chainName` | Human-readable chain name (e.g. "Ethereum", "Polygon") |
+| `chainId` | Numeric chain ID (e.g. 1, 137) |
+| `explorerUrl` | Block explorer link to the transaction |
+| `protocol` | Protocol metadata when available (e.g. "swap", "transfer", "earn") |
+
+When a pending CLI job matches an indexed transaction hash, the original CLI intent is preserved in the output.
+
 ### Notes
 
 - If you omit `--addresses`, the command queries all EVM wallets for your account.

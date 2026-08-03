@@ -719,6 +719,85 @@ mm predict watch <job-id> --wait
 mm predict watch --id <job-id> --wait
 ```
 
+## `predict history` Command
+
+List deposit-wallet activity: trades (default) or past redemptions.
+
+### Syntax
+
+```bash
+mm predict history [--type <type>] [--limit <n>] [--offset <n>] [--start <unix>] [--end <unix>] [--sort-by <field>] [--sort-direction <dir>] [--side <side>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--type` | No | Activity type: `trade` (default) or `redeem` |
+| `--limit` | No | Page size, 1-500 (Data API default 100) |
+| `--offset` | No | Pagination offset (0-based) |
+| `--start` | No | Lower-bound activity time as unix seconds |
+| `--end` | No | Upper-bound activity time as unix seconds |
+| `--sort-by` | No | Sort field: `timestamp` (default), `tokens`, or `cash` |
+| `--sort-direction` | No | Sort direction: `asc` or `desc` |
+| `--side` | No | Filter trades by side: `buy` or `sell` (only for `--type trade`) |
+
+### Output
+
+Each history row includes:
+
+| Field | Description |
+| --- | --- |
+| `conditionId` | Market condition ID |
+| `slug` | Market slug (use with `mm predict markets get <slug>`) |
+| `eventSlug` | Parent event slug (optional) |
+| `outcome` | Outcome token label (e.g. "Yes" / "No") |
+| `size` | Share count |
+| `value` | USDC notional (trade cost or redeem payout) |
+| `price` | Execution price per share |
+| `at` | ISO timestamp |
+| `timestamp` | Raw epoch seconds |
+| `transactionHash` | Transaction hash |
+| `side` | buy/sell (optional) |
+| `redeemed` | (trade rows only) Whether any redeem activity exists for this condition |
+| `result` | (trade rows only) Settlement status: `won`, `lost`, or `pending` |
+| `amountWon` | (trade rows, if redeemed) Redeem payout in USDC |
+
+Pagination: when `hasMore` is `true`, the CLI auto-generates a next-page command hint with the correct `--limit`, `--offset`, `--type`, `--start`, and `--end` values.
+
+### Example
+
+```bash
+mm predict history --toon
+mm predict history --type redeem --limit 10
+mm predict history --type trade --side buy --sort-by cash --sort-direction desc
+mm predict history --start 1719792000 --end 1719878400
+```
+
+## `predict history get` Command
+
+Show trade or redeem history for a specific market condition.
+
+### Syntax
+
+```bash
+mm predict history get <condition-id> [--type <type>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<condition-id>` | Yes | Market condition ID (positional) |
+| `--type` | No | Activity type: `trade` (default) or `redeem` |
+
+### Example
+
+```bash
+mm predict history get 0xABC123... --toon
+mm predict history get 0xABC123... --type redeem
+```
+
 ## Notes
 
 - Before trading, run `mm predict setup --wait` to initialize credentials, deploy the deposit wallet, and set approvals.
@@ -730,4 +809,5 @@ mm predict watch --id <job-id> --wait
 - Side must be `buy` or `sell`.
 - The `predict mode` command switches between `mainnet` and `testnet`.
 - If the user does not specify a mode, the CLI uses the previously set mode.
+- Use `mm predict history` to review past trades and redemptions. Each trade row includes a `result` field (`won`, `lost`, or `pending`) and, if redeemed, an `amountWon` payout. Use `mm predict history get <condition-id>` to drill into a specific market.
 - Setup, approve, deposit, withdraw, redeem, and order flows can return job IDs. Track them with `mm predict watch <job-id> --wait`.

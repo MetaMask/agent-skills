@@ -33,3 +33,7 @@ mm predict redeem --all --wait
 ```
 
 `predict redeem --all` redeems every winning position. Confirm the target (condition ID or `--all`) with the user before executing. With `--wait`, the CLI polls for the redemption transaction receipt.
+
+## View trade history
+
+To review past trades and their settlement outcomes, see [predict-history.md](predict-history.md).

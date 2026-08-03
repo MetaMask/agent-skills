@@ -17,6 +17,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MWP_TIMEOUT` | Mobile Wallet Protocol timeout |
 | `MWP_CANCELLED` | Mobile Wallet Protocol cancelled (pairing aborted) |
 | `LOGOUT_FAILED` | Logout operation failed (includes token revoke failures) |
+| `ALREADY_LOGGED_OUT` | No active session to sign out of. Run `mm login` to authenticate |
 
 ## Validation Errors
 
@@ -52,6 +53,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `UNSUPPORTED_CHAIN` | The command is not supported on this chain. Run `mm chains list` to see supported chains and their features |
 | `INVALID_GAS_TOKEN` | Invalid gas token symbol or address |
 | `TOKEN_NO_ADDRESS` | Token symbol could not be resolved to a contract address |
+| `INVALID_EVM_ADDRESS` | Invalid EVM address (e.g. malformed transfer recipient) |
+| `INVALID_AMOUNT` | Non-positive or malformed amount value |
 | `INVALID_MNEMONIC` | BYOK mnemonic is invalid |
 
 ## Wallet Errors
@@ -95,6 +98,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `TX_DENIED` | Transaction was denied via MFA |
 | `TX_EXPIRED` | Transaction MFA approval expired |
 | `TX_FAILED` | Transaction failed after submission |
+| `TX_REVERTED` | Transaction reverted on-chain (RPC revert); check the `failure_reason` field for details |
+| `RELAY_TIMEOUT` | Gasless relay poll timed out. Check `mm wallet requests watch --polling-id <id>` before retrying; the job may still complete |
 | `NOT_INITIALIZED` | Project not initialized. Run `mm init` |
 | `NO_MNEMONIC` | Mnemonic not stored |
 | `NO_TTY` | No TTY available for interactive prompts |
@@ -161,6 +166,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `SIGNING_FAILED` | Signing operation failed |
 | `WITHDRAW_FAILED` | Withdrawal failed |
 | `DEPOSIT_FAILED` | Deposit failed |
+| `RATE_LIMITED` | Rate-limited by the venue (e.g. Hyperliquid HTTP 429). Wait and retry |
 | `HYPERLIQUID_ERROR` | Hyperliquid protocol error |
 | `PERPS_ERROR` | Generic perpetuals error |
 
