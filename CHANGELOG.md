@@ -10,6 +10,15 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.4.0] — targets CLI v5.4.0
+
+### Changed
+
+- `mm tx history` now excludes stranded pending jobs that never reached the chain, such as MFA-timed-out requests. Broadcast-but-unconfirmed transactions still appear as pending. Stranded jobs remain accessible via `mm wallet requests list`.
+- `mm earn positions` fix: LiFi portfolio positions display correctly again after the API response key changed from `positions` to `data`.
+- Revised CLI hint copy across 153 error hints and 59 onboarding/intent prompts for clarity and consistency. Branding changed from "MetaMask Agentic CLI" to "MetaMask Agent CLI" in login flows.
+- Bumped `cliVersion` to `5.4.0`.
+
 ## [6.3.0] — targets CLI v5.3.0
 
 ### Added
