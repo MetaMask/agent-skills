@@ -1,6 +1,6 @@
 # Predict Commands
 
-Use the `predict` commands to trade on prediction markets (Polymarket via the CLOB).
+Use the `predict` commands to trade on prediction markets, specifically Polymarket via the CLOB.
 
 ## `predict mode` Command
 
@@ -35,7 +35,7 @@ mm predict setup [--wait] [--password <password>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--wait` | No | Block until the job completes |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -45,7 +45,7 @@ mm predict setup --wait
 
 ## `predict auth` Command
 
-Create or refresh Predict trading credentials (API key + CLOB signing).
+Create or refresh Predict trading credentials, including API key and CLOB signing.
 
 ### Syntax
 
@@ -58,7 +58,7 @@ mm predict auth [--refresh] [--password <password>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--refresh` | No | Force-create or refresh trading credentials |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -82,7 +82,7 @@ mm predict approve [--wait] [--password <password>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--wait` | No | Block until the job completes |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -92,7 +92,7 @@ mm predict approve --wait
 
 ## `predict status` Command
 
-Probe Predict back-end reachability (Gamma + CLOB) and report account setup status: deposit wallet address, on-chain deployment, stored CLOB credentials, and a `setupComplete` flag. 
+Probe Predict back-end reachability for Gamma and CLOB, and report account setup status: deposit wallet address, on-chain deployment, stored CLOB credentials, and a `setupComplete` flag.
 
 ### Syntax
 
@@ -138,10 +138,10 @@ mm predict markets list [--slug <slug>] [--limit <n>] [--offset <n>] [--order <f
 | --- | --- | --- |
 | `--slug` | No | Market slug to filter by |
 | `--limit` | No | Maximum markets to return, 1-500 |
-| `--offset` | No | Market result offset (0-based) |
+| `--offset` | No | Market result offset, zero-based |
 | `--order` | No | Comma-separated market fields to order by |
 | `--ascending` | No | Sort markets in ascending order |
-| `--tag` | No | Market tag or category (e.g. sports, politics) |
+| `--tag` | No | Market tag or category, such as sports or politics |
 | `--liquidity-num-min` | No | Minimum market liquidity |
 | `--liquidity-num-max` | No | Maximum market liquidity |
 | `--volume-num-min` | No | Minimum market volume |
@@ -175,14 +175,14 @@ mm predict markets search <query> [--limit <n>] [--page <n>] [--sort <field>] [-
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<query>` | Yes | Search string (positional) |
-| `--limit` | No | Results per type (defaults to 10) |
+| `<query>` | Yes | Search string |
+| `--limit` | No | Results per type. Defaults to 10 |
 | `--page` | No | Search result page |
 | `--sort` | No | Search sort field |
 | `--ascending` | No | Sort search results in ascending order |
-| `--search-tags` | No | Include tag matches in search results (defaults to true; use `--no-search-tags` to disable) |
-| `--events-status` | No | Restrict to active events (defaults to true; use `--no-events-status` for all) |
-| `--recurrence` | No | Filter by series recurrence: `daily`, `weekly`, or `monthly` |
+| `--search-tags` | No | Include tag matches in search results. Defaults to true; use `--no-search-tags` to disable |
+| `--events-status` | No | Restrict to active events. Defaults to true; use `--no-events-status` for all |
+| `--recurrence` | No | Filter by series recurrence: `annual`, `daily`, `weekly`, or `monthly` |
 
 ### Example
 
@@ -198,15 +198,14 @@ Inspect a specific market and show outcome token IDs needed for quoting and plac
 ### Syntax
 
 ```bash
-mm predict markets get <market> [--market <market>]
+mm predict markets get --market <market>
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<market>` | Yes | Market slug, ID, or condition ID (positional). Run `mm predict markets search` or `mm predict markets list` to find markets |
-| `--market` | No | Same as positional `<market>` |
+| `--market` | Yes | Market slug, ID, or condition ID. Run `mm predict markets search` or `mm predict markets list` to find markets |
 
 ### Example
 
@@ -217,7 +216,7 @@ mm predict markets get 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb
 
 ## `predict events list` Command
 
-List Polymarket events (groupings of related markets) with Gamma-style filters.
+List Polymarket events, which are groupings of related markets, with Gamma-style filters.
 
 ### Syntax
 
@@ -229,20 +228,20 @@ mm predict events list [--tag-slug <slug>] [--tag-id <n>] [--active] [--closed] 
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--tag-slug` | No | Filter by tag slug (e.g. sports, politics) |
-| `--tag-id` | No | Filter by tag ID (from `mm predict tags list`) |
+| `--tag-slug` | No | Filter by tag slug, such as sports or politics |
+| `--tag-id` | No | Filter by tag ID from `mm predict tags list` |
 | `--active` | No | Active events only |
 | `--closed` | No | Include closed/resolved events |
 | `--featured` | No | Only featured/trending events |
 | `--order` | No | Sort field: `volume_24hr`, `volume`, `liquidity`, `start_date`, `end_date` |
-| `--ascending` | No | Sort ascending (defaults to descending) |
+| `--ascending` | No | Sort ascending. Defaults to descending |
 | `--liquidity-min` | No | Minimum event liquidity |
 | `--start-date-min` | No | Minimum event start date-time |
 | `--start-date-max` | No | Maximum event start date-time |
 | `--end-date-min` | No | Minimum event end date-time |
 | `--end-date-max` | No | Maximum event end date-time |
 | `--limit` | No | Maximum events to return, 1-500 |
-| `--offset` | No | Result offset (0-based) |
+| `--offset` | No | Result offset, zero-based |
 
 ### Example
 
@@ -265,7 +264,7 @@ mm predict events get <event>
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<event>` | Yes | Event slug or ID (positional) |
+| `<event>` | Yes | Event slug or ID |
 
 ### Example
 
@@ -275,7 +274,7 @@ mm predict events get some-event-slug
 
 ## `predict series list` Command
 
-List Polymarket event series (recurring groupings of events).
+List Polymarket event series, which are recurring groupings of events.
 
 ### Syntax
 
@@ -292,7 +291,7 @@ mm predict series list [--recurrence <recurrence>] [--active] [--featured] [--ta
 | `--featured` | No | Only featured series |
 | `--tag-slug` | No | Filter by tag slug |
 | `--limit` | No | Maximum series to return, 1-500 |
-| `--offset` | No | Result offset (0-based) |
+| `--offset` | No | Result offset, zero-based |
 
 ### Example
 
@@ -314,7 +313,7 @@ mm predict series get <id>
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<id>` | Yes | Series ID (positional) |
+| `<id>` | Yes | Series ID |
 
 ### Example
 
@@ -337,7 +336,7 @@ mm predict tags list [--limit <n>] [--offset <n>] [--is-carousel]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--limit` | No | Maximum tags to return, 1-500 |
-| `--offset` | No | Result offset (0-based) |
+| `--offset` | No | Result offset, zero-based |
 | `--is-carousel` | No | Only carousel tags |
 
 ### Example
@@ -360,7 +359,7 @@ mm predict tags get <tag>
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<tag>` | Yes | Tag ID (integer) or slug string (positional) |
+| `<tag>` | Yes | Tag ID as integer or slug string |
 
 ### Example
 
@@ -376,20 +375,19 @@ Preview order cost and fill before placing.
 ### Syntax
 
 ```bash
-mm predict quote <token-id> [--token-id <token-id>] --side <side> --size <size> [--limit-price <price>] [--tick-size <tick>] [--password <password>]
+mm predict quote --token-id <token-id> --side <side> --size <size> [--limit-price <price>] [--tick-size <tick>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<token-id>` | Yes | Outcome token ID (positional). Run `mm predict markets get <slug>` to get token IDs |
-| `--token-id` | No | Same as positional `<token-id>` |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
-| `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
+| `--size` | Yes | Order size in shares, human-readable, such as 1 or 100 |
 | `--limit-price` | No | Execution price per share, between 0 and 1 |
-| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.005`, `0.0025`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -401,28 +399,27 @@ mm predict quote --token-id <token-id> --side buy --size 10 --tick-size 0.01
 
 ## `predict place` Command
 
-Place a Predict order (GTC/GTD limit, FOK/FAK market).
+Place a Predict order supporting GTC/GTD limit and FOK/FAK market types.
 
 ### Syntax
 
 ```bash
-mm predict place <token-id> [--token-id <token-id>] --side <side> --size <size> --price <price> [--tick-size <tick>] [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
+mm predict place --token-id <token-id> --side <side> --size <size> --price <price> [--tick-size <tick>] [--order-type <type>] [--post-only] [--expiration <unix>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<token-id>` | Yes | Outcome token ID (positional). Run `mm predict markets get <slug>` to get token IDs |
-| `--token-id` | No | Same as positional `<token-id>` |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
-| `--size` | Yes | Order size in shares, human-readable (e.g. 1, 100) |
-| `--price` | Yes | Worst price per share (0-1); limit price for GTC/GTD, worst fill for FOK/FAK |
-| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
-| `--order-type` | No | Order type: `GTC`, `GTD`, `FOK`, or `FAK` (defaults to `GTC`) |
+| `--size` | Yes | Order size in shares, human-readable, such as 1 or 100 |
+| `--price` | Yes | Worst price per share between 0 and 1; limit price for GTC/GTD, worst fill for FOK/FAK |
+| `--tick-size` | No | Market tick size override: `0.1`, `0.01`, `0.005`, `0.0025`, `0.001`, or `0.0001`. Defaults to the CLOB tick for the token |
+| `--order-type` | No | Order type: `GTC`, `GTD`, `FOK`, or `FAK`. Defaults to `GTC` |
 | `--post-only` | No | Reject if the order would cross the book. Not supported with FOK/FAK orders |
-| `--expiration` | If `GTD` | Expiration as a Unix timestamp in seconds (only valid for GTD orders) |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--expiration` | If `GTD` | Expiration as a Unix timestamp in seconds. Only valid for GTD orders |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Validation Rules
 
@@ -451,16 +448,16 @@ mm predict cancel [<order-id>] [--order-id <id>] [--all] [--market <condition-id
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<order-id>` | Yes (unless `--all`/`--market`/`--asset`) | Order ID to cancel (positional) |
+| `<order-id>` | Yes, unless `--all`, `--market`, or `--asset` is used | Order ID to cancel |
 | `--order-id` | No | Same as positional `<order-id>` |
 | `--all` | No | Cancel all open orders |
 | `--market` | No | Cancel orders for a given market condition ID |
 | `--asset` | No | Cancel orders for a specific outcome token ID |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Validation Rules
 
-- Use only one of `--order-id`, `--all`, or `--market`/`--asset` (market and asset can be combined as one target).
+- Use only one of `--order-id`, `--all`, or `--market`/`--asset`. Market and asset can be combined as one target.
 
 ### Example
 
@@ -487,7 +484,7 @@ mm predict positions [--market <id>] [--password <password>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--market` | No | Market slug, ID, or condition ID. Run `mm predict markets search` or `mm predict markets list` to find markets |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -510,7 +507,7 @@ mm predict portfolio [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -520,7 +517,7 @@ mm predict portfolio
 
 ## `predict redeem list` Command
 
-List all redeemable (winning) positions in your deposit wallet, with position size and market question.
+List all redeemable winning positions in your deposit wallet, with position size and market question.
 
 ### Syntax
 
@@ -532,7 +529,7 @@ mm predict redeem list [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -554,10 +551,10 @@ mm predict redeem [<condition-id>] [--all] [--wait] [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<condition-id>` | Yes (unless `--all`) | Market condition ID to redeem (positional) |
+| `<condition-id>` | Yes, unless `--all` is used | Market condition ID to redeem |
 | `--all` | No | Redeem all redeemable positions |
 | `--wait` | No | Block until the redemption transaction is confirmed |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Validation Rules
 
@@ -586,7 +583,7 @@ mm predict orders [--market <condition-id>] [--cursor <cursor>] [--password <pas
 | --- | --- | --- |
 | `--market` | No | Market slug, ID, or condition ID. Run `mm predict markets search` or `mm predict markets list` to find markets |
 | `--cursor` | No | Pagination cursor from a previous response |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -611,7 +608,7 @@ mm predict balance [--token-id <token-id>] [--sync] [--password <password>]
 | --- | --- | --- |
 | `--token-id` | No | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
 | `--sync` | No | Refresh balances and allowances before reading |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -634,10 +631,10 @@ mm predict withdraw --amount <amount> [--to <address>] [--wait] [--password <pas
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--amount` | Yes | pUSD amount to withdraw, human-readable (e.g. 0.1, 5, 100) |
+| `--amount` | Yes | pUSD amount to withdraw, human-readable, such as 0.1, 5, or 100 |
 | `--to` | No | Recipient address. Defaults to your owner EOA |
 | `--wait` | No | Block until the job completes |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -653,16 +650,17 @@ Convert USDC.e from your EOA to pUSD in your Predict deposit wallet.
 ### Syntax
 
 ```bash
-mm predict deposit --amount <amount> [--wait] [--password <password>]
+mm predict deposit --amount <amount> [--wait] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--amount` | Yes | pUSD amount to deposit, human-readable (e.g. 5, 100) |
+| `--amount` | Yes | pUSD amount to deposit, human-readable, such as 5 or 100 |
 | `--wait` | No | Block until the job completes |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 
@@ -684,7 +682,7 @@ mm predict book <token-id> [--token-id <token-id>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<token-id>` | Yes | Outcome token ID (positional). Run `mm predict markets get <slug>` to get token IDs |
+| `<token-id>` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
 | `--token-id` | No | Same as positional `<token-id>` |
 
 ### Example
@@ -707,10 +705,10 @@ mm predict watch <id> [--id <id>] [--wait] [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<id>` | Yes | Job or transaction ID to watch (positional) |
+| `<id>` | Yes | Job or transaction ID to watch |
 | `--id` | No | Same as positional `<id>` |
 | `--wait` | No | Block until the job completes |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -721,80 +719,87 @@ mm predict watch --id <job-id> --wait
 
 ## `predict history` Command
 
-List deposit-wallet activity: trades (default) or past redemptions.
+List closed Predict positions by default, or trade/redeem activity with `--type trade|redeem`.
 
 ### Syntax
 
 ```bash
-mm predict history [--type <type>] [--limit <n>] [--offset <n>] [--start <unix>] [--end <unix>] [--sort-by <field>] [--sort-direction <dir>] [--side <side>]
+mm predict history [--type <type>] [--limit <n>] [--offset <n>] [--start <unix>] [--end <unix>] [--sort-by <field>] [--sort-direction <dir>] [--side <side>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--type` | No | Activity type: `trade` (default) or `redeem` |
-| `--limit` | No | Page size, 1-500 (Data API default 100) |
-| `--offset` | No | Pagination offset (0-based) |
-| `--start` | No | Lower-bound activity time as unix seconds |
-| `--end` | No | Upper-bound activity time as unix seconds |
-| `--sort-by` | No | Sort field: `timestamp` (default), `tokens`, or `cash` |
+| `--type` | No | History source: `closed` by default, `trade`, or `redeem` |
+| `--limit` | No | Page size, 1-500. Closed max 50, trade/redeem default 100 |
+| `--offset` | No | Pagination offset, zero-based |
+| `--start` | No | Lower-bound activity time in unix seconds. Only applies to trade and redeem types |
+| `--end` | No | Upper-bound activity time in unix seconds. Only applies to trade and redeem types |
+| `--sort-by` | No | Sort field. For `--type closed`: `realizedpnl`, `title`, `price`, `avgprice`, or `timestamp`. For `--type trade` or `redeem`: `timestamp` by default, `tokens`, or `cash` |
 | `--sort-direction` | No | Sort direction: `asc` or `desc` |
-| `--side` | No | Filter trades by side: `buy` or `sell` (only for `--type trade`) |
+| `--side` | No | Filter trades by side: `buy` or `sell`. Only applies to `--type trade` |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Output
 
-Each history row includes:
+**Closed positions** via `--type closed`, the default, include: condition ID, slug, outcome, realized PnL, average entry price, settlement price, size, and timestamps.
+
+**Trade/redeem rows** via `--type trade` or `--type redeem` include:
 
 | Field | Description |
 | --- | --- |
 | `conditionId` | Market condition ID |
-| `slug` | Market slug (use with `mm predict markets get <slug>`) |
-| `eventSlug` | Parent event slug (optional) |
-| `outcome` | Outcome token label (e.g. "Yes" / "No") |
+| `slug` | Market slug, use with `mm predict markets get <slug>` |
+| `eventSlug` | Parent event slug, if available |
+| `outcome` | Outcome token label, such as "Yes" or "No" |
 | `size` | Share count |
-| `value` | USDC notional (trade cost or redeem payout) |
+| `value` | USDC notional, either trade cost or redeem payout |
 | `price` | Execution price per share |
 | `at` | ISO timestamp |
 | `timestamp` | Raw epoch seconds |
 | `transactionHash` | Transaction hash |
-| `side` | buy/sell (optional) |
-| `redeemed` | (trade rows only) Whether any redeem activity exists for this condition |
-| `result` | (trade rows only) Settlement status: `won`, `lost`, or `pending` |
-| `amountWon` | (trade rows, if redeemed) Redeem payout in USDC |
+| `side` | buy/sell, if available |
+| `redeemed` | Trade rows only: whether any redeem activity exists for this condition |
+| `result` | Trade rows only: settlement status `won`, `lost`, or `pending` |
+| `amountWon` | Trade rows only, if redeemed: redeem payout in USDC |
 
 Pagination: when `hasMore` is `true`, the CLI auto-generates a next-page command hint with the correct `--limit`, `--offset`, `--type`, `--start`, and `--end` values.
 
 ### Example
 
 ```bash
-mm predict history --toon
+mm predict history
+mm predict history --type trade --limit 10
 mm predict history --type redeem --limit 10
 mm predict history --type trade --side buy --sort-by cash --sort-direction desc
-mm predict history --start 1719792000 --end 1719878400
+mm predict history --type closed --sort-by realizedpnl --sort-direction desc
+mm predict history --type trade --start 1719792000 --end 1719878400
 ```
 
 ## `predict history get` Command
 
-Show trade or redeem history for a specific market condition.
+Show closed-position, trade, or redeem history for a specific market condition.
 
 ### Syntax
 
 ```bash
-mm predict history get <condition-id> [--type <type>]
+mm predict history get <condition-id> [--type <type>] [--password <password>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<condition-id>` | Yes | Market condition ID (positional) |
-| `--type` | No | Activity type: `trade` (default) or `redeem` |
+| `<condition-id>` | Yes | Market condition ID |
+| `--type` | No | History source: `closed` by default, `trade`, or `redeem` |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
 ```bash
-mm predict history get 0xABC123... --toon
+mm predict history get 0xABC123...
+mm predict history get 0xABC123... --type trade
 mm predict history get 0xABC123... --type redeem
 ```
 
@@ -804,10 +809,10 @@ mm predict history get 0xABC123... --type redeem
 - `mm predict setup` aborts early with `PREDICT_GEOBLOCKED` if your IP resolves to a restricted region, before any wallet interaction. Use `mm predict geoblock` to check region status without running setup.
 - Use `mm predict markets get <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
 - Use `mm predict events`, `mm predict series`, and `mm predict tags` to browse Polymarket content; tag slugs/IDs from `mm predict tags list` feed the `--tag-slug` / `--tag-id` filters on `events` and `markets`.
-- After a market resolves, use `mm predict redeem list` to see winnings and `mm predict redeem <condition-id> --wait` (or `--all`) to claim them. `mm predict portfolio` shows balance, open positions, and redeemable winnings in one snapshot.
+- After a market resolves, use `mm predict redeem list` to see winnings and `mm predict redeem <condition-id> --wait` or `--all` to claim them. `mm predict portfolio` shows balance, open positions, and redeemable winnings in one snapshot.
 - Prices are per-share and must be in the range [0, 1].
 - Side must be `buy` or `sell`.
 - The `predict mode` command switches between `mainnet` and `testnet`.
 - If the user does not specify a mode, the CLI uses the previously set mode.
-- Use `mm predict history` to review past trades and redemptions. Each trade row includes a `result` field (`won`, `lost`, or `pending`) and, if redeemed, an `amountWon` payout. Use `mm predict history get <condition-id>` to drill into a specific market.
+- Use `mm predict history` to review closed positions by default, past trades via `--type trade`, or redemptions via `--type redeem`. Closed positions show realized PnL. Trade rows include a `result` field with values `won`, `lost`, or `pending` and, if redeemed, an `amountWon` payout. Use `mm predict history get <condition-id>` to drill into a specific market.
 - Setup, approve, deposit, withdraw, redeem, and order flows can return job IDs. Track them with `mm predict watch <job-id> --wait`.

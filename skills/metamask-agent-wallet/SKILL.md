@@ -1,11 +1,11 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required (x402) or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402 or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "6.4.0"
-  cliVersion: "5.4.0"
+  version: "7.0.0"
+  cliVersion: "6.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -44,7 +44,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Check the active wallet balance | `mm wallet balance` | [wallet.md](references/wallet.md) |
 | Show a QR code and address to fund the active wallet | `mm wallet add-fund` | [wallet.md](references/wallet.md) |
 | Show current trading mode | `mm wallet trading-mode get` | [wallet.md](references/wallet.md) |
-| Set trading mode (guard or beast) | `mm wallet trading-mode set` | [wallet.md](references/wallet.md) |
+| Set trading mode to guard or beast | `mm wallet trading-mode set` | [wallet.md](references/wallet.md) |
 | View wallet policy | `mm wallet policy get` | [wallet.md](references/wallet.md) |
 | Set wallet policy | `mm wallet policy set` | [wallet.md](references/wallet.md) |
 | Show project policy template | `mm wallet policy template` | [wallet.md](references/wallet.md) |
@@ -92,7 +92,7 @@ Match the user's intent to a command and reference file, then read the reference
 | View prediction market positions | `mm predict positions` | [predict.md](references/predict.md) |
 | View open prediction orders | `mm predict orders` | [predict.md](references/predict.md) |
 | Show full Predict portfolio snapshot | `mm predict portfolio` | [predict.md](references/predict.md) |
-| List redeemable (winning) positions | `mm predict redeem list` | [predict.md](references/predict.md) |
+| List redeemable winning positions | `mm predict redeem list` | [predict.md](references/predict.md) |
 | Redeem winning positions | `mm predict redeem` | [predict.md](references/predict.md) |
 | Check Predict deposit wallet balance | `mm predict balance` | [predict.md](references/predict.md) |
 | Fund Predict deposit wallet | `mm predict deposit` | [predict.md](references/predict.md) |
@@ -145,7 +145,7 @@ Every `mm` command accepts these flags:
 
 | Flag | Short | Description |
 | --- | --- | --- |
-| `--format` | `-f` | Output format: `text`, `json`, or `toon` (defaults to `text` in TTY, `json` when piped) |
+| `--format` | `-f` | Output format: `text`, `json`, or `toon`. Defaults to `text` in TTY, `json` when piped |
 | `--json` | | Shorthand for `--format=json` |
 | `--toon` | | Shorthand for `--format=toon` |
 | `--verbose` | `-v` | Show debug logs on stderr. Use for troubleshooting |
@@ -158,25 +158,26 @@ Run these checks before the first CLI operation in a session, in order.
 
 ### 1. Version compatibility
 
-This skill is written for `@metamask/agentic-cli` v5.4.0 (see `cliVersion` in the frontmatter). Check the installed version:
+
+This skill is written for `@metamask/agent-wallet` v6.0.0, as specified by `cliVersion` in the frontmatter. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agentic-cli/` (e.g. `@metamask/agentic-cli/2.0.0 darwin-arm64 node-v22.18.0`). Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort; skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/2.0.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure:
 
 ```bash
-npm view @metamask/agentic-cli version
+npm view @metamask/agent-wallet version
 ```
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.1`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agentic-cli@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.1`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agent-wallet@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
-### 2. Readiness gate (authentication + initialization)
+### 2. Readiness gate — authentication and initialization
 
 `mm doctor` is the single readiness check. Run it before the first CLI operation in a session:
 
@@ -184,14 +185,14 @@ Run this check once per session. Do not block operations on it.
 mm doctor
 ```
 
-It reports an `authenticated` boolean, an `initialized` boolean, and a list of `hints`. Do not run any other command until `mm doctor` reports both `authenticated: true` and `initialized: true`. Authentication and initialization are independent gates: a session can be authenticated while the project has no wallet mode selected, in which case any command that needs a wallet aborts before running with `NOT_INITIALIZED` — "Project not initialized." (hint: Run `mm init` to set up wallet and trading modes.).
+It reports an `authenticated` boolean, an `initialized` boolean, and a list of `hints`. Do not run any other command until `mm doctor` reports both `authenticated: true` and `initialized: true`. Authentication and initialization are independent gates: a session can be authenticated while the project has no wallet mode selected, in which case any command that needs a wallet aborts before running with `NOT_INITIALIZED` — "Project not initialized." with hint: Run `mm init` to set up wallet and trading modes.
 
-A project counts as initialized only when a wallet mode is set — and, for `server-wallet`, a trading mode is set as well (`byok` needs only the wallet mode). Do not use `mm init show` as the check: it requires an initialized project and throws `NOT_INITIALIZED` on an uninitialized one rather than reporting state.
+A project counts as initialized only when a wallet mode is set — and, for `server-wallet`, a trading mode is set as well. `byok` needs only the wallet mode. Do not use `mm init show` as the check: it requires an initialized project and throws `NOT_INITIALIZED` on an uninitialized one rather than reporting state.
 
 Remediate, then re-run `mm doctor` and confirm a clean result before doing anything else:
 
-- `authenticated: false` → follow `workflows/login.md` (or `workflows/onboarding.md` for first-time setup) to run `mm login`.
-- `authenticated: true` and `initialized: false` → follow `workflows/onboarding.md` to run `mm init` and select a wallet mode (and a trading mode for server-wallet).
+- `authenticated: false` → follow `workflows/login.md`, or `workflows/onboarding.md` for first-time setup, to run `mm login`.
+- `authenticated: true` and `initialized: false` → follow `workflows/onboarding.md` to run `mm init` and select a wallet mode. For server-wallet, also select a trading mode.
 
 ## Safety Rules
 
@@ -204,32 +205,31 @@ Before constructing any command, validate all user-provided values:
 | Flag | Validation rule |
 | --- | --- |
 | `--to`, `--address` | Must match `^0x[0-9a-fA-F]{40}$` |
-| `--amount` | Human-readable decimal (e.g. 0.5, 100). Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
+| `--amount` | Human-readable decimal such as 0.5 or 100. Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
 | `--chain-id` | Must be a positive integer (`^\d+$`) |
-| `--payload` (send-transaction) | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
-| `--payload` (decode) | Must be 0x-prefixed hex calldata, matching `^0x[0-9a-fA-F]+$` |
+| `--payload` for send-transaction | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
+| `--payload` for decode | Must be 0x-prefixed hex calldata, matching `^0x[0-9a-fA-F]+$` |
 | `--token` | Must be a valid hex address or known symbol |
 | `--leverage` | Must be a positive integer (`^\d+$`) |
-| `--size` | Human-readable decimal (e.g. 0.01, 1). Must match `^\d+\.?\d*$` and be positive |
+| `--size` | Human-readable decimal such as 0.01 or 1. Must match `^\d+\.?\d*$` and be positive |
 | `--venue` | Must be `hyperliquid` |
-| `--side` (perps) | Must be `long` or `short` |
+| `--side` for perps | Must be `long` or `short` |
 | `--order-id` | Must be a positive integer (`^\d+$`) |
 | `--token-id` | Must be a non-empty outcome token ID string |
 | `--price`, `--limit-price` | Must be a positive number in range `(0, 1]` |
 | `--order-type` | Must be one of `GTC`, `GTD`, `FOK`, `FAK` |
-| `--side` (predict) | Must be `buy` or `sell` |
+| `--side` for predict | Must be `buy` or `sell` |
 | `--slippage` | Must be a number between 0 and 100 |
-| `--tick-size` | Must be one of `0.1`, `0.01`, `0.001`, `0.0001` |
-| `--from-chain`, `--to-chain` | Must be a positive integer EVM chain ID |
-| `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain` differs from `--from-chain`); rejected for same-chain swaps |
-| `--refuel` | Boolean flag (no value). Only meaningful for cross-chain swaps (`--to-chain` differs from `--from-chain`); no effect on same-chain swaps |
-| `--gas-token` | Must be a valid token symbol or ERC-20 contract address |
+| `--tick-size` | Must be one of `0.1`, `0.01`, `0.005`, `0.0025`, `0.001`, `0.0001` |
+| `--from-chain-id`, `--to-chain-id` | Must be a positive integer EVM chain ID |
+| `--to-address` | Must match `^0x[0-9a-fA-F]{40}$`. Only valid for cross-chain swaps (`--to-chain-id` differs from `--from-chain-id`); rejected for same-chain swaps |
+| `--refuel` | Boolean flag, no value. Only meaningful for cross-chain swaps where `--to-chain-id` differs from `--from-chain-id`. No effect on same-chain swaps |
 | `--strategy` | Comma-separated list from: `cost`, `speed`, `impact`, `output` |
 | `--wallet-timeout` | Must be a positive integer between 1 and 600 |
 | `--password` | Must be a non-empty string. Never log, display, or store the value. |
 | x402 `asset` | Must be a valid contract address on a network returned by `mm chains list`. The currency choice is the server's offer confirmed by the user; the script keeps no currency allowlist. |
 | x402 `payTo` / authorization `to` | Must match `^0x[0-9a-fA-F]{40}$` and equal the recipient in the `402` |
-| x402 `value` | Atomic-unit integer that exactly equals the offered amount (the `exact` scheme is not a maximum) |
+| x402 `value` | Atomic-unit integer that exactly equals the offered amount. The `exact` scheme is not a maximum |
 | x402 resource URL | Must be `https://`. Reject a `402` reached via an unexpected cross-host redirect |
 
 Do not pass unvalidated user input into any command.
@@ -242,19 +242,19 @@ Do not pass unvalidated user input into any command.
 | Raw transactions | Always confirm transaction payload, chain, recipient, value, and calldata summary before executing |
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
-| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address (if `--to-address` is set), and the destination gas top-up (if `--refuel` is set) before executing |
+| Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address if `--to-address` is set, and the destination gas top-up if `--refuel` is set before executing |
 | x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL before signing the authorization. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
 | Predict deposit | Always confirm amount before executing |
-| Predict withdraw | Always confirm amount and recipient (`--to` defaults to owner EOA) before executing |
-| Predict redeem | Always confirm the target (condition ID or `--all`) before executing; `--all` redeems every winning position |
+| Predict withdraw | Always confirm amount and recipient before executing. `--to` defaults to owner EOA |
+| Predict redeem | Always confirm the target, either condition ID or `--all`, before executing. `--all` redeems every winning position |
 | Earn supply | Always confirm token, amount, chain, vault/protocol, and APY before executing. For cross-chain supply, also confirm source chain and source token |
-| Earn withdraw | Always confirm token, amount (or full balance), chain, and vault/protocol before executing |
+| Earn withdraw | Always confirm token, amount or full balance, chain, and vault/protocol before executing |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
 | Wallet policy changes | Broadening policy changes require MFA approval; non-broadening changes apply immediately |
-| Trading mode changes | Broadening (guard → beast) requires MFA approval; tightening (beast → guard) applies immediately |
+| Trading mode changes | Broadening from guard to beast requires MFA approval. Tightening from beast to guard applies immediately |
 | Auth / wallet management | May execute without confirmation, except `reset` which requires explicit user confirmation |
 | Read-only queries | May execute without confirmation |
 
@@ -283,7 +283,7 @@ In both server-wallet and BYOK mode, signing and transaction commands go through
    - `mm wallet requests watch --polling-id <id>`
 3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
-Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request (e.g. `Transfer 0.5 ETH to 0x...`, `Withdraw 10 pUSD to 0x...`). When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
+Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request, such as `Transfer 0.5 ETH to 0x...` or `Withdraw 10 pUSD to 0x...`. When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
 
 ## Output Rules
 
