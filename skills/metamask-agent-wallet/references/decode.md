@@ -16,7 +16,7 @@ mm decode --payload <0x-calldata> [--toon]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--payload` | Yes | Hex-encoded EVM calldata to decode (e.g. `0x095ea7b3...`). |
+| `--payload` | Yes | Hex-encoded EVM calldata to decode, such as `0x095ea7b3...` |
 
 ### Output
 
@@ -24,7 +24,7 @@ mm decode --payload <0x-calldata> [--toon]
 | --- | --- |
 | `functionName` | Decoded function name, when the selector is recognized |
 | `params` | Array of decoded parameters, each with `name` and `value` |
-| `intent` | Plain-language summary of the call (e.g. `Call approve(spender: 0x..., amount: ...)`) |
+| `intent` | Plain-language summary of the call, such as `Call approve(spender: 0x..., amount: ...)` |
 
 ### Example
 

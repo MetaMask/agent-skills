@@ -9,18 +9,19 @@ Send a raw EVM transaction using the active wallet.
 ### Syntax
 
 ```bash
-mm wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--password <password>]
+mm wallet send-transaction --chain-id <id> --payload '<JSON>' [--wait] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | EVM chain ID as a positive integer (e.g. 1, 137) |
-| `--payload` | Yes | Transaction as a JSON string with at least a `to` address (e.g. `'{"to":"0x...","value":"0x0"}'}`) |
-| `--wait` | No | Block until the transaction completes (server-wallet mode only; BYOK returns immediately) |
+| `--chain-id` | Yes | EVM chain ID as a positive integer, such as 1 or 137 |
+| `--payload` | Yes | Transaction as a JSON string with at least a `to` address, such as `'{"to":"0x...","value":"0x0"}'}` |
+| `--wait` | No | Block until the transaction completes. In server-wallet mode only, BYOK returns immediately |
 | `--intent` | No | Human-readable summary of what the transaction does, forwarded with the request |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 

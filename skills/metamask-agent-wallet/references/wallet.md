@@ -16,10 +16,10 @@ mm wallet create [--chain-namespace <namespace>] [--name <name>] [--trading-mode
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
 | `--name` | No | Display name for the wallet |
-| `--trading-mode` | No | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions (allowed: `guard`, `beast`) |
-| `--password` | No | Password to unlock the BYOK mnemonic (BYOK mode only) [env: `MM_PASSWORD`] |
+| `--trading-mode` | No | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions. Allowed: `guard` or `beast` |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
 ### Example
 
@@ -43,7 +43,7 @@ mm wallet list [--chain-namespace <namespace>] [--toon]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
+| `--chain-namespace` | No | Filter by namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
 
@@ -59,23 +59,20 @@ Switch the active wallet used for subsequent commands.
 ### Syntax
 
 ```bash
-mm wallet select [--chain-namespace <namespace>] [--id <id>] [--address <address>] [--name <name>]
+mm wallet select <address> [--chain-namespace <namespace>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
-| `--id` | No | Wallet ID |
-| `--address` | No | Wallet address (0x-prefixed hex) |
-| `--name` | No | Wallet display name |
+| `<address>` | Yes | Wallet address, 0x-prefixed hex. Positional argument. If omitted in interactive mode, the CLI prompts |
+| `--chain-namespace` | No | Filter by namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
 
 ```bash
-mm wallet select --address 0x742d...f2bD18
-mm wallet select --name "Trading"
+mm wallet select 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
 ```
 
 ## `wallet show` Command
@@ -92,9 +89,9 @@ mm wallet show [--chain-namespace <namespace>] [--id <id>] [--address <address>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Filter by namespace: `evm` (EIP-155) (allowed: `evm`) |
+| `--chain-namespace` | No | Filter by namespace: `evm`, EIP-155. Allowed: `evm` |
 | `--id` | No | Wallet ID |
-| `--address` | No | Wallet address (0x-prefixed hex) |
+| `--address` | No | Wallet address, 0x-prefixed hex |
 | `--name` | No | Wallet display name |
 
 ### Example
@@ -118,7 +115,7 @@ mm wallet address [--chain-namespace <namespace>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
 
@@ -141,7 +138,7 @@ mm wallet add-fund [--chain-namespace <namespace>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm` (EIP-155) (allowed: `evm`) |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
 
@@ -157,13 +154,21 @@ Show the current trading mode and active wallet address for the selected wallet.
 ### Syntax
 
 ```bash
-mm wallet trading-mode get
+mm wallet trading-mode get [--chain-namespace <namespace>] [--address <address>]
 ```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
+| `--address` | No | Wallet address, 0x-prefixed hex |
 
 ### Example
 
 ```bash
 mm wallet trading-mode get
+mm wallet trading-mode get --address 0x742d...f2bD18
 ```
 
 ## `wallet trading-mode set` Command
@@ -173,7 +178,7 @@ Set the trading mode for the active wallet. Broadening changes (guard → beast)
 ### Syntax
 
 ```bash
-mm wallet trading-mode set <guard|beast> [--wait] [--wallet-timeout <seconds>]
+mm wallet trading-mode set <guard|beast> [--chain-namespace <namespace>] [--address <address>] [--wait] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -181,8 +186,10 @@ mm wallet trading-mode set <guard|beast> [--wait] [--wallet-timeout <seconds>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `<mode>` | Yes | `guard` enforces outflow/whitelist policies and blocks malicious transactions. `beast` skips policy checks but still blocks malicious transactions |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
+| `--address` | No | Wallet address, 0x-prefixed hex |
 | `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
-| `--wallet-timeout` | No | Seconds to wait per wallet job (MFA/signing), max 600; overrides config `walletTimeoutSeconds` |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 
@@ -199,12 +206,15 @@ Show the policy for the active wallet.
 ### Syntax
 
 ```bash
-mm wallet policy get
+mm wallet policy get [--chain-namespace <namespace>] [--address <address>]
 ```
 
 ### Supported Flags
 
-This command does not support additional flags beyond output format options.
+| Name | Required | Description |
+| --- | --- | --- |
+| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
+| `--address` | No | Wallet address, 0x-prefixed hex |
 
 ### Example
 
@@ -215,7 +225,7 @@ mm wallet policy get --toon
 
 ## `wallet policy set` Command
 
-Set the policy for the active wallet. Broadening policy changes (e.g. increasing outflow limits) require MFA approval; non-broadening changes (e.g. tightening limits) apply immediately. Returns `confirmed` when applied immediately, or `pending_approval` when MFA is required.
+Set the policy for the active wallet. Broadening policy changes, such as increasing outflow limits, require MFA approval; non-broadening changes, such as tightening limits, apply immediately. Returns `confirmed` when applied immediately, or `pending_approval` when MFA is required.
 
 ### Syntax
 
@@ -229,7 +239,7 @@ mm wallet policy set --policy <yaml> [--wait] [--wallet-timeout <seconds>]
 | --- | --- | --- |
 | `--policy` | Yes | Policy string to apply |
 | `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
-| `--wallet-timeout` | No | Seconds to wait per wallet job (MFA/signing), max 600; overrides config `walletTimeoutSeconds` |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 
@@ -266,28 +276,28 @@ Show native and token balances for the active wallet.
 ### Syntax
 
 ```bash
-mm wallet balance [--currency <code>] [--chain <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-id <ids>] [--token-contracts <addresses>]
+mm wallet balance [--currency <code>] [--chain-ids <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-idss <ids>] [--token-contracts <addresses>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--currency` | No | Fiat currency code for price conversion (e.g. usd, eur) |
-| `--chain` | No | Comma-separated chain filters (e.g. `1,137` or `eip155:1`). Run `mm chains list` to see options |
-| `--token` | No | Filter by token symbol, contract address, or CAIP-19 asset ID (e.g. USDC, 0xa0b8...) |
-| `--address` | No | Wallet address (0x-prefixed hex) |
+| `--currency` | No | Fiat currency code for price conversion, such as usd or eur |
+| `--chain-ids` | No | Comma-separated chain filters, such as `1,137` or `eip155:1`. Run `mm chains list` to see options |
+| `--token` | No | Filter by token symbol, contract address, or CAIP-19 asset ID, such as USDC or 0xa0b8... |
+| `--address` | No | Wallet address, 0x-prefixed hex |
 | `--testnet` | No | Read balances via RPC on Arbitrum Sepolia, Amoy, and Sepolia testnets |
-| `--testnet-chain-id` | No | Comma-separated EVM testnet chain IDs for on-chain RPC balance reads (e.g. `421614,80002`) |
-| `--token-contracts` | No | Comma-separated ERC-20 contract addresses for testnet RPC chains (0x-prefixed hex). Use with `--testnet-chain-id` to read specific token balances on testnets |
+| `--testnet-chain-ids` | No | Comma-separated EVM testnet chain IDs for on-chain RPC balance reads, such as `421614,80002` |
+| `--token-contracts` | No | Comma-separated ERC-20 contract addresses for testnet RPC chains, 0x-prefixed hex. Use with `--testnet-chain-ids` to read specific token balances on testnets |
 
 ### Example
 
 ```bash
 mm wallet balance
-mm wallet balance --chain 8453
+mm wallet balance --chain-ids 8453
 mm wallet balance --token USDC
 mm wallet balance --currency eur
 mm wallet balance --testnet
-mm wallet balance --testnet-chain-id 421614 --token-contracts 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
+mm wallet balance --testnet-chain-ids 421614 --token-contracts 0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
 ```

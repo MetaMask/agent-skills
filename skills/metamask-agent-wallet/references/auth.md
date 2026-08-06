@@ -73,10 +73,10 @@ mm login [qr | browser] [--token <token>] [--timeout <seconds>] [--otp-pair] [--
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token` | No | Pre-minted CLI token in `cliToken:cliRefreshToken` format [env: `MM_CLI_TOKEN`] |
+| `--token` | No | Pre-minted CLI token in `cliToken:cliRefreshToken` format. Can also be set via the `MM_CLI_TOKEN` env var |
 | `--timeout` | No | Seconds to wait for QR or browser callback |
 | `--otp-pair` | No | Use the legacy MWP 6-digit pairing-code flow for browser login instead of the default paste-token flow. Only valid with `browser`. Cannot be combined with `--no-wait` or `--token` |
-| `--no-wait` | No | Print the sign-in URL and exit without waiting (for non-interactive/CI use). Not supported with QR login or `--otp-pair`. Complete later with `mm login --token` |
+| `--no-wait` | No | Print the sign-in URL and exit without waiting, for non-interactive or CI use. Not supported with QR login or `--otp-pair`. Complete later with `mm login --token` |
 
 ### Example
 
@@ -89,12 +89,12 @@ mm login --token "cliToken:cliRefreshToken"
 
 ### Note
 
-- `mm login browser` (default) opens the dashboard URL and prompts the user to paste a CLI token (`cliToken:cliRefreshToken`). This is the recommended flow for agents.
+- `mm login browser`, the default, opens the dashboard URL and prompts the user to paste a CLI token in `cliToken:cliRefreshToken` format. This is the recommended flow for agents.
 - `mm login browser --otp-pair` restores the legacy MWP 6-digit pairing-code flow.
 - If already authenticated, the CLI returns `ALREADY_AUTHENTICATED`. Run `mm logout` first, then log in again.
-- `mm login qr` (scan with MetaMask Mobile) is available on all environments, including production.
-- Pairing codes tolerate `-` and whitespace separators (e.g. `608-225` is equivalent to `608225`).
-- Use `mm login browser --no-wait` for non-interactive/CI flows. The command prints a sign-in URL; the user completes login in the browser (Google or Email). Bare `mm login --no-wait` fails without a TTY because no method is selected.
+- `mm login qr`, scan with MetaMask Mobile, is available on all environments, including production.
+- Pairing codes tolerate `-` and whitespace separators, so `608-225` is equivalent to `608225`.
+- Use `mm login browser --no-wait` for non-interactive/CI flows. The command prints a sign-in URL; the user completes login in the browser via Google or Email. Bare `mm login --no-wait` fails without a TTY because no method is selected.
 - `--no-wait` is not supported with QR login or `--otp-pair`. Complete authentication later with `mm login --token`.
 - After a successful login in server-wallet mode, the CLI automatically syncs existing wallets from the server. Run `mm wallet list` immediately — no need to re-run `mm init`. In BYOK mode, no sync occurs; run `mm init` to configure the wallet.
 
@@ -121,7 +121,7 @@ mm auth status --toon
 
 ## `logout` Command
 
-Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic. Prompts for confirmation before signing out. If no active session exists, returns `reason: ALREADY_LOGGED_OUT` with a hint to run `mm login` (exit 0, not an error).
+Sign out and clear auth credentials plus local init state, wallet selection, and stored BYOK mnemonic. Prompts for confirmation before signing out. If no active session exists, returns `reason: ALREADY_LOGGED_OUT` with a hint to run `mm login`, exit 0, not an error.
 
 ### Syntax
 
@@ -133,7 +133,7 @@ mm logout [--yes]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--yes` | No | Skip the confirmation prompt (for non-interactive/scripted use) |
+| `--yes` | No | Skip the confirmation prompt, for non-interactive or scripted use |
 
 ### Example
 
@@ -149,16 +149,17 @@ Show persisted CLI configuration. Does not require authentication.
 ### Syntax
 
 ```bash
-mm config get [env|verbose|format]
+mm config get [env|verbose|format|walletTimeoutSeconds]
 ```
 
 ### Supported Keys
 
 | Key | Description |
 | --- | --- |
-| `env` | Target API environment: `prod`, `dev`, or `uat` (defaults to `prod` when unset) |
-| `verbose` | Whether verbose logging is persisted (`true` or `false`) |
+| `env` | Target API environment: `prod`, `dev`, or `uat`. Defaults to `prod` when unset |
+| `verbose` | Whether verbose logging is persisted, `true` or `false` |
 | `format` | Default output format: `json`, `text`, or `toon` |
+| `walletTimeoutSeconds` | Default wallet job timeout in seconds, 1-600 |
 
 Omit the key to return all values.
 
@@ -176,7 +177,7 @@ Persist a CLI configuration value in `~/.metamask/config.json`. Does not require
 ### Syntax
 
 ```bash
-mm config set <env|verbose|format> <value>
+mm config set <env|verbose|format|walletTimeoutSeconds> <value>
 ```
 
 ### Supported Keys
@@ -186,6 +187,7 @@ mm config set <env|verbose|format> <value>
 | `env` | `prod`, `dev`, or `uat` |
 | `verbose` | `true` or `false` |
 | `format` | `json`, `text`, or `toon` |
+| `walletTimeoutSeconds` | Positive integer, 1-600 |
 
 ### Overrides
 
@@ -209,7 +211,7 @@ mm config set format toon
 ### Note
 
 - Switch environments at any time with `mm config set env <prod|dev|uat>`.
-- Non-prod sessions are stored in env-scoped files under `~/.metamask/` (e.g. `session.dev.json`, `session.uat.json`); prod uses `session.json`.
+- Non-prod sessions are stored in env-scoped files under `~/.metamask/`, such as `session.dev.json` and `session.uat.json`; prod uses `session.json`.
 
 ## `reset` Command
 
@@ -225,7 +227,7 @@ mm reset [--yes]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--yes` | No | Skip the confirmation prompt (for non-interactive/scripted use) |
+| `--yes` | No | Skip the confirmation prompt, for non-interactive or scripted use |
 
 ### Example
 

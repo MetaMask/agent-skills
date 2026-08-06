@@ -9,7 +9,7 @@ Look up a transaction by hash.
 ### Syntax
 
 ```bash
-mm tx --hash <hash> [--chain <chain-id-or-caip2>]
+mm tx --hash <hash> [--chain-id <chain-id-or-caip2>]
 ```
 
 ### Supported flags
@@ -17,14 +17,14 @@ mm tx --hash <hash> [--chain <chain-id-or-caip2>]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--hash` | Yes | 0x-prefixed transaction hash |
-| `--chain` | No | Chain ID or CAIP-2 (e.g. `1` or `eip155:1`). When omitted, common EVM chains are probed |
+| `--chain-id` | No | Chain ID or CAIP-2, such as `1` or `eip155:1`. When omitted, common EVM chains are probed |
 
 ### Example
 
 ```bash
 mm tx --hash 0xabc123...
-mm tx --hash 0xabc123... --chain 137
-mm tx --hash 0xabc123... --chain eip155:1
+mm tx --hash 0xabc123... --chain-id 137
+mm tx --hash 0xabc123... --chain-id eip155:1
 ```
 
 ## `tx history` command
@@ -32,7 +32,7 @@ mm tx --hash 0xabc123... --chain eip155:1
 ### Syntax
 
 ```bash
-mm tx history [--addresses <addrs>] [--chain <chains>] [--type <filter>] [--limit <n>]
+mm tx history [--addresses <addrs>] [--chain-ids <chains>] [--type <filter>] [--limit <n>]
 ```
 
 ### Supported flags
@@ -40,18 +40,18 @@ mm tx history [--addresses <addrs>] [--chain <chains>] [--type <filter>] [--limi
 | Name | Required | Description |
 | --- | --- | --- |
 | `--addresses` | No | Comma-separated EVM wallet addresses to include. Defaults to all EVM wallets for your account |
-| `--chain` | No | Comma-separated chain filters (e.g. `1,137` or `eip155:1`). Run `mm chains list` to see options |
-| `--type` | No | Filter by direction (`in`, `out`, `self`) or transaction category/type |
-| `--limit` | No | Maximum number of transactions to return (1-500, default 50) |
+| `--chain-ids` | No | Comma-separated chain filters, such as `1,137` or `eip155:1`. Run `mm chains list` to see options |
+| `--type` | No | Filter by direction: `in`, `out`, or `self`, or by transaction category/type |
+| `--limit` | No | Maximum number of transactions to return, 1-500. Default 50 |
 
 ### Example
 
 ```bash
 mm tx history
 mm tx history --limit 10 --toon
-mm tx history --chain 1,8453
+mm tx history --chain-ids 1,8453
 mm tx history --type out
-mm tx history --addresses 0x742d...f2bD18 --chain 137 --limit 100
+mm tx history --addresses 0x742d...f2bD18 --chain-ids 137 --limit 100
 ```
 
 ### Output
@@ -60,10 +60,10 @@ Each history row includes enriched metadata:
 
 | Field | Description |
 | --- | --- |
-| `chainName` | Human-readable chain name (e.g. "Ethereum", "Polygon") |
-| `chainId` | Numeric chain ID (e.g. 1, 137) |
+| `chainName` | Human-readable chain name, such as "Ethereum" or "Polygon" |
+| `chainId` | Numeric chain ID, such as 1 or 137 |
 | `explorerUrl` | Block explorer link to the transaction |
-| `protocol` | Protocol metadata when available (e.g. "swap", "transfer", "earn") |
+| `protocol` | Protocol metadata when available, such as "swap", "transfer", or "earn" |
 
 When a pending CLI job matches an indexed transaction hash, the original CLI intent is preserved in the output.
 

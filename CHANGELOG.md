@@ -2,13 +2,42 @@
 
 All notable changes to the MetaMask Agent CLI Skills are documented here.
 
-These skills track the [`@metamask/agentic-cli`](https://github.com/MetaMask/agentic) releases.
+These skills track the [`@metamask/agent-wallet`](https://github.com/MetaMask/agentic) releases.
 Each entry lists the skill `version` (frontmatter) and the CLI `cliVersion` it targets,
 along with the user-facing CLI changes that motivated the skill update. Use this log to
 catch up if you are on an older skill version — apply the entries above yours in order.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [7.0.0] — targets CLI v6.0.0
+
+### Breaking
+
+- Package renamed from `@metamask/agentic-cli` to `@metamask/agent-wallet`. Update with `npm install -g @metamask/agent-wallet@latest`.
+- Chain flag standardization: `--chain` renamed to `--chain-id` on earn markets, earn supply, earn withdraw, earn positions, tx, token list popular/trending/top-gainer. `--chain` renamed to `--chain-ids` on wallet balance, tx history, token list search. `--from-chain` renamed to `--from-chain-id` on swap quote, swap execute, earn supply. `--to-chain` renamed to `--to-chain-id` on swap quote, swap execute. `--source-chain` renamed to `--source-chain-id` on perps deposit. `--testnet-chain-id` renamed to `--testnet-chain-ids` on wallet balance. Old names are accepted as aliases.
+- `wallet select` now takes a positional `<address>` argument. Removed `--id`, `--address`, and `--name` flags.
+- `wallet requests watch` now takes a positional `<polling-id>` argument. Removed `--polling-id` flag.
+- `--gas-token` flag removed from `mm transfer`.
+
+### Added
+
+- `--dex` and `--all-dexes` flags on `perps balance` and `perps positions` for HIP-3 DEX-specific queries.
+- `--dex` flag on `perps orders` for HIP-3 DEX filtering.
+- `--token`, `--sort`, `--limit` flags on `earn markets` for filtering and sorting vaults.
+- `--token`, `--protocol`, `--vault`, `--min-usd`, `--sort`, `--limit` flags on `earn positions` for filtering and sorting positions.
+- `--min-tvl` flag on `earn supply` for vault auto-selection filtering.
+- `predict history` now supports `--type closed` as the default, showing closed positions with realized PnL. `--type trade` and `--type redeem` retain previous behavior. New `--sort-by` values for closed positions: `realizedpnl`, `title`, `price`, `avgprice`, `timestamp`.
+- `15m` and `30m` intervals on `price history --interval`.
+- VIP fee tier fields `tierName` and `vipTier` on swap quote output.
+- New error codes: `FEES_LOOKUP_FAILED`, `INVALID_SORT_BY`, `INVALID_SORT_DIRECTION`, `INVALID_HISTORY_TYPE`, `PREDICT_HISTORY_INVALID_SORT_BY`, `POSITION_NOT_FOUND`, `AMBIGUOUS_VAULT`.
+
+### Changed
+
+- `RELAY_FAILED` reclassified from upstream API error to funds shortfall. Updated hint to suggest lowering `--amount`.
+- Removed stale error code `PREDICT_WALLET_STATE_REQUIRED`.
+- Removed parenthetical information patterns across all reference files for consistency.
+- Bumped `cliVersion` to `6.0.0`.
 
 ## [6.4.0] — targets CLI v5.4.0
 

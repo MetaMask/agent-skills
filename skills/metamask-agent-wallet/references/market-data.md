@@ -17,7 +17,7 @@ mm price spot --asset-ids <asset-ids> [--vs <currency>] [--market-data]
 | Name | Required | Description |
 | --- | --- | --- |
 | `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs |
-| `--vs` | No | Quote currency; defaults to `usd` |
+| `--vs` | No | Quote currency. Defaults to `usd` |
 | `--market-data` | No | Include market cap, supply, and change percent |
 
 ### Example
@@ -42,13 +42,13 @@ mm price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-p
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain-id` | Yes | CAIP-2 chain ID (e.g. `eip155:1`). Run `mm price networks` to see supported chains |
-| `--asset-type` | Yes | CAIP-19 asset type (e.g. `slip44:60` for ETH, `erc20:0x...` for ERC-20 tokens) |
-| `--time-period` | No | Time period (e.g. `1d`, `7d`, `30d`, `2M`, `1y`, `3y`) |
-| `--interval` | No | Sampling interval: `5m`, `hourly`, or `daily` |
+| `--chain-id` | Yes | CAIP-2 chain ID, such as `eip155:1`. Run `mm price networks` to see supported chains |
+| `--asset-type` | Yes | CAIP-19 asset type, such as `slip44:60` for ETH or `erc20:0x...` for ERC-20 tokens |
+| `--time-period` | No | Time period, such as `1d`, `7d`, `30d`, `2M`, `1y`, or `3y` |
+| `--interval` | No | Sampling interval: `5m`, `15m`, `30m`, `hourly`, or `daily` |
 | `--from` | No | Start time as a Unix timestamp in seconds. Use with `--to` instead of `--time-period` for custom ranges |
 | `--to` | No | End time as a Unix timestamp in seconds. Use with `--from` instead of `--time-period` for custom ranges |
-| `--vs` | No | Quote currency code (defaults to `usd`). Run `mm price currencies` to see options |
+| `--vs` | No | Quote currency code. Defaults to `usd`. Run `mm price currencies` to see options |
 
 ### Example
 
@@ -95,23 +95,23 @@ List popular, trending, or top-gainer tokens.
 ### Syntax
 
 ```bash
-mm token list popular [--chain <chain>]
-mm token list trending [--chain <chain>]
-mm token list top-gainer [--chain <chain>]
+mm token list popular [--chain-id <chain>]
+mm token list trending [--chain-id <chain>]
+mm token list top-gainer [--chain-id <chain>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--chain` | No | Chain id, CAIP-2 id, or configured chain key. Defaults to the active wallet chain, or `eip155:1` if none is selected |
+| `--chain-id` | No | Chain id, CAIP-2 id, or configured chain key. Defaults to the active wallet chain, or `eip155:1` if none is selected |
 
 ### Example
 
 ```bash
-mm token list popular --chain 1
-mm token list trending --chain 1
-mm token list top-gainer --chain 1
+mm token list popular --chain-id 1
+mm token list trending --chain-id 1
+mm token list top-gainer --chain-id 1
 ```
 
 ## `token list search` Command
@@ -121,23 +121,23 @@ Search tokens by query.
 ### Syntax
 
 ```bash
-mm token list search --query <query> [--chain <chains>] [--limit <n>] [--after <cursor>]
+mm token list search --query <query> [--chain-ids <chains>] [--limit <n>] [--after <cursor>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--query` | Yes | Search query by symbol or name (e.g. USDC, Wrapped Ether) |
-| `--chain` | No | Comma-separated chain IDs, CAIP-2 IDs, or configured chain keys. Defaults to the active wallet chain, or `eip155:1` if none is selected |
-| `--limit` | No | Maximum results (defaults to 10; 1-500) |
+| `--query` | Yes | Search query by symbol or name, such as USDC or Wrapped Ether |
+| `--chain-ids` | No | Comma-separated chain IDs, CAIP-2 IDs, or configured chain keys. Defaults to the active wallet chain, or `eip155:1` if none is selected |
+| `--limit` | No | Maximum results. Defaults to 10, range 1-500 |
 | `--after` | No | Pagination cursor |
 
 ### Example
 
 ```bash
-mm token list search --query USDC --chain 1,137 --limit 25
-mm token list search --query WETH --chain eip155:8453
+mm token list search --query USDC --chain-ids 1,137 --limit 25
+mm token list search --query WETH --chain-ids eip155:8453
 ```
 
 ## `token networks` Command
@@ -170,14 +170,14 @@ mm token assets --asset-ids <asset-ids> [--include-market-data] [--include-token
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs (e.g. `eip155:1/erc20:0xa0b8...`). Run `mm token networks` to see supported chains |
+| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs, such as `eip155:1/erc20:0xa0b8...`. Run `mm token networks` to see supported chains |
 | `--include-market-data` | No | Include market cap, volume, and price data |
-| `--include-token-security-data` | No | Include token security signals (scam risk, honeypot detection) |
+| `--include-token-security-data` | No | Include token security signals such as scam risk and honeypot detection |
 | `--include-labels` | No | Include token labels and categories |
 | `--include-aggregators` | No | Include aggregator sources that list this token |
 | `--include-coingecko-id` | No | Include the CoinGecko identifier for cross-referencing |
 | `--include-occurrences` | No | Include occurrence count across chains |
-| `--include-rwa-data` | No | Include real-world asset (RWA) data |
+| `--include-rwa-data` | No | Include real-world asset data |
 
 ### Example
 

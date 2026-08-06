@@ -7,16 +7,16 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `ALREADY_AUTHENTICATED` | Valid session already exists; run `mm logout` before logging in again |
-| `AUTH_FAILED` | Authentication failed (includes missing refresh token cases) |
-| `AUTH_ERROR` | Generic authentication error (includes missing auth token cases) |
+| `AUTH_FAILED` | Authentication failed. Includes missing refresh token cases |
+| `AUTH_ERROR` | Generic authentication error. Includes missing auth token cases |
 | `TOKEN_INVALID` | Invalid CLI token, token pair, or project ID |
 | `TOKEN_REFRESH_FAILED` | Failed to refresh token |
 | `PAIRING_TIMEOUT` | Login pairing timed out |
 | `PAIRING_EXPIRED` | Pairing session expired |
 | `INVALID_OTP` | Invalid one-time password |
 | `MWP_TIMEOUT` | Mobile Wallet Protocol timeout |
-| `MWP_CANCELLED` | Mobile Wallet Protocol cancelled (pairing aborted) |
-| `LOGOUT_FAILED` | Logout operation failed (includes token revoke failures) |
+| `MWP_CANCELLED` | Mobile Wallet Protocol cancelled due to pairing abort |
+| `LOGOUT_FAILED` | Logout operation failed. Includes token revoke failures |
 | `ALREADY_LOGGED_OUT` | No active session to sign out of. Run `mm login` to authenticate |
 
 ## Validation Errors
@@ -53,9 +53,20 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `UNSUPPORTED_CHAIN` | The command is not supported on this chain. Run `mm chains list` to see supported chains and their features |
 | `INVALID_GAS_TOKEN` | Invalid gas token symbol or address |
 | `TOKEN_NO_ADDRESS` | Token symbol could not be resolved to a contract address |
-| `INVALID_EVM_ADDRESS` | Invalid EVM address (e.g. malformed transfer recipient) |
+| `INVALID_EVM_ADDRESS` | Invalid EVM address, such as a malformed transfer recipient |
 | `INVALID_AMOUNT` | Non-positive or malformed amount value |
 | `INVALID_MNEMONIC` | BYOK mnemonic is invalid |
+| `INVALID_VENUE` | Invalid perpetual venue value |
+| `INVALID_NETWORK` | Invalid network value. Must be `mainnet` or `testnet` |
+| `INVALID_ASSET` | Invalid asset value |
+| `INVALID_SIDE` | Invalid side value. Must be `long`/`short` or `buy`/`sell` |
+| `INVALID_ORDER_TYPE` | Invalid order type value |
+| `INVALID_PREDICT_MODE` | Invalid Predict mode value. Must be `mainnet` or `testnet` |
+| `INVALID_RECURRENCE` | Invalid recurrence value. Must be `annual`, `daily`, `weekly`, or `monthly` |
+| `INVALID_ENV` | Invalid environment value. Must be `prod`, `dev`, or `uat` |
+| `INVALID_SORT_BY` | Invalid sort-by field value |
+| `INVALID_SORT_DIRECTION` | Invalid sort direction value |
+| `INVALID_HISTORY_TYPE` | Invalid history type value. Must be `closed`, `trade`, or `redeem` |
 
 ## Wallet Errors
 
@@ -64,12 +75,12 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_MNEMONIC` | BYOK wallet mode is missing a mnemonic |
 | `MNEMONIC_LOCKED` | Mnemonic unlock failed after maximum attempts |
 | `WRONG_PASSWORD` | Current password is incorrect |
-| `ALREADY_ENCRYPTED` | Mnemonic is already password-encrypted (use `wallet password change` instead) |
-| `NOT_ENCRYPTED` | Mnemonic is not encrypted (use `wallet password set` instead) |
+| `ALREADY_ENCRYPTED` | Mnemonic is already password-encrypted. Use `wallet password change` instead |
+| `NOT_ENCRYPTED` | Mnemonic is not encrypted. Use `wallet password set` instead |
 | `PASSWORD_MISMATCH` | Password confirmation does not match |
 | `EMPTY_PASSWORD` | Empty password provided |
 | `WALLET_NOT_FOUND` | Wallet not found |
-| `WALLET_ERROR` | Wallet provider or wallet operation error (includes on-chain reverts and network failures from wallet paths) |
+| `WALLET_ERROR` | Wallet provider or wallet operation error. Includes on-chain reverts and network failures from wallet paths |
 | `WALLET_METADATA` | Wallet metadata error |
 | `WALLET_NOT_REGISTERED` | Server-side BYOK wallet registration failed. Re-run `mm init --wallet byok` |
 | `WRONG_NAMESPACE` | Wrong namespace for wallet |
@@ -98,8 +109,10 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `TX_DENIED` | Transaction was denied via MFA |
 | `TX_EXPIRED` | Transaction MFA approval expired |
 | `TX_FAILED` | Transaction failed after submission |
-| `TX_REVERTED` | Transaction reverted on-chain (RPC revert); check the `failure_reason` field for details |
+| `TX_REVERTED` | Transaction reverted on-chain via RPC revert; check the `failure_reason` field for details |
 | `RELAY_TIMEOUT` | Gasless relay poll timed out. Check `mm wallet requests watch --polling-id <id>` before retrying; the job may still complete |
+| `RELAY_FAILED` | Gasless relay failed, typically because the wallet cannot cover the amount plus the relay fee. Retry with a lower `--amount` or check balances with `mm wallet balance` |
+| `RELAY_ABORTED` | Relay operation aborted |
 | `NOT_INITIALIZED` | Project not initialized. Run `mm init` |
 | `NO_MNEMONIC` | Mnemonic not stored |
 | `NO_TTY` | No TTY available for interactive prompts |
@@ -108,23 +121,25 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `MISSING_SWAP_PARAMS` | Missing swap parameters |
 | `TX_NOT_FOUND` | Transaction not found for the given hash |
 | `INVALID_TX_HASH` | Invalid transaction hash format |
-| `COMING_SOON` | Feature not yet available (e.g. `mm login qr` on production) |
+| `COMMAND_NOT_FOUND` | Unknown command. Run `mm --help` to list valid commands |
+| `NON_INTERACTIVE` | Operation requires interactive mode but no TTY is available |
+| `COMING_SOON` | Feature not yet available, such as `mm login qr` on production |
 | `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
-| `INVALID_CONFIG_VALUE` | Invalid value for a config key (e.g. env not in `prod|dev|uat`) |
+| `INVALID_CONFIG_VALUE` | Invalid value for a config key, such as env not in `prod`, `dev`, or `uat` |
 
 ## Swap & Bridge Errors
 
 | Code | Meaning |
 | --- | --- |
-| `NO_QUOTES` | No swap or bridge quotes available. When returned as a soft unavailable outcome (exit 0), adjust amount, slippage, or token and retry |
+| `NO_QUOTES` | No swap or bridge quotes available. When returned as a soft unavailable outcome with exit 0, adjust amount, slippage, or token and retry |
 | `QUOTE_RETRY` | Transient bridge hiccup — re-run the exact same quote to get routes |
 | `BRIDGE_API_ERROR` | Bridge API error |
 | `TOKEN_NOT_FOUND` | Token not found |
 | `TOKEN_NOT_SUPPORTED` | Token not supported for this swap route |
-| `INVALID_SWAP_PARAMS` | Invalid swap parameters (includes `--all-quotes` and `--yes` used together) |
+| `INVALID_SWAP_PARAMS` | Invalid swap parameters. Includes `--all-quotes` and `--yes` used together |
 | `NATIVE_ASSET_UNSUPPORTED` | Native asset not supported for this swap route |
 | `INSUFFICIENT_GAS` | Insufficient native gas to cover the swap; add native gas or use `--strategy output` / `--all-quotes` to pick a gasless quote |
-| `REFUEL_UNSUPPORTED_ROUTE` | Refuel is not supported on this route (same-chain or native destination token). Drop `--refuel` and re-run |
+| `REFUEL_UNSUPPORTED_ROUTE` | Refuel is not supported on this route, either same-chain or native destination token. Drop `--refuel` and re-run |
 | `AMOUNT_TOO_HIGH` | Amount too high for available liquidity |
 | `AMOUNT_TOO_LOW` | Amount below provider minimum |
 | `SLIPPAGE_TOO_HIGH` | Slippage too high for this route |
@@ -141,6 +156,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `GASLESS_NOT_CONFIGURED` | Gasless relay is not configured for this operation |
 | `INSUFFICIENT_FUNDS` | Insufficient source token balance to execute swap. Check `mm wallet balance`, fund the wallet, or lower `--amount` and re-quote |
 | `SWAP_ERROR` | Generic swap error |
+| `FEES_LOOKUP_FAILED` | Unexpected wallet-fees lookup failure |
 
 ## Perps Errors
 
@@ -166,7 +182,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `SIGNING_FAILED` | Signing operation failed |
 | `WITHDRAW_FAILED` | Withdrawal failed |
 | `DEPOSIT_FAILED` | Deposit failed |
-| `RATE_LIMITED` | Rate-limited by the venue (e.g. Hyperliquid HTTP 429). Wait and retry |
+| `RATE_LIMITED` | Rate-limited by the venue, such as Hyperliquid HTTP 429. Wait and retry |
 | `HYPERLIQUID_ERROR` | Hyperliquid protocol error |
 | `PERPS_ERROR` | Generic perpetuals error |
 
@@ -181,7 +197,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_INVALID_DEPOSIT_AMOUNT` | Invalid deposit amount. Pass a positive pUSD amount with up to 6 decimal places |
 | `PREDICT_WITHDRAW_ZERO` | Withdraw amount must be greater than zero. Pass a `--amount` greater than zero |
 | `PREDICT_WITHDRAW_INSUFFICIENT_BALANCE` | Withdraw amount exceeds deposit wallet pUSD balance. Lower `--amount` or check `mm predict balance` |
-| `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported. Deposit funding is only configured for Polygon (137) |
+| `PREDICT_FUNDING_CHAIN_UNSUPPORTED` | Funding chain not supported. Deposit funding is only configured for Polygon, chain ID 137 |
 | `PREDICT_INSUFFICIENT_BALANCE` | Insufficient Predict balance. Lower `--size`, or deposit more collateral with `mm predict deposit`; check `mm predict balance` |
 | `PREDICT_INSUFFICIENT_ALLOWANCE` | Insufficient Predict allowance. Run `mm predict approve`, then retry the order |
 | `PREDICT_INSUFFICIENT_FUNDING_BALANCE` | Insufficient funding balance for Predict deposit. Fund the deposit wallet with USDC.e, or lower the deposit amount |
@@ -191,13 +207,15 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_REDEEM_NONE` | No redeemable positions. Check `mm predict redeem list` |
 | `PREDICT_REDEEM_NOT_FOUND` | Redeem target not found. Check the condition/token ID against `mm predict redeem list` |
 | `PREDICT_REDEEM_MISSING_TARGET` | Missing redeem target. Pass a condition or token ID |
-| `PREDICT_WALLET_STATE_REQUIRED` | Wallet state required for Predict |
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
 | `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
-| `PREDICT_ERROR` | Generic Predict error. Re-check inputs and mode (`mm predict mode`); run `mm predict status` to verify back-end reachability |
+| `PREDICT_ERROR` | Generic Predict error. Re-check inputs and mode via `mm predict mode`; run `mm predict status` to verify back-end reachability |
 | `PREDICT_INSUFFICIENT_GAS` | Insufficient native POL for gas on Polygon. Top up wallet with POL, check balances with `mm wallet balance`, then retry |
-| `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` (region guard) and surfaced by `mm predict geoblock` |
+| `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` as a region guard and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
+| `PREDICT_HISTORY_CONDITION_REQUIRED` | Condition ID is required for `predict history get` |
+| `PREDICT_HISTORY_INVALID_SORT_BY` | Invalid sort-by key for the history mode. Closed: `realizedpnl`, `title`, `price`, `avgprice`, `timestamp`. Trade/redeem: `timestamp`, `tokens`, `cash` |
+| `POLYMARKET_FUNDING_CHAIN_UNSUPPORTED` | Deposit funding is only configured for Polygon, chain ID 137. Use the supported chain or fund Amoy manually for testnet |
 
 ## Earn Errors
 
@@ -208,6 +226,10 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `EARN_API_ERROR` | LiFi API error or rate limit |
 | `QUOTE_FAILED` | LiFi returned no executable transaction |
 | `EXECUTE_FAILED` | Transaction reverted, no hash returned, or cross-chain timeout |
+| `NO_POSITION` | No matching earn position found for the wallet |
+| `POSITION_NOT_FOUND` | No matching earn position found for the specified vault/token |
+| `AMBIGUOUS_VAULT` | Multiple vaults match the token/chain/protocol. Narrow with `--vault` or `--protocol` |
+| `INSUFFICIENT_LP_BALANCE` | Insufficient LP token balance for the requested withdrawal amount |
 | `EARN_ERROR` | Generic earn error |
 
 ## Transaction History Errors
