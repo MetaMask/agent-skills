@@ -10,6 +10,21 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] — targets CLI v6.0.0
+
+### Added
+
+- x402 MCP transport (x402 v2 over MCP) in `scripts/x402_pay.py`: `mcp-inspect` prints a paid MCP tool's payment options read-only (no signing, no spending), and `mcp-sign --confirm` signs one option and prints the `PaymentPayload` to attach to the retried `tools/call`. The challenge is accepted as the whole JSON-RPC response, the tool result, or a bare `PaymentRequired` object — via `--challenge` (inline JSON, or `-` for stdin) or `--challenge-file`. `--asset`/`--network` disambiguate multiple eligible options, as on `pay`.
+- New workflow: `workflows/x402-mcp.md` for paying an x402-gated MCP tool call — call unpaid, inspect, confirm with the user, sign, retry with the payload in `_meta["x402/payment"]`, then verify settlement in `_meta["x402/payment-response"]`. Includes the error cases (no eligible option, multiple eligible options, Permit2-only, payment not accepted, v1 challenge).
+- New "MCP transport (paid MCP tools)" section in `references/x402.md` documenting the challenge shapes, the `_meta` keys, and the re-signing rule (a repeated `isError` result is a fresh challenge, never re-sign automatically).
+- Note in `references/x402.md` on Cloudflare Agents SDK servers (`withX402`/`paidTool`), which diverge from the spec text two ways: the challenge arrives in `_meta["x402/error"]` with no `structuredContent`, and the retry token must be base64 (use the emitted `paymentBase64`) rather than the inline object. Verified with a live mainnet round-trip.
+- SKILL.md routing rows for the MCP transport, an x402 MCP input-validation rule, and confirmation-policy wording covering `mcp-sign --confirm`.
+
+### Changed
+
+- SKILL.md `description` now also triggers when an MCP tool call returns an x402 payment-required result, not only on an HTTP `402`.
+- `references/x402.md` and `workflows/x402-pay.md` no longer describe x402 as HTTP-only and cross-link the MCP workflow.
+
 ## [7.0.0] — targets CLI v6.0.0
 
 ### Breaking

@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
-"""Pay an HTTP 402 (x402) request with the active wallet.
+"""Pay an x402 request (HTTP 402 or MCP tool challenge) with the active wallet.
 
-Fetches a paywalled URL, reads the server's x402 payment requirements, signs an
-EIP-3009 authorization with `mm wallet sign-typed-data`, retries with the
-payment header, and reports the settlement. Supports x402 protocol v1
-(X-PAYMENT) and v2 (PAYMENT-SIGNATURE). Signing is delegated to `mm`, so the
-private key stays in the wallet.
+Over HTTP: fetches a paywalled URL, reads the server's x402 payment
+requirements, signs an EIP-3009 authorization with `mm wallet sign-typed-data`,
+retries with the payment header, and reports the settlement. Supports x402
+protocol v1 (X-PAYMENT) and v2 (PAYMENT-SIGNATURE). Signing is delegated to
+`mm`, so the private key stays in the wallet.
+
+Over MCP (x402 v2 MCP transport): a paid MCP tool answers an unpaid call with a
+tool result carrying `isError: true` and the PaymentRequired data. The MCP
+session belongs to the caller, so this script does not speak MCP; it takes that
+challenge, signs the same EIP-3009 authorization, and prints the PaymentPayload
+to place, as a raw JSON object, in `_meta["x402/payment"]` of the retried tool
+call. The settlement comes back in the response `_meta["x402/payment-response"]`.
 
 Usage:
     python3 x402_pay.py inspect <url> [--method M] [--data BODY]
     python3 x402_pay.py pay <url> --confirm [--method M] [--data BODY]
                                   [--asset <contract>] [--network <network>]
+    python3 x402_pay.py mcp-inspect [--challenge JSON | --challenge-file PATH]
+    python3 x402_pay.py mcp-sign [--challenge JSON | --challenge-file PATH]
+                                 --confirm [--asset <contract>] [--network <network>]
 
 `inspect` fetches the URL and prints the payment requirement(s) as JSON
 (asset, amount, network, payTo, resource) without signing or spending. Review
@@ -19,6 +29,15 @@ this before paying.
 `pay` runs the payment for a single offered option and prints the settlement
 (transaction hash) and the resource body. It requires --confirm. When the 402
 offers more than one eligible option, select one with --asset or --network.
+
+`mcp-inspect` parses an MCP payment challenge (the tool-call response, the tool
+result, or the bare PaymentRequired object; from --challenge, --challenge-file,
+or stdin via --challenge -) and prints the payment options without signing or
+spending.
+
+`mcp-sign` signs one offered option from an MCP challenge and prints the
+payment payload for the retry's `_meta["x402/payment"]`. It requires --confirm
+and takes the same --asset/--network disambiguators as `pay`.
 
 The resource may use any HTTP method; pass --method (and --data for a request
 body) and the same request is replayed with the payment attached.
@@ -181,6 +200,33 @@ def asset_meta(chain_id, asset):
     return _asset_meta_cache[key]
 
 
+def _normalize_accepts(accepts):
+    """Turn an accepts[] array into the option dicts the rest of the flow uses.
+
+    Reads v2 `amount` with a fallback to the v1 wire name `maxAmountRequired`;
+    missing that fallback would sign a null value on a v1 offer. A non-dict
+    `extra` (e.g. an explicit null) is coerced to {} so validate() reports the
+    missing EIP-712 domain instead of crashing.
+    """
+    options = []
+    for a in accepts:
+        amount = a.get("amount", a.get("maxAmountRequired"))
+        extra = a.get("extra")
+        options.append(
+            {
+                "scheme": a.get("scheme"),
+                "network": a.get("network"),
+                "amount": str(amount) if amount is not None else None,
+                "payTo": a.get("payTo"),
+                "asset": a.get("asset"),
+                "maxTimeoutSeconds": a.get("maxTimeoutSeconds", 3600),
+                "extra": extra if isinstance(extra, dict) else {},
+                "resource": a.get("resource"),
+            }
+        )
+    return options
+
+
 def parse_402(status, headers, body):
     """Return (version, [option, ...], resource_info). Raises if not a usable 402.
 
@@ -216,26 +262,119 @@ def parse_402(status, headers, body):
             )
 
     accepts = (data.get("accepts") if isinstance(data, dict) else None) or []
-
-    options = []
-    for a in accepts:
-        amount = a.get("amount", a.get("maxAmountRequired"))
-        options.append(
-            {
-                "scheme": a.get("scheme"),
-                "network": a.get("network"),
-                "amount": str(amount) if amount is not None else None,
-                "payTo": a.get("payTo"),
-                "asset": a.get("asset"),
-                "maxTimeoutSeconds": a.get("maxTimeoutSeconds", 3600),
-                "extra": a.get("extra", {}),
-                "resource": a.get("resource"),
-            }
-        )
+    options = _normalize_accepts(accepts)
     if not options:
         raise CeremonyError("402 had no payment options")
     resource_info = data.get("resource") if isinstance(data, dict) else None
     return version, options, resource_info
+
+
+def _payment_required_from(result):
+    """Extract the PaymentRequired object from an MCP tool result, or None.
+
+    The MCP transport spec has servers put it in both structuredContent (the
+    object itself) and content[0].text (its JSON encoding), and tells clients
+    to prefer structuredContent; the text form is the fallback for the spec's
+    settlement-failure example, whose text is not even parseable JSON.
+
+    Cloudflare's Agents SDK (`agents/x402` `withX402`/`paidTool`) — the most
+    substantial real server implementation found in the wild — puts it in
+    `_meta["x402/error"]` instead of structuredContent (verified by reading
+    its source and a live local run); checked explicitly rather than relying
+    on the content[].text fallback catching it by coincidence.
+    """
+    sc = result.get("structuredContent")
+    if isinstance(sc, dict) and "accepts" in sc:
+        return sc
+    meta_error = (result.get("_meta") or {}).get("x402/error")
+    if isinstance(meta_error, dict) and "accepts" in meta_error:
+        return meta_error
+    for entry in result.get("content") or []:
+        if not (isinstance(entry, dict) and entry.get("type") == "text"):
+            continue
+        try:
+            data = json.loads(entry.get("text") or "")
+        except ValueError:
+            continue
+        if isinstance(data, dict) and "accepts" in data:
+            return data
+    return None
+
+
+def parse_mcp_challenge(data):
+    """Return ([option, ...], resource_info, error_text) from an MCP challenge.
+
+    Accepts whichever shape the caller has at hand: the whole JSON-RPC
+    response, the tool result, or the bare PaymentRequired object. The MCP
+    transport is defined for x402 v2 only, so any other x402Version is
+    refused rather than guessed at.
+    """
+    if not isinstance(data, dict):
+        raise CeremonyError("challenge must be a JSON object")
+    if isinstance(data.get("result"), dict):
+        data = data["result"]
+    if "accepts" not in data:
+        pr = _payment_required_from(data)
+        if pr is None:
+            raise CeremonyError(
+                "not an x402 payment challenge: no PaymentRequired found in "
+                "structuredContent or content[].text (expected the result of "
+                "an unpaid call to a paid MCP tool)"
+            )
+        data = pr
+    version = data.get("x402Version")
+    if version is None:
+        raise CeremonyError(
+            "challenge has an accepts[] array but no x402Version; "
+            "not a valid x402 PaymentRequired object"
+        )
+    if version != 2:
+        raise CeremonyError(
+            "unsupported x402Version %r: the x402 MCP transport is defined for v2 only" % version
+        )
+    options = _normalize_accepts(data.get("accepts") or [])
+    if not options:
+        raise CeremonyError("challenge had no payment options")
+    resource_info = data.get("resource")
+    if isinstance(resource_info, str):
+        # v1-styled servers send resource as a bare URL string; v2 wants an object.
+        resource_info = {"url": resource_info}
+    elif resource_info is not None and not isinstance(resource_info, dict):
+        raise CeremonyError("challenge resource must be an object or a URL string")
+    return options, resource_info, data.get("error")
+
+
+def read_challenge(challenge, challenge_file):
+    """Load the MCP challenge JSON from --challenge or --challenge-file.
+
+    stdin is read only when explicitly requested with `--challenge -`: agents
+    commonly run this script with an open non-TTY pipe on stdin, where an
+    implicit stdin fallback would block forever instead of reporting the
+    missing flag.
+    """
+    if challenge is not None and challenge_file:
+        raise CeremonyError("pass --challenge or --challenge-file, not both")
+    if challenge == "-":
+        raw = sys.stdin.read()
+    elif challenge is not None:
+        raw = challenge
+    elif challenge_file:
+        try:
+            with open(challenge_file, "r", encoding="utf-8") as f:
+                raw = f.read()
+        except OSError as e:
+            raise CeremonyError("could not read --challenge-file: %s" % e)
+    else:
+        raise CeremonyError(
+            "no challenge given: pass --challenge '<json>' (or '-' to read stdin) "
+            "or --challenge-file <path>"
+        )
+    if not raw.strip():
+        raise CeremonyError("challenge input is empty")
+    try:
+        return json.loads(raw)
+    except ValueError as e:
+        raise CeremonyError("challenge is not valid JSON: %s" % e)
 
 
 def describe(option):
@@ -436,6 +575,34 @@ def validate(option, chain_id):
         raise CeremonyError("402 option missing EIP-712 domain name/version in 'extra'")
 
 
+def sign_challenge(version, options, want_asset, want_network, resource_info, target, transport=""):
+    """Run the signing ceremony for one eligible option of a challenge.
+
+    Both transports converge here — select, validate, build and sign the
+    EIP-3009 authorization, assemble the version-correct PaymentPayload — so
+    the spend semantics cannot drift between them. How the challenge arrived
+    and how the payment is delivered stay in the callers. `target` is what the
+    user sees in the signing intent (and the v2 resource fallback over HTTP).
+    """
+    option = select(options, want_asset, want_network)
+    chain_id = option["chainId"]
+    validate(option, chain_id)
+
+    from_addr = wallet_address()
+    typed_data, authorization = build_typed_data(option, chain_id, from_addr)
+
+    intent = "x402%s: %s %s to %s for %s" % (
+        " (%s)" % transport if transport else "",
+        option.get("humanAmount", option["amount"]),
+        option.get("symbol", ""),
+        option["payTo"],
+        target,
+    )
+    signature = sign_typed_data(chain_id, typed_data, intent)
+    payment = build_payment(version, option, resource_info, signature, authorization, target)
+    return option, payment
+
+
 def settlement(headers, version, body):
     """Decode the facilitator's settlement receipt.
 
@@ -512,22 +679,7 @@ def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     # Fetch fresh so the short 402 window is never stale.
     status, rheaders, rbody = http(url, method, headers, body)
     version, options, resource_info = parse_402(status, rheaders, rbody)
-    option = select(options, want_asset, want_network)
-    chain_id = option["chainId"]
-    validate(option, chain_id)
-
-    from_addr = wallet_address()
-    typed_data, authorization = build_typed_data(option, chain_id, from_addr)
-
-    intent = "x402: %s %s to %s for %s" % (
-        option.get("humanAmount", option["amount"]),
-        option.get("symbol", ""),
-        option["payTo"],
-        url,
-    )
-    signature = sign_typed_data(chain_id, typed_data, intent)
-
-    payment = build_payment(version, option, resource_info, signature, authorization, url)
+    option, payment = sign_challenge(version, options, want_asset, want_network, resource_info, url)
     b64 = base64.b64encode(json.dumps(payment).encode()).decode()
     header = "X-PAYMENT" if version == 1 else "PAYMENT-SIGNATURE"
 
@@ -561,6 +713,73 @@ def cmd_pay(url, method, data, content_type, confirm, want_asset, want_network):
     )
 
 
+def cmd_mcp_inspect(challenge, challenge_file):
+    """Print an MCP challenge's payment options without signing or spending."""
+    options, resource_info, error = parse_mcp_challenge(read_challenge(challenge, challenge_file))
+    print(
+        json.dumps(
+            {
+                "status": "payment_required",
+                "x402Version": 2,
+                "error": error,
+                "resource": resource_info,
+                "options": [describe(o) for o in options],
+            },
+            indent=2,
+        )
+    )
+
+
+def cmd_mcp_sign(challenge, challenge_file, confirm, want_asset, want_network):
+    """Sign one option from an MCP challenge and print the payment payload.
+
+    The MCP session belongs to the caller, so delivery is the caller's move:
+    place the printed `payment` object, as-is, in `_meta["x402/payment"]` of
+    the retried tool call.
+    """
+    if not confirm:
+        raise CeremonyError(
+            "refusing to sign without --confirm; run 'mcp-inspect' first and "
+            "get user approval, then re-run 'mcp-sign --confirm'"
+        )
+    options, resource_info, _ = parse_mcp_challenge(read_challenge(challenge, challenge_file))
+    # Fail closed before signing: the v2 payload must forward the resource, so
+    # a challenge that names none could only yield a payload the facilitator
+    # rejects after a real authorization was already signed.
+    if not resource_info or not resource_info.get("url"):
+        raise CeremonyError(
+            "challenge has no resource URL; pass the full PaymentRequired object "
+            "(its top-level resource is forwarded into the payment payload)"
+        )
+    option, payment = sign_challenge(
+        2, options, want_asset, want_network, resource_info, resource_info["url"], "MCP"
+    )
+    payment_b64 = base64.b64encode(json.dumps(payment).encode()).decode()
+    print(
+        json.dumps(
+            {
+                "status": "signed",
+                "asset": option.get("symbol", option["asset"]),
+                "amount": option.get("humanAmount", option["amount"]),
+                "network": option["network"],
+                "payTo": option["payTo"],
+                "metaKey": "x402/payment",
+                "payment": payment,
+                "paymentBase64": payment_b64,
+                "note": (
+                    "Use `payment` (the raw object) for servers that follow the MCP "
+                    "transport spec literally (coinbase/x402 specs/transports-v2/mcp.md). "
+                    "Use `paymentBase64` for servers built with Cloudflare's Agents SDK "
+                    "(`agents/x402` withX402/paidTool) — its real implementation "
+                    "base64-decodes _meta[\"x402/payment\"] rather than reading it as an "
+                    "inline object, diverging from the spec text."
+                ),
+            },
+            indent=2,
+        )
+    )
+
+
 def main(argv=None):
     """Parse arguments and report CeremonyError as JSON on stderr."""
     parser = argparse.ArgumentParser(
@@ -576,9 +795,18 @@ def main(argv=None):
     fmt.add_argument("--json", action="store_true", help=argparse.SUPPRESS)
     fmt.add_argument("-f", "--format", help=argparse.SUPPRESS)
 
+    # Shared spend flags for the two signing subcommands, defined once so the
+    # confirm ceremony and disambiguators cannot drift between transports.
+    spend = argparse.ArgumentParser(add_help=False)
+    spend.add_argument(
+        "--confirm", action="store_true", help="Required. Explicit user approval to sign and spend."
+    )
+    spend.add_argument("--asset", help="Disambiguate by asset contract when multiple are offered.")
+    spend.add_argument("--network", help="Disambiguate by network when multiple are offered.")
+
     for p in (
         sub.add_parser("inspect", parents=[fmt], help="Fetch and parse a 402 (read-only)."),
-        sub.add_parser("pay", parents=[fmt], help="Run the full payment ceremony."),
+        sub.add_parser("pay", parents=[fmt, spend], help="Run the full payment ceremony."),
     ):
         p.add_argument("url")
         p.add_argument(
@@ -593,23 +821,43 @@ def main(argv=None):
             help="Content-Type for --data (default application/json).",
         )
 
-    p_pay = sub.choices["pay"]
-    p_pay.add_argument(
-        "--confirm", action="store_true", help="Required. Explicit user approval to sign and spend."
-    )
-    p_pay.add_argument("--asset", help="Disambiguate by asset contract when multiple are offered.")
-    p_pay.add_argument("--network", help="Disambiguate by network when multiple are offered.")
+    for p in (
+        sub.add_parser(
+            "mcp-inspect", parents=[fmt], help="Parse an MCP payment challenge (read-only)."
+        ),
+        sub.add_parser(
+            "mcp-sign",
+            parents=[fmt, spend],
+            help="Sign one option from an MCP challenge and print the payment payload.",
+        ),
+    ):
+        p.add_argument(
+            "--challenge",
+            help="The challenge JSON: the tool-call response, the tool result, or the bare "
+            "PaymentRequired object; pass '-' to read it from stdin.",
+        )
+        p.add_argument("--challenge-file", help="Path to a file holding the challenge JSON.")
 
     args = parser.parse_args(argv)
     try:
         if args.command == "inspect":
             cmd_inspect(args.url, args.method.upper(), args.data, args.content_type)
-        else:
+        elif args.command == "pay":
             cmd_pay(
                 args.url,
                 args.method.upper(),
                 args.data,
                 args.content_type,
+                args.confirm,
+                args.asset,
+                args.network,
+            )
+        elif args.command == "mcp-inspect":
+            cmd_mcp_inspect(args.challenge, args.challenge_file)
+        elif args.command == "mcp-sign":
+            cmd_mcp_sign(
+                args.challenge,
+                args.challenge_file,
                 args.confirm,
                 args.asset,
                 args.network,
