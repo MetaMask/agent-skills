@@ -17,10 +17,10 @@ Don't skip the quote review step. The user needs to see output amount, fees, rou
 Always use `--all-quotes` to show all available routes so the user can compare and choose:
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --all-quotes
+mm swap quote --from ETH --to USDC --amount 1 --from-chain-id 1 --all-quotes
 ```
 
-Required flags: `--from`, `--to`, `--amount`, and `--from-chain`.
+Required flags: `--from`, `--to`, `--amount`, and `--from-chain-id`.
 
 `--to-address` isn't supported for same-chain swaps. Output always goes to the signer's wallet.
 
@@ -55,13 +55,13 @@ mm swap status --quote-id "$QUOTE_ID"
 Use `--strategy` to control how quotes are ranked. The value is a comma-separated priority list from: `cost`, `speed`, `impact`, `output`. Default is `cost,speed`.
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --strategy speed,output
+mm swap quote --from ETH --to USDC --amount 1 --from-chain-id 1 --strategy speed,output
 ```
 
 Use `--all-quotes` to show all candidate quotes for comparison (no execute prompt):
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --all-quotes
+mm swap quote --from ETH --to USDC --amount 1 --from-chain-id 1 --all-quotes
 ```
 
 ## Gasless Swaps

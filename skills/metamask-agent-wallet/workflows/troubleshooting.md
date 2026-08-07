@@ -25,7 +25,7 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | Symptom | Likely cause | Next step |
 | --- | --- | --- |
 | `mm: command not found` | Binary not installed or not on `PATH` | Check install and PATH |
-| Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch --polling-id <id>` |
+| Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch <polling-id>` |
 | Auth errors after previously working | Expired token | Check `mm auth status` and session file under `~/.metamask/` |
 | `CHAIN_ID_MISMATCH` on typed data | Payload `domain.chainId` differs from `--chain-id` | Align the two chain IDs |
 | `MNEMONIC_LOCKED` or `WRONG_PASSWORD` | BYOK mnemonic is encrypted and password was wrong or missing | Set the correct `MM_PASSWORD` environment variable and re-run |
@@ -47,7 +47,7 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `TX_DENIED` | Transaction was denied via MFA | Retry the command and approve when prompted |
 | `TX_EXPIRED` | Transaction MFA approval expired | Retry the command and approve promptly |
 | `AUTH_FAILED` after a working session | Session token expired during operation | Run `mm login` to re-authenticate |
-| `RELAY_TIMEOUT` on swap execute | Gasless relay MFA/signing timed out | Run `mm wallet requests watch --polling-id <id>` — the job may still complete. Do not re-run execute while the job is pending |
+| `RELAY_TIMEOUT` on swap execute | Gasless relay MFA/signing timed out | Run `mm wallet requests watch <polling-id>` — the job may still complete. Do not re-run execute while the job is pending |
 | `RATE_LIMITED` on perps commands | Hyperliquid rate limit (HTTP 429) | Wait briefly and retry |
 | `ALREADY_LOGGED_OUT` on logout | No active session to sign out of | Run `mm login` to authenticate |
 | `INVALID_EVM_ADDRESS` on transfer | Malformed recipient address | Check the `--to` address is a valid `0x`-prefixed 40-hex-char EVM address |

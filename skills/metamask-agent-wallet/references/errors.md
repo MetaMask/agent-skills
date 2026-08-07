@@ -110,7 +110,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `TX_EXPIRED` | Transaction MFA approval expired |
 | `TX_FAILED` | Transaction failed after submission |
 | `TX_REVERTED` | Transaction reverted on-chain via RPC revert; check the `failure_reason` field for details |
-| `RELAY_TIMEOUT` | Gasless relay poll timed out. Check `mm wallet requests watch --polling-id <id>` before retrying; the job may still complete |
+| `RELAY_TIMEOUT` | Gasless relay poll timed out. Check `mm wallet requests watch <polling-id>` before retrying; the job may still complete |
 | `RELAY_FAILED` | Gasless relay failed, typically because the wallet cannot cover the amount plus the relay fee. Retry with a lower `--amount` or check balances with `mm wallet balance` |
 | `RELAY_ABORTED` | Relay operation aborted |
 | `NOT_INITIALIZED` | Project not initialized. Run `mm init` |

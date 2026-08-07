@@ -20,12 +20,12 @@ mm predict balance --sync
 If the user doesn't specify an amount, ask how much they want to deposit. Get the deposit wallet address from `mm predict status`, then check the user's Polygon balance.
 
 ```bash
-mm wallet balance --chain 137
+mm wallet balance --chain-ids 137
 ```
 
 ### Has POL and pUSD on Polygon
 
-Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed. Get the pUSD contract address from `mm wallet balance --chain 137` output.
+Use `mm transfer` to send pUSD directly to the deposit wallet address. No conversion needed. Get the pUSD contract address from `mm wallet balance --chain-ids 137` output.
 
 ```bash
 mm transfer --to <DEPOSIT_WALLET_ADDRESS> --amount <AMOUNT> --chain-id 137 --token <PUSD_CONTRACT_ADDRESS> --wait
@@ -48,14 +48,14 @@ mm predict deposit --amount <AMOUNT> --wait
 Swap to pUSD on Polygon, then transfer directly to the deposit wallet. The owner EOA needs POL for gas.
 
 ```bash
-mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain 137
+mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain-id 137
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 
 After the swap completes, check the balance to verify pUSD arrived
 
 ```bash
-mm wallet balance --chain 137
+mm wallet balance --chain-ids 137
 ```
 
 Get the pUSD contract address from the balance output, then transfer to the deposit wallet:
@@ -71,7 +71,7 @@ Get the deposit wallet address from the `mm predict status` output.
 Bridge to send pUSD directly to the deposit wallet address on Polygon.
 
 ```bash
-mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 137 --to-address <DEPOSIT_WALLET_ADDRESS>
+mm swap quote --from <TOKEN> --to pUSD --amount <AMOUNT> --from-chain-id <SOURCE_CHAIN_ID> --to-chain-id 137 --to-address <DEPOSIT_WALLET_ADDRESS>
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 
