@@ -275,13 +275,13 @@ When raw calldata is unfamiliar or was not constructed by you, run `mm decode --
 
 ## Async Model
 
-Server-wallet signing and transaction commands use an asynchronous job model and can return a `pollingId`. BYOK signs locally and returns operation results immediately.
+In both server-wallet and BYOK mode, signing and transaction commands go through a job-polling loop and return a `pollingId`. Handle this consistently:
 
-1. In server-wallet mode, prefer `--wait` to block until complete.
-2. If a server-wallet command returns a `pollingId`, inform the user how to track it:
+1. Prefer `--wait` to block until complete.
+2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
    - `mm wallet requests list`
    - `mm wallet requests watch <polling-id>`
-3. In BYOK mode, do not claim that a server-side polling job exists. If the mnemonic is password-encrypted, the user must set the `MM_PASSWORD` environment variable to unlock it for the operation.
+3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request, such as `Transfer 0.5 ETH to 0x...` or `Withdraw 10 pUSD to 0x...`. When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
 
