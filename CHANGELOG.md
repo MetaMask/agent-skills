@@ -19,8 +19,9 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Replaced stale `wallet requests watch --polling-id` examples with the v6
   positional polling ID.
 - Corrected the `wallet balance` syntax typo for `--testnet-chain-ids`.
-- Aligned the async guidance with the CLI architecture: server-wallet uses
-  polling jobs, while BYOK signs locally and returns immediately.
+- Aligned the async guidance with the CLI architecture: both server-wallet and
+  BYOK use polling jobs without `--wait`; BYOK signs locally but still returns
+  a `pollingId`.
 - Made the version-mismatch warning derive its target from `cliVersion` instead
   of embedding the old `5.2.1` release.
 
