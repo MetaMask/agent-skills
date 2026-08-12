@@ -4,7 +4,7 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "7.0.0"
+  version: "7.0.1"
   cliVersion: "6.0.0"
 ---
 
@@ -173,7 +173,7 @@ npm view @metamask/agent-wallet version
 
 If the installed `major.minor` differs from the pinned `cliVersion`, or the installed version is behind the latest release, warn the user once and continue:
 
-> Version mismatch: installed CLI `<installed>`, this skill is pinned to `5.2.1`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agent-wallet@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
+> Version mismatch: installed CLI `<installed>`, this skill targets `<cliVersion>`, latest release is `<latest>`. Command syntax in this skill may be inaccurate until they are aligned. Update the CLI with `npm install -g @metamask/agent-wallet@latest`, then re-install the skills with `npx skills add metaMask/agent-skills`.
 
 Run this check once per session. Do not block operations on it.
 
@@ -280,7 +280,7 @@ In both server-wallet and BYOK mode, signing and transaction commands go through
 1. Prefer `--wait` to block until complete.
 2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
    - `mm wallet requests list`
-   - `mm wallet requests watch --polling-id <id>`
+   - `mm wallet requests watch <polling-id>`
 3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request, such as `Transfer 0.5 ETH to 0x...` or `Withdraw 10 pUSD to 0x...`. When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.

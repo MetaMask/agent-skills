@@ -32,7 +32,7 @@ If available margin is zero or insufficient, deposit USDC before proceeding. Hyp
 Check the user's Arbitrum balance for USDC and ETH (for gas).
 
 ```bash
-mm wallet balance --chain 42161
+mm wallet balance --chain-ids 42161
 ```
 
 ### No ETH and no USDC on Arbitrum
@@ -40,14 +40,14 @@ mm wallet balance --chain 42161
 Inform the user that ETH on Arbitrum is required for gas. Without ETH, no on-chain transaction is possible. Bridge from another chain.
 
 ```bash
-mm swap quote --from <TOKEN> --to ETH --amount 0.001 --from-chain <SOURCE_CHAIN_ID> --to-chain 42161
+mm swap quote --from <TOKEN> --to ETH --amount 0.001 --from-chain-id <SOURCE_CHAIN_ID> --to-chain-id 42161
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 
 Once the user has ETH for gas, swap or bridge to get USDC on Arbitrum.
 
 ```bash
-mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain <SOURCE_CHAIN_ID> --to-chain 42161
+mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain-id <SOURCE_CHAIN_ID> --to-chain-id 42161
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 
@@ -56,7 +56,7 @@ mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 Swap to USDC on Arbitrum.
 
 ```bash
-mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain 42161
+mm swap quote --from <TOKEN> --to USDC --amount <AMOUNT> --from-chain-id 42161
 mm swap execute --quote-id "$QUOTE_ID" # quote ID from the swap quote command
 ```
 

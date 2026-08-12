@@ -9,15 +9,15 @@ Reference command syntax in `references/market-data.md`.
 If the user mentions a token by name or symbol, search for it first to get the correct asset ID:
 
 ```bash
-mm token list search --query "USDC" --chain 1
+mm token list search --query "USDC" --chain-ids 1
 ```
 
 To browse popular, trending, or top-gainer tokens on a chain:
 
 ```bash
-mm token list popular --chain 1
-mm token list trending --chain 1
-mm token list top-gainer --chain 1
+mm token list popular --chain-id 1
+mm token list trending --chain-id 1
+mm token list top-gainer --chain-id 1
 ```
 
 Use `mm token networks` to discover which chains support token data.

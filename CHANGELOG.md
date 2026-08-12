@@ -10,6 +10,21 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.1] — targets CLI v6.0.0
+
+### Fixed
+
+- Replaced stale pre-v6 chain flags in workflow examples with the canonical
+  `--chain-id`, `--chain-ids`, `--from-chain-id`, and `--to-chain-id` names.
+- Replaced stale `wallet requests watch --polling-id` examples with the v6
+  positional polling ID.
+- Corrected the `wallet balance` syntax typo for `--testnet-chain-ids`.
+- Aligned the async guidance with the CLI architecture: both server-wallet and
+  BYOK use polling jobs without `--wait`; BYOK signs locally but still returns
+  a `pollingId`.
+- Made the version-mismatch warning derive its target from `cliVersion` instead
+  of embedding the old `5.2.1` release.
+
 ## [7.0.0] — targets CLI v6.0.0
 
 ### Breaking

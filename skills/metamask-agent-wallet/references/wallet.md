@@ -276,7 +276,7 @@ Show native and token balances for the active wallet.
 ### Syntax
 
 ```bash
-mm wallet balance [--currency <code>] [--chain-ids <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-idss <ids>] [--token-contracts <addresses>]
+mm wallet balance [--currency <code>] [--chain-ids <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-ids <ids>] [--token-contracts <addresses>]
 ```
 
 ### Supported Flags
