@@ -10,6 +10,13 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.0.2] — targets CLI v6.0.0
+
+### Fixed
+
+- Added an explicit User-Agent to x402 HTTP requests so API gateways do not
+  reject the Python client before returning the payment challenge.
+
 ## [7.0.1] — targets CLI v6.0.0
 
 ### Fixed

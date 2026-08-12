@@ -84,7 +84,11 @@ def _check_url(url):
 def http(url, method="GET", headers=None, body=None):
     """Make a request. Returns (status, headers, body_bytes); no raise on 4xx/5xx."""
     _check_url(url)
-    req = urllib.request.Request(url, data=body, method=method, headers=headers or {})
+    # Avoid the Python-urllib default, which some API gateways reject before
+    # the x402 challenge reaches the application.
+    request_headers = {"User-Agent": "MetaMask-Agent-Wallet-x402"}
+    request_headers.update(headers or {})
+    req = urllib.request.Request(url, data=body, method=method, headers=request_headers)
     try:
         resp = _OPENER.open(req, timeout=30)
         return resp.status, resp.headers, resp.read()
