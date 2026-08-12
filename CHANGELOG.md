@@ -25,6 +25,10 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - `references/market-data.md` and `workflows/market-data.md` note that token discovery commands validate chains against `mm token networks` and reject testnets and other unsupported chains with `TOKEN_UNSUPPORTED_CHAIN`.
 - Bumped `cliVersion` to `7.1.0`.
 
+### Fixed
+
+- `scripts/x402_pay.py` sends `User-Agent: MetaMask-Agent-Wallet-x402` instead of the Python-urllib default, so API gateways that reject the default return the x402 payment challenge.
+
 ## [7.7.1] — targets CLI v7.0.0
 
 ### Changed
