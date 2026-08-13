@@ -210,8 +210,8 @@ mm predict markets get --market <market>
 ### Example
 
 ```bash
-mm predict markets get will-the-new-york-knicks-win-the-2026-nba-finals
-mm predict markets get 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb0ccdb2d37
+mm predict markets get --market will-the-new-york-knicks-win-the-2026-nba-finals
+mm predict markets get --market 0x713641f745d71f6ec61f906237ffca3c8583f251e49384429a63ceb0ccdb2d37
 ```
 
 ## `predict events list` Command
@@ -382,7 +382,7 @@ mm predict quote --token-id <token-id> --side <side> --size <size> [--limit-pric
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get --market <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable, such as 1 or 100 |
 | `--limit-price` | No | Execution price per share, between 0 and 1 |
@@ -411,7 +411,7 @@ mm predict place --token-id <token-id> --side <side> --size <size> --price <pric
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
+| `--token-id` | Yes | Outcome token ID. Run `mm predict markets get --market <slug>` to get token IDs |
 | `--side` | Yes | Order side: `buy` or `sell` |
 | `--size` | Yes | Order size in shares, human-readable, such as 1 or 100 |
 | `--price` | Yes | Worst price per share between 0 and 1; limit price for GTC/GTD, worst fill for FOK/FAK |
@@ -606,7 +606,7 @@ mm predict balance [--token-id <token-id>] [--sync] [--password <password>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--token-id` | No | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
+| `--token-id` | No | Outcome token ID. Run `mm predict markets get --market <slug>` to get token IDs |
 | `--sync` | No | Refresh balances and allowances before reading |
 | `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
 
@@ -682,7 +682,7 @@ mm predict book <token-id> [--token-id <token-id>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<token-id>` | Yes | Outcome token ID. Run `mm predict markets get <slug>` to get token IDs |
+| `<token-id>` | Yes | Outcome token ID. Run `mm predict markets get --market <slug>` to get token IDs |
 | `--token-id` | No | Same as positional `<token-id>` |
 
 ### Example
@@ -750,7 +750,7 @@ mm predict history [--type <type>] [--limit <n>] [--offset <n>] [--start <unix>]
 | Field | Description |
 | --- | --- |
 | `conditionId` | Market condition ID |
-| `slug` | Market slug, use with `mm predict markets get <slug>` |
+| `slug` | Market slug, use with `mm predict markets get --market <slug>` |
 | `eventSlug` | Parent event slug, if available |
 | `outcome` | Outcome token label, such as "Yes" or "No" |
 | `size` | Share count |
@@ -807,7 +807,7 @@ mm predict history get 0xABC123... --type redeem
 
 - Before trading, run `mm predict setup --wait` to initialize credentials, deploy the deposit wallet, and set approvals.
 - `mm predict setup` aborts early with `PREDICT_GEOBLOCKED` if your IP resolves to a restricted region, before any wallet interaction. Use `mm predict geoblock` to check region status without running setup.
-- Use `mm predict markets get <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
+- Use `mm predict markets get --market <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
 - Use `mm predict events`, `mm predict series`, and `mm predict tags` to browse Polymarket content; tag slugs/IDs from `mm predict tags list` feed the `--tag-slug` / `--tag-id` filters on `events` and `markets`.
 - After a market resolves, use `mm predict redeem list` to see winnings and `mm predict redeem <condition-id> --wait` or `--all` to claim them. `mm predict portfolio` shows balance, open positions, and redeemable winnings in one snapshot.
 - Prices are per-share and must be in the range [0, 1].

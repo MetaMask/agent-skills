@@ -49,7 +49,7 @@ Fetch historical price data for an asset:
 mm price history --chain-id eip155:1 --asset-type slip44:60 --time-period 7d --interval daily
 ```
 
-Common time periods: `1d`, `7d`, `30d`, `2M`, `1y`, `3y`. Intervals: `5m`, `hourly`, `daily`.
+Common time periods: `1d`, `7d`, `30d`, `2M`, `1y`, `3y`. Intervals: `5m`, `15m`, `30m`, `hourly`, `daily`.
 
 For a custom date range, use `--from` and `--to` with Unix timestamps instead of `--time-period`.
 

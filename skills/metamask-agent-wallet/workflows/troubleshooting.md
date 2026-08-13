@@ -25,6 +25,7 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | Symptom | Likely cause | Next step |
 | --- | --- | --- |
 | `mm: command not found` | Binary not installed or not on `PATH` | Check install and PATH |
+| `UNSUPPORTED_NODE` on any command | Node.js runtime is older than 22.18 | Upgrade Node.js from https://nodejs.org/ or switch versions with nvm, fnm, or volta, then re-run |
 | Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch <polling-id>` |
 | Auth errors after previously working | Expired token | Check `mm auth status` and session file under `~/.metamask/` |
 | `CHAIN_ID_MISMATCH` on typed data | Payload `domain.chainId` differs from `--chain-id` | Align the two chain IDs |
@@ -42,6 +43,8 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `INVALID_CHAIN` | Unsupported or malformed chain ID | Run `mm chains list`; use chain name, numeric ID, or CAIP-2 (e.g. `eip155:1`) |
 | `TRADING_MODE_APPROVAL_REJECTED` or `_EXPIRED` | MFA approval for trading mode change was rejected or timed out | Retry `mm wallet trading-mode set` and approve via MFA |
 | `WALLET_POLICY_APPROVAL_REJECTED` or `_EXPIRED` | MFA approval for policy change was rejected or timed out | Retry `mm wallet policy set` and approve via MFA |
+| `INVALID_POLICY_YAML` on `wallet policy set` | `--policy` was a fragment, list, bare string, or empty document instead of a full policy object | Start from `mm wallet policy get --json` or `mm wallet policy template`, edit that YAML, and pass the complete document with a top-level `schema_version` |
+| `INVALID_LIMIT` on `tx history` | `--limit` above 50, the Accounts API page-size ceiling | Use `--limit 50` and page with `--after <endCursor>` |
 | Command hangs on `AWAITING_MFA` | MFA approval needed | Approve via MetaMask Mobile (QR login) or email/dashboard (browser login). For QR login users: the MFA request appears in the notifications menu inside MetaMask Mobile. If push notifications are not showing, check that notifications are enabled in both MetaMask Mobile settings (Settings > Notifications) and at the device level (iOS/Android system settings). The notification permission may have been declined during MetaMask onboarding — re-enable it from the device settings. Regardless of push notification settings, the MFA request is always available in the MetaMask Mobile notifications menu |
 | `JOB_TIMEOUT` | Wallet job poll timed out (default 10 minutes) | Approve on your paired device if prompted, or check `mm wallet requests list` before retrying |
 | `TX_DENIED` | Transaction was denied via MFA | Retry the command and approve when prompted |
