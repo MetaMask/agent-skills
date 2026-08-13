@@ -237,16 +237,22 @@ mm wallet policy set --policy <yaml> [--wait] [--wallet-timeout <seconds>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--policy` | Yes | Policy string to apply |
+| `--policy` | Yes | Complete policy YAML document to apply |
 | `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
 | `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 
 ```bash
-mm wallet policy set --policy "maxDailyOutflow: 1000"
-mm wallet policy set --policy "maxDailyOutflow: 5000" --wait
+mm wallet policy get --json
+mm wallet policy set --policy "$(cat policy.yaml)"
+mm wallet policy set --policy "$(cat policy.yaml)" --wait
 ```
+
+### Notes
+
+- `--policy` takes a full policy document, not a fragment. Read the current document from the `policy` field of `mm wallet policy get --json`, or start from `mm wallet policy template`, edit it, and pass the whole YAML object back. It must be a YAML mapping with a top-level `schema_version`.
+- A list, bare string, or empty document returns `INVALID_POLICY_YAML`.
 
 ## `wallet policy template` Command
 

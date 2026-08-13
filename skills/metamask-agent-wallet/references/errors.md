@@ -67,6 +67,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_SORT_BY` | Invalid sort-by field value |
 | `INVALID_SORT_DIRECTION` | Invalid sort direction value |
 | `INVALID_HISTORY_TYPE` | Invalid history type value. Must be `closed`, `trade`, or `redeem` |
+| `INVALID_POLICY_YAML` | Policy YAML passed to `mm wallet policy set` is not a full policy document. Start from `mm wallet policy get` or `mm wallet policy template`, edit that YAML, and pass the complete object with a top-level `schema_version` |
 
 ## Wallet Errors
 
@@ -237,6 +238,12 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `NO_HISTORY_WALLETS` | No EVM wallets found in roster for transaction history |
+
+## Startup Errors
+
+| Code | Meaning |
+| --- | --- |
+| `UNSUPPORTED_NODE` | The active Node.js runtime is below the minimum supported version, 22.18. Emitted before the CLI loads, on stderr as plain text or as a JSON envelope when `--json` is passed, and exits 1. Upgrade Node.js from https://nodejs.org/ or with a version manager such as nvm, fnm, or volta |
 
 ## Network & Filesystem Errors
 

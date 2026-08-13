@@ -10,6 +10,21 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.1.0] — targets CLI v6.1.0
+
+### Added
+
+- `--after <cursor>` on `tx history` for forward pagination, plus the `hasNextPage` and `endCursor` output fields and a pagination section in `references/tx-history.md`.
+- New error codes: `INVALID_POLICY_YAML` for a `wallet policy set` document that is not a full policy object, and `UNSUPPORTED_NODE` for startup on a Node.js runtime below 22.18.
+- Node.js 22.18 minimum called out in the SKILL preflight, and `UNSUPPORTED_NODE`, `INVALID_POLICY_YAML`, and `tx history` `INVALID_LIMIT` rows in the troubleshooting workflow.
+
+### Changed
+
+- `tx history --limit` capped at 50, down from 500, matching the Accounts API page-size ceiling. Reading more than 50 transactions now requires paging with `--after`.
+- Documented that only the first `tx history` page merges locally tracked pending CLI jobs; pages fetched with `--after` return indexed history only.
+- `wallet policy set` examples and flag description now show passing a complete YAML document sourced from `wallet policy get --json` or `wallet policy template` instead of a single-key fragment.
+- Bumped `cliVersion` to `6.1.0`.
+
 ## [7.0.1] — targets CLI v6.0.0
 
 ### Fixed

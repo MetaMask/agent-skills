@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "7.0.1"
-  cliVersion: "6.0.0"
+  version: "7.1.0"
+  cliVersion: "6.1.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -159,7 +159,7 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.0.0, as specified by `cliVersion` in the frontmatter. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v6.1.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
