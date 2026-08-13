@@ -45,6 +45,13 @@ The `--payload` flag takes a JSON string with transaction fields:
 
 Optional fields: `gas`, `nonce`, `maxFeePerGas`, `maxPriorityFeePerGas`. The `value` field must be 0x-prefixed hex, not a decimal wei string.
 
+To convert a human-readable amount into that hex value, use the helper script in this skill. `$SKILL_DIR` is the folder containing `SKILL.md`; call it by full path, since the shell working directory is not stable between commands:
+
+```bash
+python3 "$SKILL_DIR/scripts/amount_to_hex.py" <amount> <decimals>
+python3 "$SKILL_DIR/scripts/amount_to_hex.py" 1.5 18   # -> 0x14d1120d7b160000
+```
+
 ## Notes
 
 - If the chain is not mentioned by the user, ask for the chain.

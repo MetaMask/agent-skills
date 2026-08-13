@@ -34,7 +34,7 @@ If the balance is zero or insufficient for the order, follow `predict-funding.md
 If the user hasn't already identified the market, follow `predict-markets.md` to find and inspect it.
 
 ```bash
-mm predict markets get <MARKET_SLUG_OR_ID> --toon
+mm predict markets get --market <MARKET_SLUG_OR_ID> --toon
 ```
 
 Map the user's intended outcome to the correct token ID from the market detail.

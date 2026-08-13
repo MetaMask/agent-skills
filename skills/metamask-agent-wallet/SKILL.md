@@ -165,7 +165,7 @@ This skill is written for `@metamask/agent-wallet` v6.1.0, as specified by `cliV
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/2.0.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure:
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.1.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version

@@ -18,9 +18,20 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - New error codes: `INVALID_POLICY_YAML` for a `wallet policy set` document that is not a full policy object, and `UNSUPPORTED_NODE` for startup on a Node.js runtime below 22.18.
 - Node.js 22.18 minimum called out in the SKILL preflight, and `UNSUPPORTED_NODE`, `INVALID_POLICY_YAML`, and `tx history` `INVALID_LIMIT` rows in the troubleshooting workflow.
 
+### Fixed
+
+- Onboarding workflow installed the pre-6.0 package name (`@metamask/agentic-cli`). It now installs `@metamask/agent-wallet` and notes the Node.js 22.18 minimum.
+- Onboarding workflow claimed `mm login qr` returns `COMING_SOON` on production and contradicted `references/auth.md`. QR sign-in works in every environment; the real constraint is that it needs a TTY and returns `NO_TTY` in headless sessions.
+- `earn markets` and `earn positions` were documented as not requiring authentication. Both require an authenticated session and a completed `init`.
+- Predict history workflow documented the pre-6.0 default: it labelled the default output as trades, offered `--side` and `--start`/`--end` on closed positions, and listed only the trade/redeem sort keys. Those flag/mode mismatches are hard errors (`INVALID_SIDE`, `INVALID_INPUT`, `INVALID_SORT_BY`), so the workflow now leads with a per-mode flag table.
+- Market data workflow omitted the `15m` and `30m` `price history` intervals added in CLI 6.0.0.
+- `predict markets get` syntax showed `--market` as required while its own examples used the positional argument. Documented as positional with `--market` as the alternative.
+- `COMING_SOON` no longer cites `mm login qr` on production as its example.
+
 ### Changed
 
 - `tx history --limit` capped at 50, down from 500, matching the Accounts API page-size ceiling. Reading more than 50 transactions now requires paging with `--after`.
+- `references/transaction.md` documents `scripts/amount_to_hex.py` for converting a human-readable amount into the 0x-prefixed hex `value` a raw transaction payload needs. The script shipped in the skill but nothing referenced it.
 - Documented that only the first `tx history` page merges locally tracked pending CLI jobs; pages fetched with `--after` return indexed history only.
 - `wallet policy set` examples and flag description now show passing a complete YAML document sourced from `wallet policy get --json` or `wallet policy template` instead of a single-key fragment.
 - Bumped `cliVersion` to `6.1.0`.

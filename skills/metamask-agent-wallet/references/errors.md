@@ -124,7 +124,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_TX_HASH` | Invalid transaction hash format |
 | `COMMAND_NOT_FOUND` | Unknown command. Run `mm --help` to list valid commands |
 | `NON_INTERACTIVE` | Operation requires interactive mode but no TTY is available |
-| `COMING_SOON` | Feature not yet available, such as `mm login qr` on production |
+| `COMING_SOON` | Feature not yet available in this environment |
 | `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
 | `INVALID_CONFIG_VALUE` | Invalid value for a config key, such as env not in `prod`, `dev`, or `uat` |
 
