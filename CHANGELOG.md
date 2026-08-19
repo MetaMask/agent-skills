@@ -10,6 +10,19 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.2.0] — targets CLI v6.1.2
+
+### Added
+
+- Troubleshooting rows for `QUOTE_PERSIST_FAILED` on `swap quote` and `INVALID_DATA` on `price history`.
+
+### Changed
+
+- `references/chain.md` names Monad, HyperEVM, Sei, and MegaETH in the `eip155` namespace row. `mm transfer` supports native and ERC-20 transfers on Monad (`143`), HyperEVM (`999`), Sei (`1329`), and MegaETH (`4326`) as of CLI 6.1.2; before that they failed with `UNSUPPORTED_EVM_CHAIN`.
+- `QUOTE_PERSIST_FAILED` guidance now matches the CLI's new hint: the CLI retries a transient directory-creation failure once, so the error means the path is genuinely unwritable. Create `~/.metamask/swap-quotes` with `mkdir -p` and `chmod 700` instead of only checking permissions.
+- `INVALID_DATA` is no longer described as transaction-data-only; it is also the code `mm price history` returns when the Price API responds with an empty or malformed body.
+- Bumped `cliVersion` to `6.1.2`.
+
 ## [7.1.0] — targets CLI v6.1.0
 
 ### Added

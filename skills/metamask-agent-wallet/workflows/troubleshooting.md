@@ -36,6 +36,8 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `INSUFFICIENT_GAS` | No affordable swap quote; wallet lacks native gas | Fund native gas, or re-quote with `--strategy output` / `--all-quotes` to find a gasless option |
 | `GASLESS_UNSUPPORTED` | Gasless relay not available on this chain | Fund native gas or use a different chain |
 | `UNSUPPORTED_CHAIN` on swap or predict | Chain not supported for this feature | Run `mm chains list` and use a chain with the required feature |
+| `QUOTE_PERSIST_FAILED` on `swap quote` | `~/.metamask/swap-quotes/` is not writable; the CLI already retried once | Run `mkdir -p ~/.metamask/swap-quotes && chmod 700 ~/.metamask/swap-quotes`, then re-run the quote |
+| `INVALID_DATA` on `price history` | Price API returned an empty or malformed body | Retry once, then check the asset is priced with `mm price spot --asset-ids <chain-id>/<asset-type>` |
 | `REFUEL_UNSUPPORTED_ROUTE` | `--refuel` used on same-chain swap or native-destination bridge | Drop `--refuel` and re-run |
 | `AMOUNT_TOO_LOW` or `AMOUNT_TOO_HIGH` | Amount outside provider's accepted range | Adjust the amount and re-quote |
 | `SLIPPAGE_TOO_HIGH` or `SLIPPAGE_TOO_LOW` | Slippage outside accepted range for this route | Adjust `--slippage` and re-quote |
