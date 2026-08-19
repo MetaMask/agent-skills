@@ -30,7 +30,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_CHAIN` | Chain value is invalid |
 | `MISSING_TO` | Recipient address is missing |
 | `INVALID_TO` | Recipient address is invalid |
-| `INVALID_DATA` | Transaction data is invalid |
+| `INVALID_DATA` | Transaction data is invalid. Also returned by `mm price history` when the Price API responds with an empty or malformed body — retry, or verify the asset is priced with `mm price spot` |
 | `INVALID_INPUT` | Invalid user input |
 | `UNKNOWN_FLAG` | Unrecognized CLI flag; the error lists valid flags for the command |
 | `MISSING_ARG` | Required positional argument is missing |
@@ -148,7 +148,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `RWA_GEO_RESTRICTED` | RWA asset not available in your region |
 | `RWA_NATIVE_TOKEN_UNSUPPORTED` | RWA cannot be swapped against native asset |
 | `RWA_MARKET_UNAVAILABLE` | RWA market temporarily unavailable |
-| `QUOTE_PERSIST_FAILED` | Failed to persist quote |
+| `QUOTE_PERSIST_FAILED` | Failed to persist the quote to `~/.metamask/swap-quotes/`. The CLI already retries a transient directory-creation failure once, so this means the path is genuinely unwritable. Create it manually with `mkdir -p ~/.metamask/swap-quotes && chmod 700 ~/.metamask/swap-quotes`, then re-run `mm swap quote` |
 | `QUOTE_NOT_FOUND` | Quote not found |
 | `EXECUTE_FAILED` | Swap execution failed |
 | `NO_TRADE_DATA` | No trade data available |
