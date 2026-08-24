@@ -10,7 +10,7 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [7.1.0] — targets CLI v6.0.0
+## [7.4.0] — targets CLI v6.1.4
 
 ### Added
 
@@ -24,6 +24,69 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 - SKILL.md `description` now also triggers when an MCP tool call returns an x402 payment-required result, not only on an HTTP `402`.
 - `references/x402.md` and `workflows/x402-pay.md` no longer describe x402 as HTTP-only and cross-link the MCP workflow.
+
+## [7.3.0] — targets CLI v6.1.4
+
+### Changed
+
+- `token list search` takes the search term as a positional argument (`mm token list search USDC`). `--query` still works. Documented that multi-word queries need quoting and that an omitted query returns `MISSING_QUERY` instead of prompting.
+- `wallet select` documents the address as optional: omit it in a TTY to pick from the wallet list, pass it in headless sessions or the command returns `MISSING_WALLET_REF`. Added the `INVALID_EVM_ADDRESS`, `WALLET_NOT_FOUND`, and `WRONG_NAMESPACE` outcomes.
+- `wallet policy get` syntax now matches the CLI's `--help`: the command takes no flags and always reads the policy for the active server wallet. Noted that it is server-wallet only and returns `WRONG_WALLET_MODE` in BYOK mode.
+- Bumped `cliVersion` to `6.1.4`.
+
+## [7.2.0] — targets CLI v6.1.2
+
+### Added
+
+- Troubleshooting rows for `QUOTE_PERSIST_FAILED` on `swap quote` and `INVALID_DATA` on `price history`.
+
+### Changed
+
+- `references/chain.md` names Monad, HyperEVM, Sei, and MegaETH in the `eip155` namespace row. `mm transfer` supports native and ERC-20 transfers on Monad (`143`), HyperEVM (`999`), Sei (`1329`), and MegaETH (`4326`) as of CLI 6.1.2; before that they failed with `UNSUPPORTED_EVM_CHAIN`.
+- `QUOTE_PERSIST_FAILED` guidance now matches the CLI's new hint: the CLI retries a transient directory-creation failure once, so the error means the path is genuinely unwritable. Create `~/.metamask/swap-quotes` with `mkdir -p` and `chmod 700` instead of only checking permissions.
+- `INVALID_DATA` is no longer described as transaction-data-only; it is also the code `mm price history` returns when the Price API responds with an empty or malformed body.
+- Bumped `cliVersion` to `6.1.2`.
+
+## [7.1.0] — targets CLI v6.1.0
+
+### Added
+
+- `--after <cursor>` on `tx history` for forward pagination, plus the `hasNextPage` and `endCursor` output fields and a pagination section in `references/tx-history.md`.
+- New error codes: `INVALID_POLICY_YAML` for a `wallet policy set` document that is not a full policy object, and `UNSUPPORTED_NODE` for startup on a Node.js runtime below 22.18.
+- Node.js 22.18 minimum called out in the SKILL preflight, and `UNSUPPORTED_NODE`, `INVALID_POLICY_YAML`, and `tx history` `INVALID_LIMIT` rows in the troubleshooting workflow.
+
+### Fixed
+
+- Onboarding workflow installed the pre-6.0 package name (`@metamask/agentic-cli`). It now installs `@metamask/agent-wallet` and notes the Node.js 22.18 minimum.
+- Onboarding workflow claimed `mm login qr` returns `COMING_SOON` on production and contradicted `references/auth.md`. QR sign-in works in every environment; the real constraint is that it needs a TTY and returns `NO_TTY` in headless sessions.
+- `earn markets` and `earn positions` were documented as not requiring authentication. Both require an authenticated session and a completed `init`.
+- Predict history workflow documented the pre-6.0 default: it labelled the default output as trades, offered `--side` and `--start`/`--end` on closed positions, and listed only the trade/redeem sort keys. Those flag/mode mismatches are hard errors (`INVALID_SIDE`, `INVALID_INPUT`, `INVALID_SORT_BY`), so the workflow now leads with a per-mode flag table.
+- Market data workflow omitted the `15m` and `30m` `price history` intervals added in CLI 6.0.0.
+- `predict markets get` syntax showed `--market` as required while its own examples used the positional argument. Documented as positional with `--market` as the alternative.
+- `COMING_SOON` no longer cites `mm login qr` on production as its example.
+
+### Changed
+
+- `tx history --limit` capped at 50, down from 500, matching the Accounts API page-size ceiling. Reading more than 50 transactions now requires paging with `--after`.
+- `references/transaction.md` documents `scripts/amount_to_hex.py` for converting a human-readable amount into the 0x-prefixed hex `value` a raw transaction payload needs. The script shipped in the skill but nothing referenced it.
+- Documented that only the first `tx history` page merges locally tracked pending CLI jobs; pages fetched with `--after` return indexed history only.
+- `wallet policy set` examples and flag description now show passing a complete YAML document sourced from `wallet policy get --json` or `wallet policy template` instead of a single-key fragment.
+- Bumped `cliVersion` to `6.1.0`.
+
+## [7.0.1] — targets CLI v6.0.0
+
+### Fixed
+
+- Replaced stale pre-v6 chain flags in workflow examples with the canonical
+  `--chain-id`, `--chain-ids`, `--from-chain-id`, and `--to-chain-id` names.
+- Replaced stale `wallet requests watch --polling-id` examples with the v6
+  positional polling ID.
+- Corrected the `wallet balance` syntax typo for `--testnet-chain-ids`.
+- Aligned the async guidance with the CLI architecture: both server-wallet and
+  BYOK use polling jobs without `--wait`; BYOK signs locally but still returns
+  a `pollingId`.
+- Made the version-mismatch warning derive its target from `cliVersion` instead
+  of embedding the old `5.2.1` release.
 
 ## [7.0.0] — targets CLI v6.0.0
 

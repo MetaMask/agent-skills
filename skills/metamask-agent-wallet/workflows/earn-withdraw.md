@@ -16,7 +16,7 @@ List current earn positions to see what the user has deposited:
 
 ```bash
 mm earn positions
-mm earn positions --chain 8453
+mm earn positions --chain-id 8453
 ```
 
 Show the user their positions with balance and protocol info.
@@ -26,19 +26,19 @@ Show the user their positions with balance and protocol info.
 Partial withdrawal:
 
 ```bash
-mm earn withdraw --token USDC --amount 50 --chain 8453
+mm earn withdraw --token USDC --amount 50 --chain-id 8453
 ```
 
 Full withdrawal:
 
 ```bash
-mm earn withdraw --token USDC --all --chain 8453
+mm earn withdraw --token USDC --all --chain-id 8453
 ```
 
 With a specific vault:
 
 ```bash
-mm earn withdraw --vault 0xabc...def --all --chain 1
+mm earn withdraw --vault 0xabc...def --all --chain-id 1
 ```
 
 ## Confirm

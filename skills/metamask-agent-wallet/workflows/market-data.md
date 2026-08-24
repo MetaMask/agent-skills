@@ -9,15 +9,15 @@ Reference command syntax in `references/market-data.md`.
 If the user mentions a token by name or symbol, search for it first to get the correct asset ID:
 
 ```bash
-mm token list search --query "USDC" --chain 1
+mm token list search "USDC" --chain-ids 1
 ```
 
 To browse popular, trending, or top-gainer tokens on a chain:
 
 ```bash
-mm token list popular --chain 1
-mm token list trending --chain 1
-mm token list top-gainer --chain 1
+mm token list popular --chain-id 1
+mm token list trending --chain-id 1
+mm token list top-gainer --chain-id 1
 ```
 
 Use `mm token networks` to discover which chains support token data.
@@ -49,7 +49,7 @@ Fetch historical price data for an asset:
 mm price history --chain-id eip155:1 --asset-type slip44:60 --time-period 7d --interval daily
 ```
 
-Common time periods: `1d`, `7d`, `30d`, `2M`, `1y`, `3y`. Intervals: `5m`, `hourly`, `daily`.
+Common time periods: `1d`, `7d`, `30d`, `2M`, `1y`, `3y`. Intervals: `5m`, `15m`, `30m`, `hourly`, `daily`.
 
 For a custom date range, use `--from` and `--to` with Unix timestamps instead of `--time-period`.
 

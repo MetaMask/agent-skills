@@ -2,7 +2,7 @@
 
 Use this workflow when the user wants to bridge tokens across chains.
 
-Reference command syntax in `references/swap.md`. The CLI uses the same `swap` commands for bridging. Set `--to-chain` to a different chain than `--from-chain`.
+Reference command syntax in `references/swap.md`. The CLI uses the same `swap` commands for bridging. Set `--to-chain-id` to a different chain than `--from-chain-id`.
 
 ## Flow
 
@@ -17,21 +17,21 @@ Don't skip the quote review step. The user needs to see output amount, fees, rou
 Always use `--all-quotes` to show all available routes so the user can compare and choose:
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137 --all-quotes
+mm swap quote --from ETH --to USDC --amount 1 --from-chain-id 1 --to-chain-id 137 --all-quotes
 ```
 
-Required flags: `--from`, `--to`, `--amount`, `--from-chain`, and `--to-chain`.
+Required flags: `--from`, `--to`, `--amount`, `--from-chain-id`, and `--to-chain-id`.
 
 If the user wants the bridged tokens sent to a different wallet on the destination chain, add `--to-address`:
 
 ```bash
-mm swap quote --from ETH --to USDC --amount 1 --from-chain 1 --to-chain 137 --to-address 0x742d...f2bD18
+mm swap quote --from ETH --to USDC --amount 1 --from-chain-id 1 --to-chain-id 137 --to-address 0x742d...f2bD18
 ```
 
 If the recipient may have no native gas on the destination chain, add `--refuel` to bundle a destination gas top-up into the quote (cross-chain only, opt-in, best-effort — see `references/swap.md`). Do not add `--refuel` when the destination token is the destination chain's native gas asset (e.g. bridging into ETH on Arbitrum) — the backend returns 0 quotes in that case:
 
 ```bash
-mm swap quote --from USDC --to USDC --amount 50 --from-chain 1 --to-chain 42161 --refuel
+mm swap quote --from USDC --to USDC --amount 50 --from-chain-id 1 --to-chain-id 42161 --refuel
 ```
 
 Persist the quote id for execution. Show the quote to the user before execution.

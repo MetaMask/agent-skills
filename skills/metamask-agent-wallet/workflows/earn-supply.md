@@ -15,7 +15,7 @@ Reference command syntax in `references/earn.md`.
 Find available vaults for the token and chain:
 
 ```bash
-mm earn markets --chain 8453 --protocol aave
+mm earn markets --chain-id 8453 --protocol aave
 ```
 
 Show the user relevant vaults with their APY, TVL, and protocol. Let the user pick if multiple vaults are available.
@@ -25,7 +25,7 @@ Show the user relevant vaults with their APY, TVL, and protocol. Let the user pi
 Verify the user has enough of the token to supply:
 
 ```bash
-mm wallet balance --chain 8453 --token USDC
+mm wallet balance --chain-ids 8453 --token USDC
 ```
 
 ## Supply
@@ -33,20 +33,20 @@ mm wallet balance --chain 8453 --token USDC
 Same-chain (use `--wait` to confirm the position is reflected):
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453 --wait
+mm earn supply --token USDC --amount 100 --chain-id 8453 --wait
 ```
 
 With a specific vault or protocol:
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453 --protocol aave --wait
-mm earn supply --vault 0xabc...def --amount 100 --chain 8453 --wait
+mm earn supply --token USDC --amount 100 --chain-id 8453 --protocol aave --wait
+mm earn supply --vault 0xabc...def --amount 100 --chain-id 8453 --wait
 ```
 
 Cross-chain (supply from a different chain):
 
 ```bash
-mm earn supply --token USDC --amount 100 --chain 8453 --from-chain 1 --from-token USDC --wait
+mm earn supply --token USDC --amount 100 --chain-id 8453 --from-chain-id 1 --from-token USDC --wait
 ```
 
 Without `--wait`, the CLI shows a hint to check positions shortly. Positions can take 15-30s to appear in `mm earn positions`.
@@ -62,4 +62,4 @@ Before executing, confirm with the user: token, amount, chain, vault/protocol, a
 - `INSUFFICIENT_FUNDS`: wallet lacks the token balance. Fund the wallet first.
 - `EXECUTE_FAILED`: transaction reverted or cross-chain timeout. Retry or check the transaction on the block explorer.
 - `QUOTE_FAILED`: LiFi returned no executable transaction. Try a different vault or amount.
-- Cross-chain supply: when `--from-chain` differs from `--chain`, `--from-token` is required. The CLI polls until the cross-chain transaction completes (timeout: 10 minutes).
+- Cross-chain supply: when `--from-chain-id` differs from `--chain-id`, `--from-token` is required. The CLI polls until the cross-chain transaction completes (timeout: 10 minutes).

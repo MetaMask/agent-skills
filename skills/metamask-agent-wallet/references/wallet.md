@@ -59,14 +59,14 @@ Switch the active wallet used for subsequent commands.
 ### Syntax
 
 ```bash
-mm wallet select <address> [--chain-namespace <namespace>]
+mm wallet select [<address>] [--chain-namespace <namespace>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<address>` | Yes | Wallet address, 0x-prefixed hex. Positional argument. If omitted in interactive mode, the CLI prompts |
+| `<address>` | No | Wallet address, 0x-prefixed hex. Positional argument. Omit it in a TTY to pick from the wallet list |
 | `--chain-namespace` | No | Filter by namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
@@ -74,6 +74,12 @@ mm wallet select <address> [--chain-namespace <namespace>]
 ```bash
 mm wallet select 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
 ```
+
+### Notes
+
+- Pass the address. Omitting it falls back to an interactive picker that needs a TTY; in a headless session the command returns `MISSING_WALLET_REF` with a hint to run `mm wallet list`.
+- A malformed address returns `INVALID_EVM_ADDRESS`; an address that is not in the account roster returns `WALLET_NOT_FOUND`. Run `mm wallet list` to get valid addresses.
+- If `--chain-namespace` is passed and the wallet belongs to a different namespace, the command returns `WRONG_NAMESPACE`.
 
 ## `wallet show` Command
 
@@ -201,20 +207,13 @@ mm wallet trading-mode set beast --wallet-timeout 300
 
 ## `wallet policy get` Command
 
-Show the policy for the active wallet.
+Show the policy YAML for the active server wallet. Server-wallet mode only; in BYOK mode it returns `WRONG_WALLET_MODE`.
 
 ### Syntax
 
 ```bash
-mm wallet policy get [--chain-namespace <namespace>] [--address <address>]
+mm wallet policy get
 ```
-
-### Supported Flags
-
-| Name | Required | Description |
-| --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
-| `--address` | No | Wallet address, 0x-prefixed hex |
 
 ### Example
 
@@ -237,16 +236,22 @@ mm wallet policy set --policy <yaml> [--wait] [--wallet-timeout <seconds>]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--policy` | Yes | Policy string to apply |
+| `--policy` | Yes | Complete policy YAML document to apply |
 | `--wait` | No | Block until MFA approval completes. Use `--no-wait` to return immediately with the request ID |
 | `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
 
 ### Example
 
 ```bash
-mm wallet policy set --policy "maxDailyOutflow: 1000"
-mm wallet policy set --policy "maxDailyOutflow: 5000" --wait
+mm wallet policy get --json
+mm wallet policy set --policy "$(cat policy.yaml)"
+mm wallet policy set --policy "$(cat policy.yaml)" --wait
 ```
+
+### Notes
+
+- `--policy` takes a full policy document, not a fragment. Read the current document from the `policy` field of `mm wallet policy get --json`, or start from `mm wallet policy template`, edit it, and pass the whole YAML object back. It must be a YAML mapping with a top-level `schema_version`.
+- A list, bare string, or empty document returns `INVALID_POLICY_YAML`.
 
 ## `wallet policy template` Command
 
@@ -276,7 +281,7 @@ Show native and token balances for the active wallet.
 ### Syntax
 
 ```bash
-mm wallet balance [--currency <code>] [--chain-ids <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-idss <ids>] [--token-contracts <addresses>]
+mm wallet balance [--currency <code>] [--chain-ids <chains>] [--token <token>] [--address <address>] [--testnet] [--testnet-chain-ids <ids>] [--token-contracts <addresses>]
 ```
 
 ### Supported Flags
