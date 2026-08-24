@@ -10,6 +10,15 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.3.0] — targets CLI v6.1.4
+
+### Changed
+
+- `token list search` takes the search term as a positional argument (`mm token list search USDC`). `--query` still works. Documented that multi-word queries need quoting and that an omitted query returns `MISSING_QUERY` instead of prompting.
+- `wallet select` documents the address as optional: omit it in a TTY to pick from the wallet list, pass it in headless sessions or the command returns `MISSING_WALLET_REF`. Added the `INVALID_EVM_ADDRESS`, `WALLET_NOT_FOUND`, and `WRONG_NAMESPACE` outcomes.
+- `wallet policy get` syntax now matches the CLI's `--help`: the command takes no flags and always reads the policy for the active server wallet. Noted that it is server-wallet only and returns `WRONG_WALLET_MODE` in BYOK mode.
+- Bumped `cliVersion` to `6.1.4`.
+
 ## [7.2.0] — targets CLI v6.1.2
 
 ### Added

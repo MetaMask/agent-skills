@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "7.2.0"
-  cliVersion: "6.1.2"
+  version: "7.3.0"
+  cliVersion: "6.1.4"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -159,13 +159,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.1.2, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v6.1.4, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.1.2 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.1.4 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
