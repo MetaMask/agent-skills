@@ -9,7 +9,7 @@ Reference command syntax in `references/market-data.md`.
 If the user mentions a token by name or symbol, search for it first to get the correct asset ID:
 
 ```bash
-mm token list search --query "USDC" --chain-ids 1
+mm token list search "USDC" --chain-ids 1
 ```
 
 To browse popular, trending, or top-gainer tokens on a chain:

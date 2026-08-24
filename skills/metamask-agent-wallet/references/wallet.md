@@ -59,14 +59,14 @@ Switch the active wallet used for subsequent commands.
 ### Syntax
 
 ```bash
-mm wallet select <address> [--chain-namespace <namespace>]
+mm wallet select [<address>] [--chain-namespace <namespace>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `<address>` | Yes | Wallet address, 0x-prefixed hex. Positional argument. If omitted in interactive mode, the CLI prompts |
+| `<address>` | No | Wallet address, 0x-prefixed hex. Positional argument. Omit it in a TTY to pick from the wallet list |
 | `--chain-namespace` | No | Filter by namespace: `evm`, EIP-155. Allowed: `evm` |
 
 ### Example
@@ -74,6 +74,12 @@ mm wallet select <address> [--chain-namespace <namespace>]
 ```bash
 mm wallet select 0x742d35Cc6634C0532925a3b844Bc9e7595f2bD18
 ```
+
+### Notes
+
+- Pass the address. Omitting it falls back to an interactive picker that needs a TTY; in a headless session the command returns `MISSING_WALLET_REF` with a hint to run `mm wallet list`.
+- A malformed address returns `INVALID_EVM_ADDRESS`; an address that is not in the account roster returns `WALLET_NOT_FOUND`. Run `mm wallet list` to get valid addresses.
+- If `--chain-namespace` is passed and the wallet belongs to a different namespace, the command returns `WRONG_NAMESPACE`.
 
 ## `wallet show` Command
 
@@ -201,20 +207,13 @@ mm wallet trading-mode set beast --wallet-timeout 300
 
 ## `wallet policy get` Command
 
-Show the policy for the active wallet.
+Show the policy YAML for the active server wallet. Server-wallet mode only; in BYOK mode it returns `WRONG_WALLET_MODE`.
 
 ### Syntax
 
 ```bash
-mm wallet policy get [--chain-namespace <namespace>] [--address <address>]
+mm wallet policy get
 ```
-
-### Supported Flags
-
-| Name | Required | Description |
-| --- | --- | --- |
-| `--chain-namespace` | No | Wallet chain namespace: `evm`, EIP-155. Allowed: `evm` |
-| `--address` | No | Wallet address, 0x-prefixed hex |
 
 ### Example
 
