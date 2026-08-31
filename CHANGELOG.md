@@ -14,6 +14,7 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 
 ### Added
 
+- Cursor and Claude Code plugin manifests (`.cursor-plugin/plugin.json`, `.claude-plugin/plugin.json`) so the repo can be loaded as a plugin that exposes `skills/`.
 - **MFA Approval Pauses** section in `SKILL.md`: agents must detect wallet MFA waits by scanning stdout for the literal `AWAITING_MFA` token — as `"_notice":{"kind":"AWAITING_MFA"}` in `--json` / piped mode, or as `[AWAITING_MFA]` in plain TTY and Ink REPL output. Includes recovery steps (`mm wallet requests watch`) and guidance not to retry while pending.
 - Cross-links from `references/polling.md`, `references/transfer.md`, and `workflows/troubleshooting.md` to the new detection rule.
 
