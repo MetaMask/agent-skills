@@ -1,0 +1,19 @@
+{
+  "name": "metamask-agent-wallet",
+  "version": "7.5.0",
+  "description": "SKILLs for the MetaMask Agent CLI — authenticate, manage wallets, swap, bridge, trade perps and prediction markets, earn on DeFi vaults, and pay x402 resources.",
+  "author": {
+    "name": "MetaMask"
+  },
+  "homepage": "https://github.com/MetaMask/agent-skills",
+  "repository": "https://github.com/MetaMask/agent-skills",
+  "license": "MIT",
+  "keywords": [
+    "metamask",
+    "wallet",
+    "web3",
+    "agent",
+    "cli"
+  ],
+  "skills": "./skills/"
+}
