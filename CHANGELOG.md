@@ -10,6 +10,17 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.5.0] — targets CLI v6.1.5
+
+### Added
+
+- **MFA Approval Pauses** section in `SKILL.md`: agents must detect wallet MFA waits by scanning stdout for the literal `AWAITING_MFA` token — as `"_notice":{"kind":"AWAITING_MFA"}` in `--json` / piped mode, or as `[AWAITING_MFA]` in plain TTY and Ink REPL output. Includes recovery steps (`mm wallet requests watch`) and guidance not to retry while pending.
+- Cross-links from `references/polling.md`, `references/transfer.md`, and `workflows/troubleshooting.md` to the new detection rule.
+
+### Changed
+
+- Bumped `cliVersion` to `6.1.5`.
+
 ## [7.4.0] — targets CLI v6.1.4
 
 ### Added

@@ -84,4 +84,4 @@ On eligible chains and accounts, the CLI automatically batches approval + trade 
 - Slippage exceeded: only increase `--slippage` if the user explicitly accepts more slippage. Always warn the user if slippage is increased above 1% that it will affect the minimum received.
 - Missing chain: use `mm chains list` before guessing a chain ID.
 - `UNSUPPORTED_CHAIN`: the chain does not support swaps. Run `mm chains list` and pick a chain with the `swap` feature.
-- MFA required: gasless swaps and policy-protected operations require MFA approval. The CLI surfaces instructions; guide the user to approve via their configured auth method.
+- MFA required: gasless swaps and policy-protected operations require MFA approval. When stdout contains `AWAITING_MFA`, follow **MFA Approval Pauses** in `SKILL.md`; guide the user to approve via their configured auth method.
