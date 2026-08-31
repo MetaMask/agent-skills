@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "7.4.0"
-  cliVersion: "6.1.4"
+  version: "7.5.0"
+  cliVersion: "6.1.5"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -161,7 +161,7 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.1.4, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v6.1.5, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
@@ -287,6 +287,25 @@ In both server-wallet and BYOK mode, signing and transaction commands go through
 3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request, such as `Transfer 0.5 ETH to 0x...` or `Withdraw 10 pUSD to 0x...`. When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
+
+## MFA Approval Pauses
+
+Wallet jobs that need out-of-band MFA approval pause in `AWAITING_MFA`. **Detect this pause by scanning command stdout for the literal token `AWAITING_MFA`.** Do not infer MFA from free-text alone on older CLIs; from CLI v6.1.5 onward every output mode emits the token consistently.
+
+| Output mode | How to detect |
+| --- | --- |
+| `--json` / piped stdout | An NDJSON line containing `"_notice":{"kind":"AWAITING_MFA",...}` |
+| Plain TTY or Ink REPL | A stdout line containing `[AWAITING_MFA]`, e.g. `⚠ [AWAITING_MFA] Approve in MetaMask mobile.` |
+
+When `AWAITING_MFA` appears:
+
+1. Treat the command as **waiting for user approval**, not failed, hung, or complete.
+2. Surface the human instruction from the notice to the user.
+3. If a `pollingId` is present in the notice or command output, tell the user they can track completion with `mm wallet requests watch <polling-id>`.
+4. Do **not** retry the same wallet operation while the job is still pending.
+5. On `mm swap execute` with `--no-wait`, an MFA pause may return `EXECUTE_FAILED` with a message naming the approval wait and the watch command — that is still an MFA pause, not a missing hash.
+
+For approval surfaces and recovery steps, see [troubleshooting.md](workflows/troubleshooting.md).
 
 ## Output Rules
 

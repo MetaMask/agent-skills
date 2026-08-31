@@ -80,4 +80,4 @@ On eligible chains and accounts, the CLI automatically batches approval + trade 
 - `AMOUNT_TOO_LOW` / `AMOUNT_TOO_HIGH`: the amount is outside the provider's accepted range. Adjust the amount and re-quote.
 - `UNSUPPORTED_CHAIN`: the chain does not support swaps. Run `mm chains list` and pick a chain with the `swap` feature.
 - Insufficient gas: the CLI may automatically route through a gasless relay if the chain supports it (on supported chains). If `GASLESS_UNSUPPORTED`, advise the user to fund native gas.
-- MFA required: gasless bridge operations require MFA approval. The CLI surfaces instructions; guide the user to approve via their configured auth method.
+- MFA required: gasless bridge operations require MFA approval. When stdout contains `AWAITING_MFA`, follow **MFA Approval Pauses** in `SKILL.md`; guide the user to approve via their configured auth method.
