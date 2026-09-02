@@ -1,0 +1,54 @@
+name: Validate plugin
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Validate JSON manifests
+        run: |
+          set -euo pipefail
+          for f in \
+            plugin.json \
+            hooks.json \
+            hooks/hooks.json \
+            .claude-plugin/plugin.json \
+            .claude-plugin/marketplace.json \
+            .cursor-plugin/plugin.json
+          do
+            echo "Checking $f"
+            python3 -c "import json,sys; json.load(open('$f'))"
+          done
+
+      - name: Shellcheck session-start hook
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: ./hooks
+          severity: warning
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Claude plugin validate (best-effort)
+        continue-on-error: true
+        run: |
+          npm install -g @anthropic-ai/claude-code || true
+          if command -v claude >/dev/null 2>&1; then
+            claude plugin validate . || claude plugin validate .claude-plugin/plugin.json || true
+          else
+            echo "claude CLI not available; skipped"
+          fi
+
+      - name: Hook smoke (no mm required)
+        run: |
+          chmod +x hooks/session-start.sh
+          PATH="/usr/bin:/bin" hooks/session-start.sh --host cursor | python3 -c 'import json,sys; json.load(sys.stdin)'
+          PATH="/usr/bin:/bin" hooks/session-start.sh --host claude-code | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "hookSpecificOutput" in d'
