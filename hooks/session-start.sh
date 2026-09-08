@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Session-start hook for MetaMask Agent Wallet plugin (Claude Code + Cursor).
+# Session-start hook for MetaMask Agent Wallet plugin (Claude Code, Cursor, Codex).
 # Never installs software. Always exits 0. Emits host-specific additional context.
 set -eu
 
@@ -21,12 +21,16 @@ while [ $# -gt 0 ]; do
 done
 
 case "$HOST" in
-  claude-code|cursor) ;;
+  claude-code|cursor|codex) ;;
   *) HOST="unknown" ;;
 esac
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${CURSOR_PLUGIN_ROOT:-}}"
+# Codex sets PLUGIN_ROOT (and CLAUDE_PLUGIN_ROOT as a compat alias).
+# Do not overwrite a host-provided PLUGIN_ROOT.
+if [ -z "${PLUGIN_ROOT:-}" ]; then
+  PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${CURSOR_PLUGIN_ROOT:-}}"
+fi
 if [ -z "$PLUGIN_ROOT" ]; then
   PLUGIN_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
 fi
@@ -45,6 +49,7 @@ fi
 case "$HOST" in
   claude-code) INSTALL_SOURCE="claude-code-plugin" ;;
   cursor) INSTALL_SOURCE="cursor-plugin" ;;
+  codex) INSTALL_SOURCE="codex-plugin" ;;
   *) INSTALL_SOURCE="unknown-plugin" ;;
 esac
 
@@ -203,7 +208,7 @@ fi
 ESCAPED=$(json_escape "$CONTEXT")
 
 case "$HOST" in
-  claude-code)
+  claude-code|codex)
     printf '%s\n' "{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"${ESCAPED}\"}}"
     ;;
   cursor)

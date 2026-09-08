@@ -21,9 +21,12 @@ jobs:
             plugin.json \
             hooks.json \
             hooks/hooks.json \
+            hooks/codex-hooks.json \
             .claude-plugin/plugin.json \
             .claude-plugin/marketplace.json \
-            .cursor-plugin/plugin.json
+            .cursor-plugin/plugin.json \
+            .codex-plugin/plugin.json \
+            .agents/plugins/marketplace.json
           do
             echo "Checking $f"
             python3 -c "import json,sys; json.load(open('$f'))"
@@ -55,3 +58,4 @@ jobs:
           chmod +x hooks/session-start.sh
           PATH="/usr/bin:/bin" hooks/session-start.sh --host cursor | python3 -c 'import json,sys; json.load(sys.stdin)'
           PATH="/usr/bin:/bin" hooks/session-start.sh --host claude-code | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "hookSpecificOutput" in d'
+          PATH="/usr/bin:/bin" hooks/session-start.sh --host codex | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"] == "SessionStart"'

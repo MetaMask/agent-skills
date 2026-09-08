@@ -4,11 +4,12 @@ Plugin package lives in this repository. Complete these steps after merging the 
 
 ## Prerequisites
 
-- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `hooks/`, root `plugin.json`, and updated `README.md`.
+- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `.agents/plugins/`, `hooks/`, root `plugin.json`, and updated `README.md`.
 - [ ] Confirm plugin slug remains `metamask-agent-wallet` (immutable after listing).
 - [ ] Local smoke:
   - `claude --plugin-dir /path/to/agent-skills`
   - Cursor → Customize → Plugins → add local/Git path to this repo
+  - `codex plugin marketplace add /path/to/agent-skills` then `codex plugin add metamask-agent-wallet@metamask`
   - New session injects MetaMask readiness context; `~/.metamask/attribution.json` is created without email/PII
 
 ## Claude Code
@@ -35,7 +36,32 @@ Plugin package lives in this repository. Complete these steps after merging the 
 2. Submit at https://cursor.com/marketplace/publish
 3. Checklist for review: unique kebab-case `name`, honest `description`, README, relative paths only, no committed secrets, hooks documented (session-start runs `mm doctor`, never auto-installs).
 
+## Codex / ChatGPT
+
+1. Validate locally:
+
+   ```bash
+   codex plugin marketplace add /path/to/agent-skills
+   codex plugin add metamask-agent-wallet@metamask
+   ```
+
+   Codex skips plugin hooks until you review and trust the current hook definition. After trusting, start a new session and confirm `~/.metamask/attribution.json` has `installSource: "codex-plugin"`.
+
+2. Remote marketplace (after the repo is public):
+
+   ```bash
+   codex plugin marketplace add MetaMask/agent-skills
+   codex plugin add metamask-agent-wallet@metamask
+   ```
+
+3. Submit the **skills-only** plugin to the universal ChatGPT / Codex directory:
+   - https://platform.openai.com/plugins
+   - Submission type: **Skills only** (this plugin does not bundle an MCP server)
+   - Listing uses `.codex-plugin/plugin.json` plus `assets/logo.svg`
+
+4. Checklist for review: kebab-case `name`, honest `description`, README, `./`-prefixed paths, no committed secrets, hooks documented (session-start runs `mm doctor`, never auto-installs).
+
 ## After listing
 
 - Track `cliVersion` / plugin `version` bumps with `@metamask/agent-wallet` major.minor releases (see README “Release coupling”).
-- Do not rename the plugin slug; use `displayName` / description for label changes (Claude).
+- Do not rename the plugin slug; use `displayName` / `interface.displayName` for label changes.
