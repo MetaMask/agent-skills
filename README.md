@@ -2,7 +2,7 @@
 
 SKILLs for the MetaMask Agent CLI (`@metamask/agent-wallet` v6.1.5). These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, earn yield on DeFi vaults, and more using the MetaMask Agent Wallet CLI (`mm`).
 
-This repository is also packaged as a **plugin** for Claude Code, Cursor, and Codex. The plugin ships the same skills plus a session-start hook that checks CLI readiness via `mm doctor` and records local install attribution.
+This repository is also packaged as a **plugin** for Claude Code, Cursor, Codex, and Antigravity CLI (`agy`). The plugin ships the same skills plus a session-start hook that checks CLI readiness via `mm doctor` and records local install attribution.
 
 ## Skills
 
@@ -53,6 +53,21 @@ codex plugin add metamask-agent-wallet@metamask
 
 Codex skips plugin-bundled hooks until you review and trust them. After that, a new session injects MetaMask readiness context the same way as Claude Code and Cursor.
 
+### Antigravity CLI (`agy`)
+
+```bash
+agy plugin install /path/to/agent-skills/.antigravity-plugin
+```
+
+Or install the repo root (skills are at `skills/`):
+
+```bash
+agy plugin install /path/to/agent-skills
+agy plugin install https://github.com/MetaMask/agent-skills
+```
+
+Restart `agy` after install, then `agy plugin list`. The extension rule routes wallet work to `skills/metamask-agent-wallet/SKILL.md`.
+
 ### Skills CLI (legacy / non-plugin hosts)
 
 ```bash
@@ -91,7 +106,7 @@ When the skill's `cliVersion` advances, the next session-start context (or `mm d
 | Data | Where | Purpose |
 | --- | --- | --- |
 | `installSource`, `pluginVersion`, timestamps | `~/.metamask/attribution.json` (mode `0600`) | First-touch acquisition channel for MetaMask product analytics after the user runs `mm` |
-| Host env (`CLAUDECODE`, `CURSOR_AGENT`, `CODEX_THREAD_ID`, …) | Read by `mm` at command time | Tag Segment events with the calling agent host |
+| Host env (`CLAUDECODE`, `CURSOR_AGENT`, `CODEX_THREAD_ID`, `ANTIGRAVITY_AGENT`, …) | Read by `mm` at command time | Tag Segment events with the calling agent host |
 | Cursor `user_email` / other PII from hooks | **Not written** | — |
 
 Product analytics from the CLI respect `MM_TELEMETRY_DISABLED=1`, `DO_NOT_TRACK=1`, and dashboard Osano consent.
@@ -102,7 +117,7 @@ When `@metamask/agent-wallet` ships a new `major.minor`:
 
 1. Bump `metadata.cliVersion` (and `metadata.version`) in `skills/metamask-agent-wallet/SKILL.md`.
 2. Bump `version` in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.cursor-plugin/plugin.json`, `.codex-plugin/plugin.json`, and root `plugin.json`.
-3. Ship one PR; Claude Code, Cursor, and Codex auto-pull plugin updates from Git.
+3. Ship one PR; Claude Code, Cursor, Codex, and Antigravity CLI auto-pull plugin updates from Git.
 
 Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace listing — it is an immutable slug.
 
@@ -119,6 +134,10 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 │   └── plugin.json
 ├── .codex-plugin/
 │   └── plugin.json
+├── .antigravity-plugin/        # Antigravity CLI (`agy`)
+│   ├── plugin.json
+│   ├── rules/
+│   └── skills -> ../skills
 ├── .agents/plugins/
 │   └── marketplace.json        # Codex / ChatGPT repo marketplace
 ├── hooks/
@@ -136,4 +155,4 @@ MIT
 
 ## Marketplace listing
 
-See [docs/MARKETPLACE_SUBMISSION.md](./docs/MARKETPLACE_SUBMISSION.md) for Claude Code, Cursor, and Codex submission steps (human review required after this repo is pushed).
+See [docs/MARKETPLACE_SUBMISSION.md](./docs/MARKETPLACE_SUBMISSION.md) for Claude Code, Cursor, Codex, and Antigravity CLI submission steps (human review required after this repo is pushed).

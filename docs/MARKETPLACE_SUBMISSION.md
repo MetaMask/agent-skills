@@ -4,12 +4,13 @@ Plugin package lives in this repository. Complete these steps after merging the 
 
 ## Prerequisites
 
-- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `.agents/plugins/`, `hooks/`, root `plugin.json`, and updated `README.md`.
+- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `.antigravity-plugin/`, `.agents/plugins/`, `hooks/`, root `plugin.json`, and updated `README.md`.
 - [ ] Confirm plugin slug remains `metamask-agent-wallet` (immutable after listing).
 - [ ] Local smoke:
   - `claude --plugin-dir /path/to/agent-skills`
   - Cursor → Customize → Plugins → add local/Git path to this repo
   - `codex plugin marketplace add /path/to/agent-skills` then `codex plugin add metamask-agent-wallet@metamask`
+  - `agy plugin install /path/to/agent-skills/.antigravity-plugin` then `agy plugin list`
   - New session injects MetaMask readiness context; `~/.metamask/attribution.json` is created without email/PII
 
 ## Claude Code
@@ -60,6 +61,25 @@ Plugin package lives in this repository. Complete these steps after merging the 
    - Listing uses `.codex-plugin/plugin.json` plus `assets/logo.svg`
 
 4. Checklist for review: kebab-case `name`, honest `description`, README, `./`-prefixed paths, no committed secrets, hooks documented (session-start runs `mm doctor`, never auto-installs).
+
+## Antigravity CLI (`agy`)
+
+1. Validate locally:
+
+   ```bash
+   agy plugin validate /path/to/agent-skills/.antigravity-plugin
+   agy plugin install /path/to/agent-skills/.antigravity-plugin
+   ```
+
+   Restart `agy` and run `agy plugin list`. Confirm `metamask-agent-wallet` is enabled.
+
+2. Remote install (after the repo is public):
+
+   ```bash
+   agy plugin install https://github.com/MetaMask/agent-skills
+   ```
+
+3. Checklist for review: kebab-case `name`, slim `plugin.json` (`name` + `description` only), `skills/` present, rules documented, no committed secrets.
 
 ## After listing
 

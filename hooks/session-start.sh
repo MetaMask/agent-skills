@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Session-start hook for MetaMask Agent Wallet plugin (Claude Code, Cursor, Codex).
+# Session-start hook for MetaMask Agent Wallet plugin (Claude Code, Cursor, Codex, Antigravity).
 # Never installs software. Always exits 0. Emits host-specific additional context.
 set -eu
 
@@ -21,7 +21,7 @@ while [ $# -gt 0 ]; do
 done
 
 case "$HOST" in
-  claude-code|cursor|codex) ;;
+  claude-code|cursor|codex|antigravity) ;;
   *) HOST="unknown" ;;
 esac
 
@@ -50,6 +50,7 @@ case "$HOST" in
   claude-code) INSTALL_SOURCE="claude-code-plugin" ;;
   cursor) INSTALL_SOURCE="cursor-plugin" ;;
   codex) INSTALL_SOURCE="codex-plugin" ;;
+  antigravity) INSTALL_SOURCE="antigravity-plugin" ;;
   *) INSTALL_SOURCE="unknown-plugin" ;;
 esac
 
@@ -208,7 +209,7 @@ fi
 ESCAPED=$(json_escape "$CONTEXT")
 
 case "$HOST" in
-  claude-code|codex)
+  claude-code|codex|antigravity)
     printf '%s\n' "{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"${ESCAPED}\"}}"
     ;;
   cursor)
