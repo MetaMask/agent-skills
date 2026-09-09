@@ -1,6 +1,6 @@
 # MetaMask Agent CLI Skills
 
-SKILLs for the MetaMask Agent CLI (`@metamask/agent-wallet` v6.1.5). These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, earn yield on DeFi vaults, and more using the MetaMask Agent Wallet CLI (`mm`).
+SKILLs for the MetaMask Agent CLI (`@metamask/agent-wallet`). `metamask-agent-wallet` documents built-in `mm` commands (skill targets v6.1.5). `agent-wallet-plugin` documents authoring third-party `mm` plugins (host CLI v6.2.0+). Together they cover authentication, wallets, swaps, bridges, perps, earn, and plugin development.
 
 This repository is also packaged as a **plugin** for Claude Code, Cursor, Codex, and Antigravity CLI (`agy`). The plugin ships the same skills plus a session-start hook that checks CLI readiness via `mm doctor` and records local install attribution.
 
@@ -9,6 +9,7 @@ This repository is also packaged as a **plugin** for Claude Code, Cursor, Codex,
 | Skill | Description |
 | --- | --- |
 | [`metamask-agent-wallet`](./skills/metamask-agent-wallet/SKILL.md) | Full CLI skill that routes the agent to topic-specific reference docs (`references/`) for all MetaMask Agent CLI commands — auth, wallets, transfers, signing, swaps, bridges, perps, prediction markets, DeFi earn/yield vaults, market data, x402 payments, and calldata decoding — plus multistep workflow templates (`workflows/`) for onboarding, swaps, bridges, perps, prediction markets, and earn. |
+| [`agent-wallet-plugin`](./skills/agent-wallet-plugin/SKILL.md) | Developer skill for building MetaMask Agent Wallet CLI plugins (`mm plugins`): scaffold from [agent-wallet-plugin-template](https://github.com/MetaMask/agent-wallet-plugin-template), `PluginCommand`, `package.json#mm` capabilities, local `file:` install, and npm publish. |
 
 ## Install as a plugin (recommended)
 
@@ -115,7 +116,7 @@ Product analytics from the CLI respect `MM_TELEMETRY_DISABLED=1`, `DO_NOT_TRACK=
 
 When `@metamask/agent-wallet` ships a new `major.minor`:
 
-1. Bump `metadata.cliVersion` (and `metadata.version`) in `skills/metamask-agent-wallet/SKILL.md`.
+1. Bump `metadata.cliVersion` (and `metadata.version`) in `skills/metamask-agent-wallet/SKILL.md` and, when the plugin host API changes, in `skills/agent-wallet-plugin/SKILL.md`.
 2. Bump `version` in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.cursor-plugin/plugin.json`, `.codex-plugin/plugin.json`, and root `plugin.json`.
 3. Ship one PR; Claude Code, Cursor, Codex, and Antigravity CLI auto-pull plugin updates from Git.
 
@@ -146,7 +147,7 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 │   └── session-start.sh
 └── skills/
     ├── metamask-agent-wallet/
-    └── metamask-agent-workflows/
+    └── agent-wallet-plugin/
 ```
 
 ## License
