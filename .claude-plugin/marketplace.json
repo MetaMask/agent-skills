@@ -1,0 +1,37 @@
+{
+  "name": "metamask",
+  "owner": {
+    "name": "MetaMask",
+    "email": "support@metamask.io"
+  },
+  "metadata": {
+    "description": "MetaMask plugins for Claude Code — Agent Wallet CLI skills and session readiness.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "metamask-agent-wallet",
+      "source": "./",
+      "description": "MetaMask Agent Wallet skills and session-start readiness for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn.",
+      "version": "1.0.0",
+      "author": {
+        "name": "MetaMask",
+        "url": "https://metamask.io"
+      },
+      "homepage": "https://github.com/MetaMask/agent-skills",
+      "repository": "https://github.com/MetaMask/agent-skills",
+      "license": "MIT",
+      "keywords": [
+        "metamask",
+        "wallet",
+        "crypto",
+        "ethereum",
+        "swap",
+        "bridge",
+        "perps",
+        "prediction-markets",
+        "agent-wallet"
+      ]
+    }
+  ]
+}

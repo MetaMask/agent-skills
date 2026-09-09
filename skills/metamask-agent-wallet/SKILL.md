@@ -1,11 +1,11 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402 or the agent needs to pay for a paywalled API, endpoint, file, or resource over HTTP. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "7.0.2"
-  cliVersion: "6.0.0"
+  version: "7.5.1"
+  cliVersion: "6.1.5"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -108,6 +108,7 @@ Match the user's intent to a command and reference file, then read the reference
 | Check swap or bridge status | `mm swap status` | [swap.md](references/swap.md) |
 | Bridge tokens to another chain | `mm swap execute` | [swap.md](references/swap.md) |
 | Pay an HTTP `402` / x402 paywalled request | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
+| Pay an x402-gated MCP tool call | `python3 scripts/x402_pay.py` | [x402.md](references/x402.md) |
 | List earn vaults and APYs | `mm earn markets` | [earn.md](references/earn.md) |
 | View earn vault positions | `mm earn positions` | [earn.md](references/earn.md) |
 | Supply tokens to an earn vault | `mm earn supply` | [earn.md](references/earn.md) |
@@ -138,6 +139,7 @@ CLI behavior lives in `references/`. Repeatable patterns live in `workflows/`. L
 | Supply tokens to earn yield | [earn-supply.md](workflows/earn-supply.md) |
 | Withdraw tokens from an earn vault | [earn-withdraw.md](workflows/earn-withdraw.md) |
 | Pay an HTTP `402` (x402) paywalled request | [x402-pay.md](workflows/x402-pay.md) |
+| Pay an x402-gated MCP tool call | [x402-mcp.md](workflows/x402-mcp.md) |
 
 ## Global Flags
 
@@ -159,13 +161,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.0.0, as specified by `cliVersion` in the frontmatter. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v6.1.5, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/2.0.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure:
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.1.4 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
@@ -231,6 +233,7 @@ Before constructing any command, validate all user-provided values:
 | x402 `payTo` / authorization `to` | Must match `^0x[0-9a-fA-F]{40}$` and equal the recipient in the `402` |
 | x402 `value` | Atomic-unit integer that exactly equals the offered amount. The `exact` scheme is not a maximum |
 | x402 resource URL | Must be `https://`. Reject a `402` reached via an unexpected cross-host redirect |
+| x402 MCP challenge | x402 v2 only. The signed `payment` object goes, as-is, in `_meta["x402/payment"]` of the retried tool call; a repeated `isError` result is a new challenge, never re-sign it without new user approval |
 
 Do not pass unvalidated user input into any command.
 
@@ -243,7 +246,7 @@ Do not pass unvalidated user input into any command.
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
 | Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address if `--to-address` is set, and the destination gas top-up if `--refuel` is set before executing |
-| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL before signing the authorization. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
+| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL or MCP tool before signing the authorization — over HTTP with `pay --confirm`, over MCP with `mcp-sign --confirm`. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
@@ -284,6 +287,25 @@ In both server-wallet and BYOK mode, signing and transaction commands go through
 3. In BYOK mode, the local key signs locally but the operation still produces a pending job and a `pollingId`. If the mnemonic is password-encrypted, the user must set `MM_PASSWORD` environment variable to unlock it for the operation.
 
 Transfers, swaps, perps, predict orders, and predict withdraws attach a human-readable `intent` summary to their wallet request, such as `Transfer 0.5 ETH to 0x...` or `Withdraw 10 pUSD to 0x...`. When surfacing a pending request from `wallet requests list` or `wallet requests watch`, show the `intent` summary so the user can confirm what they are approving.
+
+## MFA Approval Pauses
+
+Wallet jobs that need out-of-band MFA approval pause in `AWAITING_MFA`. **Detect this pause by scanning command stdout for the literal token `AWAITING_MFA`.** Do not infer MFA from free-text alone on older CLIs; from CLI v6.1.5 onward every output mode emits the token consistently.
+
+| Output mode | How to detect |
+| --- | --- |
+| `--json` / piped stdout | An NDJSON line containing `"_notice":{"kind":"AWAITING_MFA",...}` |
+| Plain TTY or Ink REPL | A stdout line containing `[AWAITING_MFA]`, e.g. `⚠ [AWAITING_MFA] Approve in MetaMask mobile.` |
+
+When `AWAITING_MFA` appears:
+
+1. Treat the command as **waiting for user approval**, not failed, hung, or complete.
+2. Surface the human instruction from the notice to the user.
+3. If a `pollingId` is present in the notice or command output, tell the user they can track completion with `mm wallet requests watch <polling-id>`.
+4. Do **not** retry the same wallet operation while the job is still pending.
+5. On `mm swap execute` with `--no-wait`, an MFA pause may return `EXECUTE_FAILED` with a message naming the approval wait and the watch command — that is still an MFA pause, not a missing hash.
+
+For approval surfaces and recovery steps, see [troubleshooting.md](workflows/troubleshooting.md).
 
 ## Output Rules
 

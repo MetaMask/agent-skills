@@ -1,0 +1,5 @@
+{
+  "$schema": "https://antigravity.google/schemas/v1/plugin.json",
+  "name": "metamask-agent-wallet",
+  "description": "MetaMask Agent Wallet skills for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn."
+}

@@ -18,13 +18,13 @@ Reference command syntax in `references/auth.md` and `references/wallet.md`.
 mm --version
 ```
 
-If this fails, the CLI is not installed. Guide the user to install it with `npm install -g @metamask/agentic-cli@latest` before proceeding.
+If this fails, the CLI is not installed. Guide the user to install it with `npm install -g @metamask/agent-wallet@latest` before proceeding. The CLI requires Node.js 22.18 or later; on an older runtime every command exits with `UNSUPPORTED_NODE`.
 
 Then run the version compatibility check from the skill `Preflight` section: compare the installed `major.minor` against the pinned `cliVersion` and the latest published release, and warn the user if they are out of sync.
 
 ## Login Flow
 
-Ask the user which login method they want to use: MetaMask Mobile QR or browser (Google or Email). QR (`mm login qr`) is available on non-production builds (dev/uat); on production it returns `COMING_SOON`, so fall back to browser login there.
+Ask the user which login method they want to use: MetaMask Mobile QR or browser (Google or Email). QR (`mm login qr`) is available on all environments, including production, but it needs an interactive terminal — in a headless session it returns `NO_TTY`, so use browser login there.
 
 ### Login
 

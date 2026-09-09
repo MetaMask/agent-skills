@@ -29,7 +29,7 @@ mm wallet requests list --no-sync --toon
 
 ## `wallet requests watch` Command
 
-Wait for a specific wallet request to complete by its polling ID. MFA prompts are surfaced once when a job enters the `AWAITING_MFA` state.
+Wait for a specific wallet request to complete by its polling ID. MFA prompts are surfaced once when a job enters the `AWAITING_MFA` state. Detect MFA pauses by scanning stdout for the literal `AWAITING_MFA` token — see the **MFA Approval Pauses** section in `SKILL.md`.
 
 ### Syntax
 

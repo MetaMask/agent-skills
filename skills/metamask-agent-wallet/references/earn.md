@@ -4,7 +4,7 @@ Use the `earn` commands to browse DeFi yield vaults, view positions, supply toke
 
 ## `earn markets` Command
 
-List available earn vaults with APY and TVL data. Does not require authentication.
+List available earn vaults with APY and TVL data. Requires authentication and a completed `init`.
 
 ### Syntax
 
@@ -37,7 +37,7 @@ Each vault includes: address, chainId, name, protocol, underlying tokens, APY wi
 
 ## `earn positions` Command
 
-List current earn positions and deposited balances for a wallet. Does not require authentication.
+List current earn positions and deposited balances for a wallet. Requires authentication and a completed `init`.
 
 ### Syntax
 

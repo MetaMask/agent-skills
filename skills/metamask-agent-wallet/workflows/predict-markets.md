@@ -39,7 +39,7 @@ These browse commands don't return outcome token IDs. Drill into a specific mark
 ## Inspect a market
 
 ```bash
-mm predict markets get <MARKET_SLUG_OR_ID> --toon
+mm predict markets get --market <MARKET_SLUG_OR_ID> --toon
 ```
 
 The market detail prints outcome token IDs. Outcome token IDs aren't market IDs. Use the token ID for `quote`, `place`, `book`, and `balance --token-id`.

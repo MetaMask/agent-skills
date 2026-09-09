@@ -30,7 +30,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_CHAIN` | Chain value is invalid |
 | `MISSING_TO` | Recipient address is missing |
 | `INVALID_TO` | Recipient address is invalid |
-| `INVALID_DATA` | Transaction data is invalid |
+| `INVALID_DATA` | Transaction data is invalid. Also returned by `mm price history` when the Price API responds with an empty or malformed body — retry, or verify the asset is priced with `mm price spot` |
 | `INVALID_INPUT` | Invalid user input |
 | `UNKNOWN_FLAG` | Unrecognized CLI flag; the error lists valid flags for the command |
 | `MISSING_ARG` | Required positional argument is missing |
@@ -67,6 +67,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_SORT_BY` | Invalid sort-by field value |
 | `INVALID_SORT_DIRECTION` | Invalid sort direction value |
 | `INVALID_HISTORY_TYPE` | Invalid history type value. Must be `closed`, `trade`, or `redeem` |
+| `INVALID_POLICY_YAML` | Policy YAML passed to `mm wallet policy set` is not a full policy document. Start from `mm wallet policy get` or `mm wallet policy template`, edit that YAML, and pass the complete object with a top-level `schema_version` |
 
 ## Wallet Errors
 
@@ -123,7 +124,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_TX_HASH` | Invalid transaction hash format |
 | `COMMAND_NOT_FOUND` | Unknown command. Run `mm --help` to list valid commands |
 | `NON_INTERACTIVE` | Operation requires interactive mode but no TTY is available |
-| `COMING_SOON` | Feature not yet available, such as `mm login qr` on production |
+| `COMING_SOON` | Feature not yet available in this environment |
 | `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
 | `INVALID_CONFIG_VALUE` | Invalid value for a config key, such as env not in `prod`, `dev`, or `uat` |
 
@@ -147,7 +148,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `RWA_GEO_RESTRICTED` | RWA asset not available in your region |
 | `RWA_NATIVE_TOKEN_UNSUPPORTED` | RWA cannot be swapped against native asset |
 | `RWA_MARKET_UNAVAILABLE` | RWA market temporarily unavailable |
-| `QUOTE_PERSIST_FAILED` | Failed to persist quote |
+| `QUOTE_PERSIST_FAILED` | Failed to persist the quote to `~/.metamask/swap-quotes/`. The CLI already retries a transient directory-creation failure once, so this means the path is genuinely unwritable. Create it manually with `mkdir -p ~/.metamask/swap-quotes && chmod 700 ~/.metamask/swap-quotes`, then re-run `mm swap quote` |
 | `QUOTE_NOT_FOUND` | Quote not found |
 | `EXECUTE_FAILED` | Swap execution failed |
 | `NO_TRADE_DATA` | No trade data available |
@@ -237,6 +238,12 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `NO_HISTORY_WALLETS` | No EVM wallets found in roster for transaction history |
+
+## Startup Errors
+
+| Code | Meaning |
+| --- | --- |
+| `UNSUPPORTED_NODE` | The active Node.js runtime is below the minimum supported version, 22.18. Emitted before the CLI loads, on stderr as plain text or as a JSON envelope when `--json` is passed, and exits 1. Upgrade Node.js from https://nodejs.org/ or with a version manager such as nvm, fnm, or volta |
 
 ## Network & Filesystem Errors
 

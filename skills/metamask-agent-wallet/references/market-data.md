@@ -121,14 +121,14 @@ Search tokens by query.
 ### Syntax
 
 ```bash
-mm token list search --query <query> [--chain-ids <chains>] [--limit <n>] [--after <cursor>]
+mm token list search <query> [--chain-ids <chains>] [--limit <n>] [--after <cursor>]
 ```
 
 ### Supported Flags
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--query` | Yes | Search query by symbol or name, such as USDC or Wrapped Ether |
+| `<query>` | Yes | Search query by symbol or name, such as USDC or Wrapped Ether. Positional argument; `--query` is also accepted |
 | `--chain-ids` | No | Comma-separated chain IDs, CAIP-2 IDs, or configured chain keys. Defaults to the active wallet chain, or `eip155:1` if none is selected |
 | `--limit` | No | Maximum results. Defaults to 10, range 1-500 |
 | `--after` | No | Pagination cursor |
@@ -136,9 +136,14 @@ mm token list search --query <query> [--chain-ids <chains>] [--limit <n>] [--aft
 ### Example
 
 ```bash
-mm token list search --query USDC --chain-ids 1,137 --limit 25
-mm token list search --query WETH --chain-ids eip155:8453
+mm token list search USDC --chain-ids 1,137 --limit 25
+mm token list search "Wrapped Ether" --chain-ids eip155:8453
 ```
+
+### Notes
+
+- Quote multi-word queries so they arrive as a single positional argument.
+- With no query, the command returns `MISSING_QUERY`; it never prompts for one.
 
 ## `token networks` Command
 
