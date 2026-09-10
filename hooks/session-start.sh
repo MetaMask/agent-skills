@@ -27,6 +27,11 @@ if [ -n "${GROK_PLUGIN_ROOT:-}" ]; then
   HOST="grok"
 fi
 
+# Antigravity CLI sets ANTIGRAVITY_AGENT on agent subprocesses.
+if [ -n "${ANTIGRAVITY_AGENT:-}" ]; then
+  HOST="antigravity"
+fi
+
 case "$HOST" in
   claude-code|cursor|codex|antigravity|grok) ;;
   *) HOST="unknown" ;;

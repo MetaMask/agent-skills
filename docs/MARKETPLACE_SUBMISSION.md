@@ -10,8 +10,8 @@ Plugin package lives in this repository. Complete these steps after merging the 
   - `claude --plugin-dir /path/to/agent-skills`
   - Cursor → Customize → Plugins → add local/Git path to this repo
   - `codex plugin marketplace add /path/to/agent-skills` then `codex plugin add metamask-agent-wallet@metamask`
-  - `agy plugin install /path/to/agent-skills/.antigravity-plugin` then `agy plugin list`
-  - `grok plugin marketplace add /path/to/agent-skills` then `grok plugin install metamask-agent-wallet --trust`
+  - `agy plugin install /path/to/agent-skills` then `agy plugin list`
+  - `grok plugin install /path/to/agent-skills --trust`
   - New session injects MetaMask readiness context; `~/.metamask/attribution.json` is created without email/PII
 
 ## Claude Code
@@ -68,11 +68,11 @@ Plugin package lives in this repository. Complete these steps after merging the 
 1. Validate locally:
 
    ```bash
-   agy plugin validate /path/to/agent-skills/.antigravity-plugin
-   agy plugin install /path/to/agent-skills/.antigravity-plugin
+   agy plugin validate /path/to/agent-skills
+   agy plugin install /path/to/agent-skills
    ```
 
-   Restart `agy` and run `agy plugin list`. Confirm `metamask-agent-wallet` is enabled.
+   Restart `agy` and run `agy plugin list`. Confirm `metamask-agent-wallet` is enabled and session-start attribution uses `installSource: "antigravity-plugin"`.
 
 2. Remote install (after the repo is public):
 
@@ -88,17 +88,15 @@ Plugin package lives in this repository. Complete these steps after merging the 
 
    ```bash
    grok plugin validate /path/to/agent-skills
-   grok plugin marketplace add /path/to/agent-skills
-   grok plugin install metamask-agent-wallet --trust
+   grok plugin install /path/to/agent-skills --trust
    ```
 
    Grok skips plugin hooks until you trust the plugin. After trusting, start a new session and confirm `~/.metamask/attribution.json` has `installSource: "grok-plugin"`.
 
-2. Remote marketplace (after the repo is public):
+2. Remote install (after the repo is public):
 
    ```bash
-   grok plugin marketplace add MetaMask/agent-skills
-   grok plugin install metamask-agent-wallet --trust
+   grok plugin install MetaMask/agent-skills --trust
    ```
 
 3. Submit the plugin to the official Grok Build catalog with a PR against [xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace):

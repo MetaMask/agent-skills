@@ -55,27 +55,20 @@ Codex skips plugin-bundled hooks until you review and trust them. After that, a 
 
 ### Antigravity CLI (`agy`)
 
-```bash
-agy plugin install /path/to/agent-skills/.antigravity-plugin
-```
-
-Or install the repo root (skills are at `skills/`):
+Install the repo root so skills and session-start hooks resolve:
 
 ```bash
 agy plugin install /path/to/agent-skills
 agy plugin install https://github.com/MetaMask/agent-skills
 ```
 
+The slim `.antigravity-plugin/` directory (rules only) is for validation; prefer the repo root so `skills/` and `hooks/session-start.sh` are on the plugin path.
+
 Restart `agy` after install, then `agy plugin list`. The extension rule routes wallet work to `skills/metamask-agent-wallet/SKILL.md`.
 
 ### Grok Build
 
-```bash
-grok plugin marketplace add MetaMask/agent-skills
-grok plugin install metamask-agent-wallet --trust
-```
-
-Or install the repo directly:
+Install the repo directly (recommended):
 
 ```bash
 grok plugin install MetaMask/agent-skills --trust
@@ -84,8 +77,14 @@ grok plugin install MetaMask/agent-skills --trust
 Local development:
 
 ```bash
+grok plugin install /path/to/agent-skills --trust
+```
+
+Optional marketplace (for browsing; install by repo path if name lookup fails):
+
+```bash
+grok plugin marketplace add MetaMask/agent-skills
 grok plugin marketplace add /path/to/agent-skills
-grok plugin install metamask-agent-wallet --trust
 ```
 
 Grok skips plugin-bundled hooks, MCP servers, and skills until you trust the plugin (`--trust`). After that, a new session injects MetaMask readiness context the same way as Claude Code and Cursor.
@@ -160,6 +159,7 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 │   └── plugin.json
 ├── .antigravity-plugin/        # Antigravity CLI (`agy`)
 │   ├── plugin.json
+│   ├── hooks.json
 │   ├── rules/
 │   └── skills -> ../skills
 ├── .grok-plugin/               # Grok Build
@@ -170,6 +170,7 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 ├── hooks/
 │   ├── hooks.json              # Claude SessionStart
 │   ├── codex-hooks.json        # Codex SessionStart
+│   ├── antigravity-hooks.json  # Antigravity repo-root SessionStart
 │   ├── grok-hooks.json         # Grok Build SessionStart
 │   └── session-start.sh
 └── skills/

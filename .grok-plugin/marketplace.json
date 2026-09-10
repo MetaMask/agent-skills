@@ -8,10 +8,7 @@
   "plugins": [
     {
       "name": "metamask-agent-wallet",
-      "source": {
-        "type": "local",
-        "path": "./"
-      },
+      "source": "./",
       "description": "MetaMask Agent Wallet skills and session-start readiness for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn.",
       "version": "1.0.0",
       "category": "development",
