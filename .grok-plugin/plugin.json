@@ -12,15 +12,10 @@
   "license": "MIT",
   "keywords": [
     "metamask",
-    "wallet",
-    "crypto",
-    "ethereum",
-    "swap",
-    "bridge",
-    "perps",
-    "prediction-markets",
+    "metamask agent wallet",
+    "mm cli",
     "agent-wallet"
   ],
   "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "hooks": "./hooks/grok-hooks.json"
 }

@@ -22,11 +22,16 @@ jobs:
             hooks.json \
             hooks/hooks.json \
             hooks/codex-hooks.json \
+            hooks/antigravity-hooks.json \
             .claude-plugin/plugin.json \
             .claude-plugin/marketplace.json \
             .cursor-plugin/plugin.json \
             .codex-plugin/plugin.json \
             .antigravity-plugin/plugin.json \
+            .antigravity-plugin/hooks.json \
+            .grok-plugin/plugin.json \
+            .grok-plugin/marketplace.json \
+            hooks/grok-hooks.json \
             .agents/plugins/marketplace.json
           do
             echo "Checking $f"
@@ -54,6 +59,15 @@ jobs:
             echo "claude CLI not available; skipped"
           fi
 
+      - name: Grok plugin validate (best-effort)
+        continue-on-error: true
+        run: |
+          if command -v grok >/dev/null 2>&1; then
+            grok plugin validate . || true
+          else
+            echo "grok CLI not available; skipped"
+          fi
+
       - name: Hook smoke (no mm required)
         run: |
           chmod +x hooks/session-start.sh
@@ -61,3 +75,6 @@ jobs:
           PATH="/usr/bin:/bin" hooks/session-start.sh --host claude-code | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "hookSpecificOutput" in d'
           PATH="/usr/bin:/bin" hooks/session-start.sh --host codex | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"] == "SessionStart"'
           PATH="/usr/bin:/bin" hooks/session-start.sh --host antigravity | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"] == "SessionStart"'
+          PATH="/usr/bin:/bin" hooks/session-start.sh --host grok | python3 -c 'import json,sys; d=json.load(sys.stdin); assert d["hookSpecificOutput"]["hookEventName"] == "SessionStart"'
+          GROK_PLUGIN_ROOT=/tmp PATH="/usr/bin:/bin" hooks/session-start.sh --host claude-code | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "host grok" in d["hookSpecificOutput"]["additionalContext"]'
+          ANTIGRAVITY_AGENT=1 PATH="/usr/bin:/bin" hooks/session-start.sh --host claude-code | python3 -c 'import json,sys; d=json.load(sys.stdin); assert "host antigravity" in d["hookSpecificOutput"]["additionalContext"]'

@@ -18,6 +18,8 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - Cross-links from `references/polling.md`, `references/transfer.md`, and `workflows/troubleshooting.md` to the new detection rule.
 - Codex plugin package: `.codex-plugin/plugin.json`, `.agents/plugins/marketplace.json`, and `hooks/codex-hooks.json`. Session-start attribution uses `installSource: "codex-plugin"`.
 - Antigravity CLI (`agy`) plugin: `.antigravity-plugin/plugin.json` plus a rule that routes wallet work to `skills/metamask-agent-wallet`. Session-start attribution uses `installSource: "antigravity-plugin"`.
+- Grok Build plugin: `.grok-plugin/plugin.json`, `.grok-plugin/marketplace.json`, and `hooks/grok-hooks.json`. Session-start attribution uses `installSource: "grok-plugin"`. When Grok loads Claude-format `hooks/hooks.json`, `GROK_PLUGIN_ROOT` still records the host as grok.
+- Antigravity session-start hooks: `hooks/antigravity-hooks.json` and `.antigravity-plugin/hooks.json`. `ANTIGRAVITY_AGENT` env detection in `session-start.sh`. Claude plugin manifest now declares `./hooks/hooks.json` explicitly.
 
 ### Changed
 

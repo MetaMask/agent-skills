@@ -4,13 +4,14 @@ Plugin package lives in this repository. Complete these steps after merging the 
 
 ## Prerequisites
 
-- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `.antigravity-plugin/`, `.agents/plugins/`, `hooks/`, root `plugin.json`, and updated `README.md`.
+- [ ] Push `MetaMask/agent-skills` with `.claude-plugin/`, `.cursor-plugin/`, `.codex-plugin/`, `.antigravity-plugin/`, `.grok-plugin/`, `.agents/plugins/`, `hooks/`, root `plugin.json`, and updated `README.md`.
 - [ ] Confirm plugin slug remains `metamask-agent-wallet` (immutable after listing).
 - [ ] Local smoke:
   - `claude --plugin-dir /path/to/agent-skills`
   - Cursor → Customize → Plugins → add local/Git path to this repo
   - `codex plugin marketplace add /path/to/agent-skills` then `codex plugin add metamask-agent-wallet@metamask`
-  - `agy plugin install /path/to/agent-skills/.antigravity-plugin` then `agy plugin list`
+  - `agy plugin install /path/to/agent-skills` then `agy plugin list`
+  - `grok plugin install /path/to/agent-skills --trust`
   - New session injects MetaMask readiness context; `~/.metamask/attribution.json` is created without email/PII
 
 ## Claude Code
@@ -67,11 +68,11 @@ Plugin package lives in this repository. Complete these steps after merging the 
 1. Validate locally:
 
    ```bash
-   agy plugin validate /path/to/agent-skills/.antigravity-plugin
-   agy plugin install /path/to/agent-skills/.antigravity-plugin
+   agy plugin validate /path/to/agent-skills
+   agy plugin install /path/to/agent-skills
    ```
 
-   Restart `agy` and run `agy plugin list`. Confirm `metamask-agent-wallet` is enabled.
+   Restart `agy` and run `agy plugin list`. Confirm `metamask-agent-wallet` is enabled and session-start attribution uses `installSource: "antigravity-plugin"`.
 
 2. Remote install (after the repo is public):
 
@@ -80,6 +81,32 @@ Plugin package lives in this repository. Complete these steps after merging the 
    ```
 
 3. Checklist for review: kebab-case `name`, slim `plugin.json` (`name` + `description` only), `skills/` present, rules documented, no committed secrets.
+
+## Grok Build
+
+1. Validate locally:
+
+   ```bash
+   grok plugin validate /path/to/agent-skills
+   grok plugin install /path/to/agent-skills --trust
+   ```
+
+   Grok skips plugin hooks until you trust the plugin. After trusting, start a new session and confirm `~/.metamask/attribution.json` has `installSource: "grok-plugin"`.
+
+2. Remote install (after the repo is public):
+
+   ```bash
+   grok plugin install MetaMask/agent-skills --trust
+   ```
+
+3. Submit the plugin to the official Grok Build catalog with a PR against [xai-org/plugin-marketplace](https://github.com/xai-org/plugin-marketplace):
+   - Add one remote entry to `.grok-plugin/marketplace.json`
+   - Pin a full 40-character lowercase commit `sha` from `MetaMask/agent-skills`
+   - Keep `keywords` brand-scoped (`metamask`, `metamask agent wallet`, `mm cli`) — generic terms like `wallet` or `swap` are rejected
+   - Run `python3 scripts/generate-plugin-index.py` and `python3 scripts/validate-catalog.py` in that repo
+   - Listing uses this repo's skills plus `hooks/hooks.json` / `hooks/grok-hooks.json`
+
+4. Checklist for review: kebab-case `name`, honest `description`, README, official-org source, no committed secrets, hooks documented (session-start runs `mm doctor`, never auto-installs).
 
 ## After listing
 
