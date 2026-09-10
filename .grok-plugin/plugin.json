@@ -1,0 +1,21 @@
+{
+  "name": "metamask-agent-wallet",
+  "displayName": "MetaMask Agent Wallet",
+  "version": "1.0.0",
+  "description": "MetaMask Agent Wallet skills and session-start readiness for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn.",
+  "author": {
+    "name": "MetaMask",
+    "url": "https://metamask.io"
+  },
+  "homepage": "https://github.com/MetaMask/agent-skills",
+  "repository": "https://github.com/MetaMask/agent-skills",
+  "license": "MIT",
+  "keywords": [
+    "metamask",
+    "metamask agent wallet",
+    "mm cli",
+    "agent-wallet"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks/grok-hooks.json"
+}

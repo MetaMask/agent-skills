@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# Session-start hook for MetaMask Agent Wallet plugin (Claude Code, Cursor, Codex, Antigravity).
+# Session-start hook for MetaMask Agent Wallet plugin (Claude Code, Cursor, Codex, Antigravity, Grok).
 # Never installs software. Always exits 0. Emits host-specific additional context.
 set -eu
 
@@ -20,16 +20,24 @@ while [ $# -gt 0 ]; do
   esac
 done
 
+# Grok Build also loads Claude-format hooks/hooks.json and sets GROK_PLUGIN_ROOT
+# (plus a CLAUDE_PLUGIN_ROOT alias). Prefer grok so attribution is not recorded
+# as claude-code when this script is invoked without --host grok.
+if [ -n "${GROK_PLUGIN_ROOT:-}" ]; then
+  HOST="grok"
+fi
+
 case "$HOST" in
-  claude-code|cursor|codex|antigravity) ;;
+  claude-code|cursor|codex|antigravity|grok) ;;
   *) HOST="unknown" ;;
 esac
 
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 # Codex sets PLUGIN_ROOT (and CLAUDE_PLUGIN_ROOT as a compat alias).
+# Grok sets GROK_PLUGIN_ROOT (and CLAUDE_PLUGIN_ROOT as a compat alias).
 # Do not overwrite a host-provided PLUGIN_ROOT.
 if [ -z "${PLUGIN_ROOT:-}" ]; then
-  PLUGIN_ROOT="${CLAUDE_PLUGIN_ROOT:-${CURSOR_PLUGIN_ROOT:-}}"
+  PLUGIN_ROOT="${GROK_PLUGIN_ROOT:-${CLAUDE_PLUGIN_ROOT:-${CURSOR_PLUGIN_ROOT:-}}}"
 fi
 if [ -z "$PLUGIN_ROOT" ]; then
   PLUGIN_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
@@ -51,6 +59,7 @@ case "$HOST" in
   cursor) INSTALL_SOURCE="cursor-plugin" ;;
   codex) INSTALL_SOURCE="codex-plugin" ;;
   antigravity) INSTALL_SOURCE="antigravity-plugin" ;;
+  grok) INSTALL_SOURCE="grok-plugin" ;;
   *) INSTALL_SOURCE="unknown-plugin" ;;
 esac
 
@@ -209,7 +218,7 @@ fi
 ESCAPED=$(json_escape "$CONTEXT")
 
 case "$HOST" in
-  claude-code|codex|antigravity)
+  claude-code|codex|antigravity|grok)
     printf '%s\n' "{\"hookSpecificOutput\":{\"hookEventName\":\"SessionStart\",\"additionalContext\":\"${ESCAPED}\"}}"
     ;;
   cursor)
