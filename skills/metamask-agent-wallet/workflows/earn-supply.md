@@ -60,6 +60,6 @@ Before executing, confirm with the user: token, amount, chain, vault/protocol, a
 - `VAULT_NOT_FOUND`: no matching vault for the token/chain/protocol. Run `mm earn markets` to check available options.
 - `UNSUPPORTED_CHAIN`: chain not supported by earn. Run `mm chains list` to check.
 - `INSUFFICIENT_FUNDS`: wallet lacks the token balance. Fund the wallet first.
-- `EXECUTE_FAILED`: transaction reverted or cross-chain timeout. Retry or check the transaction on the block explorer.
+- `EXECUTE_FAILED`: if the message names MFA approval and `mm wallet requests watch`, follow MFA Approval Pauses in `SKILL.md`. Otherwise the transaction reverted or a cross-chain timeout occurred — retry or check the transaction on the block explorer.
 - `QUOTE_FAILED`: LiFi returned no executable transaction. Try a different vault or amount.
 - Cross-chain supply: when `--from-chain-id` differs from `--chain-id`, `--from-token` is required. The CLI polls until the cross-chain transaction completes (timeout: 10 minutes).

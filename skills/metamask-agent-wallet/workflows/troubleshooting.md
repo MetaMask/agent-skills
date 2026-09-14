@@ -25,6 +25,9 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | Symptom | Likely cause | Next step |
 | --- | --- | --- |
 | `mm: command not found` | Binary not installed or not on `PATH` | Check install and PATH |
+| `PLUGIN_BETA_DISABLED` on a plugin command or on `mm plugins install` | The plugin system is beta and off by default | Ask the user before running `mm config set experimentalPlugins true`. See `references/plugins.md` |
+| `PLUGIN_UNVERIFIED_SOURCE` on install or link | The source is a `file:` spec, a git source, or a bare path rather than npm | Install from npm. For a plugin the user is building, set `experimentalAllowUnverifiedInstalls` to `true` |
+| `PERMISSION_DENIED` from a plugin command | The capability was not approved, or the approval no longer matches the installed version and manifest | Run `mm plugins install <pkg>` so the user can approve the current manifest. See `references/plugins.md` |
 | `UNSUPPORTED_NODE` on any command | Node.js runtime is older than 22.18 | Upgrade Node.js from https://nodejs.org/ or switch versions with nvm, fnm, or volta, then re-run |
 | Async command returns a polling id and appears stuck | Request was dispatched without `--wait` | Use `mm wallet requests list` or `mm wallet requests watch <polling-id>` |
 | Auth errors after previously working | Expired token | Check `mm auth status` and session file under `~/.metamask/` |
@@ -38,6 +41,8 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `UNSUPPORTED_CHAIN` on swap or predict | Chain not supported for this feature | Run `mm chains list` and use a chain with the required feature |
 | `QUOTE_PERSIST_FAILED` on `swap quote` | `~/.metamask/swap-quotes/` is not writable; the CLI already retried once | Run `mkdir -p ~/.metamask/swap-quotes && chmod 700 ~/.metamask/swap-quotes`, then re-run the quote |
 | `INVALID_DATA` on `price history` | Price API returned an empty or malformed body | Retry once, then check the asset is priced with `mm price spot --asset-ids <chain-id>/<asset-type>` |
+| `INVALID_ASSET_ID` on `price spot` / `price history` / `token assets` | Malformed CAIP-19 id, or a bare chain id where a full asset id is required | Use `eip155:1/slip44:60` (or `erc20:0x…`). On `price spot` only, `eip155:1` expands to the native asset |
+| `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS` | Polymarket HTTP 451 | Distinct from `PREDICT_GEOBLOCKED`. Run `mm predict geoblock` and do not retry trading from a restricted region |
 | `REFUEL_UNSUPPORTED_ROUTE` | `--refuel` used on same-chain swap or native-destination bridge | Drop `--refuel` and re-run |
 | `AMOUNT_TOO_LOW` or `AMOUNT_TOO_HIGH` | Amount outside provider's accepted range | Adjust the amount and re-quote |
 | `SLIPPAGE_TOO_HIGH` or `SLIPPAGE_TOO_LOW` | Slippage outside accepted range for this route | Adjust `--slippage` and re-quote |

@@ -39,7 +39,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_LIMIT` | Invalid limit value |
 | `INVALID_INTERVAL` | Invalid time interval |
 | `INVALID_TIMESTAMP` | Invalid timestamp |
-| `INVALID_ASSET_ID` | Invalid asset identifier |
+| `INVALID_ASSET_ID` | Invalid CAIP-19 asset id. On `mm price spot`, pass a full id such as `eip155:1/slip44:60` or a CAIP-2 chain id such as `eip155:1` for the native asset. On `mm price history`, `--asset-type` must be `<namespace>:<reference>`. `mm token assets` rejects bare chain ids |
 | `MISSING_ASSET_IDS` | Missing asset IDs |
 | `MISSING_ASSET_TYPE` | Missing asset type |
 | `MISSING_QUERY` | Missing search query |
@@ -150,7 +150,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `RWA_MARKET_UNAVAILABLE` | RWA market temporarily unavailable |
 | `QUOTE_PERSIST_FAILED` | Failed to persist the quote to `~/.metamask/swap-quotes/`. The CLI already retries a transient directory-creation failure once, so this means the path is genuinely unwritable. Create it manually with `mkdir -p ~/.metamask/swap-quotes && chmod 700 ~/.metamask/swap-quotes`, then re-run `mm swap quote` |
 | `QUOTE_NOT_FOUND` | Quote not found |
-| `EXECUTE_FAILED` | Swap execution failed |
+| `EXECUTE_FAILED` | Swap execution failed. When the job is paused on MFA and no hash is available yet, the message names the wait and `mm wallet requests watch` — treat as an MFA pause, not a missing hash |
 | `NO_TRADE_DATA` | No trade data available |
 | `STATUS_UNAVAILABLE` | Swap status unavailable |
 | `GASLESS_UNSUPPORTED` | Gasless relay is not supported on this chain |
@@ -211,6 +211,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PREDICT_METHOD_UNAVAILABLE` | Predict method not available |
 | `PREDICT_DEPOSIT_FAILED` | Predict deposit failed |
 | `PREDICT_ERROR` | Generic Predict error. Re-check inputs and mode via `mm predict mode`; run `mm predict status` to verify back-end reachability |
+| `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS` | Polymarket returned HTTP 451 (unavailable for legal reasons). Distinct from `PREDICT_GEOBLOCKED`, which comes from the dedicated geoblock API. Check `mm predict geoblock` |
 | `PREDICT_INSUFFICIENT_GAS` | Insufficient native POL for gas on Polygon. Top up wallet with POL, check balances with `mm wallet balance`, then retry |
 | `PREDICT_GEOBLOCKED` | Polymarket is not available in your region; Predict features cannot be used from this location. Emitted by `mm predict setup` as a region guard and surfaced by `mm predict geoblock` |
 | `UNSUPPORTED_PREDICT_CHAIN` | Predict chain not supported |
@@ -226,7 +227,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `NOT_REDEEMABLE` | Vault does not support withdrawals |
 | `EARN_API_ERROR` | LiFi API error or rate limit |
 | `QUOTE_FAILED` | LiFi returned no executable transaction |
-| `EXECUTE_FAILED` | Transaction reverted, no hash returned, or cross-chain timeout |
+| `EXECUTE_FAILED` | Transaction reverted, no hash returned, or cross-chain timeout. When the job is paused on MFA, the message names the wait and `mm wallet requests watch` — treat as an MFA pause, not a missing hash |
 | `NO_POSITION` | No matching earn position found for the wallet |
 | `POSITION_NOT_FOUND` | No matching earn position found for the specified vault/token |
 | `AMBIGUOUS_VAULT` | Multiple vaults match the token/chain/protocol. Narrow with `--vault` or `--protocol` |
@@ -244,6 +245,26 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | Code | Meaning |
 | --- | --- |
 | `UNSUPPORTED_NODE` | The active Node.js runtime is below the minimum supported version, 22.18. Emitted before the CLI loads, on stderr as plain text or as a JSON envelope when `--json` is passed, and exits 1. Upgrade Node.js from https://nodejs.org/ or with a version manager such as nvm, fnm, or volta |
+
+## Plugin Errors
+
+See [plugins.md](plugins.md) for the install flow and the gates behind these codes.
+
+| Code | Meaning |
+| --- | --- |
+| `PLUGIN_BETA_DISABLED` | The plugin system is beta and off. Ask the user before running `mm config set experimentalPlugins true`. Emitted both when running a plugin command and when installing |
+| `PLUGIN_UNVERIFIED_SOURCE` | The CLI refused a `file:` spec, a git source, or a bare path. Install from npm. For a plugin the user is building, set `experimentalAllowUnverifiedInstalls` to `true` |
+| `PLUGIN_METADATA_UNAVAILABLE` | `npm view <pkg> --json` could not be resolved. Installs fail closed, so nothing was installed. Check the package name and connectivity, then retry |
+| `PLUGIN_NOT_FOUND` | The package spec did not resolve to a name and version |
+| `PLUGIN_MANIFEST_INVALID` | `package.json#mm` is missing or does not match the manifest schema |
+| `PLUGIN_CLI_VERSION` | The plugin's `minCliVersion` is not satisfied by the installed CLI. Upgrade the CLI or install a compatible plugin version |
+| `PLUGIN_ID_COLLISION` | A plugin command id collides with a built-in `mm` command |
+| `PLUGIN_HOOKS_FORBIDDEN` | The package declares `oclif.hooks` or `oclif.plugins`, which run outside the plugin sandbox. Plugins may only contribute commands |
+| `PLUGIN_MANIFEST_FILE_MISSING` | The package shipped no prebuilt `oclif.manifest.json`. It was not approved and has been removed again |
+| `PLUGIN_INVALID_BASE` | A plugin command class does not extend `PluginCommand` |
+| `PLUGIN_SEALED_OVERRIDE` | A plugin command overrides a sealed lifecycle member. Plugin commands may implement only `execute` plus the documented hooks |
+| `PERMISSION_DENIED` on install | The user declined consent, or a non-TTY install was attempted without `--accept-permissions`. A run that passes `--json` needs that flag as well |
+| `PERMISSION_DENIED` on a plugin command | The capability was not approved, the command id is missing from `approvedCommandIds`, or the approval no longer matches the installed version and manifest hash. Run `mm plugins install <pkg>` so the user can approve the current manifest. This code is also raised when a plugin reaches for the host only session or mnemonic store |
 
 ## Network & Filesystem Errors
 

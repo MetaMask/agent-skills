@@ -6,14 +6,14 @@
   },
   "metadata": {
     "description": "MetaMask plugins for Claude Code — Agent Wallet CLI skills and session readiness.",
-    "version": "1.0.0"
+    "version": "1.1.0"
   },
   "plugins": [
     {
       "name": "metamask-agent-wallet",
       "source": "./",
       "description": "MetaMask Agent Wallet skills and session-start readiness for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn.",
-      "version": "1.0.0",
+      "version": "1.1.0",
       "author": {
         "name": "MetaMask",
         "url": "https://metamask.io"

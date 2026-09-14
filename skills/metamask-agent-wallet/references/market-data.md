@@ -16,7 +16,7 @@ mm price spot --asset-ids <asset-ids> [--vs <currency>] [--market-data]
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs |
+| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs. A bare CAIP-2 chain id such as `eip155:1` auto-completes to that chain's native asset (`eip155:1/slip44:60`). Malformed ids return `INVALID_ASSET_ID` |
 | `--vs` | No | Quote currency. Defaults to `usd` |
 | `--market-data` | No | Include market cap, supply, and change percent |
 
@@ -24,6 +24,7 @@ mm price spot --asset-ids <asset-ids> [--vs <currency>] [--market-data]
 
 ```bash
 mm price spot --asset-ids "eip155:1/slip44:60,eip155:137/slip44:966"
+mm price spot --asset-ids eip155:1
 mm price spot --asset-ids "eip155:1/slip44:60" --vs eur
 mm price spot --asset-ids "eip155:1/slip44:60" --market-data
 ```
@@ -35,7 +36,7 @@ Fetch historical prices for an asset.
 ### Syntax
 
 ```bash
-mm price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-period <period>] [--interval <interval>] [--from <unix>] [--to <unix>] [--vs <currency>]
+mm price history --chain-id <caip2-chain-id> [--asset-type <asset-type>] [--time-period <period>] [--interval <interval>] [--from <unix>] [--to <unix>] [--vs <currency>]
 ```
 
 ### Supported Flags
@@ -43,7 +44,7 @@ mm price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-p
 | Name | Required | Description |
 | --- | --- | --- |
 | `--chain-id` | Yes | CAIP-2 chain ID, such as `eip155:1`. Run `mm price networks` to see supported chains |
-| `--asset-type` | Yes | CAIP-19 asset type, such as `slip44:60` for ETH or `erc20:0x...` for ERC-20 tokens |
+| `--asset-type` | No | CAIP-19 asset type, such as `slip44:60` for ETH or `erc20:0x...` for ERC-20 tokens. Defaults to the chain's native asset. Invalid types return `INVALID_ASSET_ID` |
 | `--time-period` | No | Time period, such as `1d`, `7d`, `30d`, `2M`, `1y`, or `3y` |
 | `--interval` | No | Sampling interval: `5m`, `15m`, `30m`, `hourly`, or `daily` |
 | `--from` | No | Start time as a Unix timestamp in seconds. Use with `--to` instead of `--time-period` for custom ranges |
@@ -53,6 +54,7 @@ mm price history --chain-id <caip2-chain-id> --asset-type <asset-type> [--time-p
 ### Example
 
 ```bash
+mm price history --chain-id eip155:1 --time-period 7d --interval daily
 mm price history --chain-id eip155:1 --asset-type slip44:60 --time-period 7d --interval daily
 ```
 
@@ -175,7 +177,7 @@ mm token assets --asset-ids <asset-ids> [--include-market-data] [--include-token
 
 | Name | Required | Description |
 | --- | --- | --- |
-| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs, such as `eip155:1/erc20:0xa0b8...`. Run `mm token networks` to see supported chains |
+| `--asset-ids` | Yes | Comma-separated CAIP-19 asset IDs, such as `eip155:1/erc20:0xa0b8...`. Run `mm token networks` to see supported chains. Bare CAIP-2 chain ids are rejected with `INVALID_ASSET_ID`; pass a full asset id |
 | `--include-market-data` | No | Include market cap, volume, and price data |
 | `--include-token-security-data` | No | Include token security signals such as scam risk and honeypot detection |
 | `--include-labels` | No | Include token labels and categories |

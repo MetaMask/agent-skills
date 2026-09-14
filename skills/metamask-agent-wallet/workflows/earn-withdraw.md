@@ -50,5 +50,5 @@ Before executing, confirm with the user: token, amount (or full balance), chain,
 - `NOT_REDEEMABLE`: the vault does not support withdrawals. Inform the user and suggest checking other vaults.
 - `VAULT_NOT_FOUND`: no matching vault. Run `mm earn positions` to check current positions.
 - `INSUFFICIENT_FUNDS`: trying to withdraw more than the deposited balance. Use `--all` to withdraw the full amount.
-- `EXECUTE_FAILED`: transaction reverted. Retry or check the transaction on the block explorer.
+- `EXECUTE_FAILED`: if the message names MFA approval and `mm wallet requests watch`, follow MFA Approval Pauses in `SKILL.md`. Otherwise the transaction reverted — retry or check the transaction on the block explorer.
 - `QUOTE_FAILED`: LiFi returned no executable transaction. Try a different amount or vault.

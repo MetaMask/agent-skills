@@ -28,7 +28,7 @@ This blocks until credential, deposit-wallet, and approval jobs complete. Withou
 
 The owner EOA needs POL on Polygon for gas to complete the setup transactions.
 
-Polymarket is geoblocked in some regions. `predict setup` checks the caller's IP first and aborts with `PREDICT_GEOBLOCKED` before any wallet interaction if the region is restricted. To check region status independently:
+Polymarket is geoblocked in some regions. `predict setup` checks the caller's IP first and aborts with `PREDICT_GEOBLOCKED` before any wallet interaction if the region is restricted. Polymarket HTTP 451 maps to `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS` instead of generic `PREDICT_ERROR`. To check region status independently:
 
 ```bash
 mm predict geoblock

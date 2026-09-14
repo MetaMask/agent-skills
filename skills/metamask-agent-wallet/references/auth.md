@@ -149,7 +149,7 @@ Show persisted CLI configuration. Does not require authentication.
 ### Syntax
 
 ```bash
-mm config get [env|verbose|format|walletTimeoutSeconds]
+mm config get [env|verbose|format|walletTimeoutSeconds|experimentalPlugins|experimentalAllowUnverifiedInstalls]
 ```
 
 ### Supported Keys
@@ -160,6 +160,8 @@ mm config get [env|verbose|format|walletTimeoutSeconds]
 | `verbose` | Whether verbose logging is persisted, `true` or `false` |
 | `format` | Default output format: `json`, `text`, or `toon` |
 | `walletTimeoutSeconds` | Default wallet job timeout in seconds, 1-600 |
+| `experimentalPlugins` | Enable the beta `mm plugins` system, `true` or `false`. Defaults to `false`. When false, plugin commands fail with `PLUGIN_BETA_DISABLED` |
+| `experimentalAllowUnverifiedInstalls` | Allow `file:`, git, and `mm plugins link` sources, `true` or `false`. Required in addition to `experimentalPlugins` for those sources |
 
 Omit the key to return all values.
 
@@ -177,7 +179,7 @@ Persist a CLI configuration value in `~/.metamask/config.json`. Does not require
 ### Syntax
 
 ```bash
-mm config set <env|verbose|format|walletTimeoutSeconds> <value>
+mm config set <env|verbose|format|walletTimeoutSeconds|experimentalPlugins|experimentalAllowUnverifiedInstalls> <value>
 ```
 
 ### Supported Keys
@@ -188,6 +190,8 @@ mm config set <env|verbose|format|walletTimeoutSeconds> <value>
 | `verbose` | `true` or `false` |
 | `format` | `json`, `text`, or `toon` |
 | `walletTimeoutSeconds` | Positive integer, 1-600 |
+| `experimentalPlugins` | `true` or `false` |
+| `experimentalAllowUnverifiedInstalls` | `true` or `false` |
 
 ### Overrides
 
@@ -206,12 +210,14 @@ mm config set env prod
 mm config set env dev
 mm config set env uat
 mm config set format toon
+mm config set experimentalPlugins true
 ```
 
 ### Note
 
 - Switch environments at any time with `mm config set env <prod|dev|uat>`.
 - Non-prod sessions are stored in env-scoped files under `~/.metamask/`, such as `session.dev.json` and `session.uat.json`; prod uses `session.json`.
+- The plugin system is off by default. For plugin install and run, set `experimentalPlugins` to `true`. For local `file:` / git / `plugins link`, also set `experimentalAllowUnverifiedInstalls`.
 
 ## `reset` Command
 

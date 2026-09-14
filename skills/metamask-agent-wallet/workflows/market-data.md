@@ -36,6 +36,7 @@ Fetch the current price for one or more tokens:
 
 ```bash
 mm price spot --asset-ids "eip155:1/slip44:60"
+mm price spot --asset-ids eip155:1
 mm price spot --asset-ids "eip155:1/slip44:60,eip155:137/slip44:966" --vs eur --market-data
 ```
 
@@ -46,6 +47,7 @@ Use `mm price networks` to discover supported CAIP-2 chain IDs and `mm price cur
 Fetch historical price data for an asset:
 
 ```bash
+mm price history --chain-id eip155:1 --time-period 7d --interval daily
 mm price history --chain-id eip155:1 --asset-type slip44:60 --time-period 7d --interval daily
 ```
 
@@ -59,4 +61,6 @@ For a custom date range, use `--from` and `--to` with Unix timestamps instead of
 - Use `mm chains list` to discover supported chain IDs.
 - If a token search returns no results, try broader chains or alternate names.
 - CAIP-19 asset IDs follow the format `eip155:<chainId>/slip44:<coinType>` for native tokens or `eip155:<chainId>/erc20:<contractAddress>` for ERC-20s.
+- On `mm price spot`, a bare CAIP-2 chain id such as `eip155:1` is accepted and expands to the native asset. `mm token assets` still requires a full CAIP-19 id.
+- On `mm price history`, omit `--asset-type` to use the chain's native asset.
 - Use `--include-token-security-data` on `token assets` to surface scam or risk signals before the user trades an unfamiliar token.

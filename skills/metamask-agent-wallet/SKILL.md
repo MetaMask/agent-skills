@@ -1,11 +1,11 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations.
 license: MIT
 metadata:
   author: metamask
-  version: "7.5.0"
-  cliVersion: "6.1.5"
+  version: "7.6.0"
+  cliVersion: "6.2.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -35,6 +35,14 @@ Match the user's intent to a command and reference file, then read the reference
 | Remove BYOK mnemonic encryption password | `mm wallet password remove` | [auth.md](references/auth.md) |
 | Interpret raw CLI error codes | `AuthError`, `ValidationError`, `WALLET_ERROR` | [errors.md](references/errors.md) |
 | Inspect CLI, skills, environment, and session health | `mm doctor` | [doctor.md](references/doctor.md) |
+| List installed CLI plugins | `mm plugins` | [plugins.md](references/plugins.md) |
+| Inspect an installed CLI plugin | `mm plugins inspect` | [plugins.md](references/plugins.md) |
+| Install a CLI plugin | `mm plugins install` | [plugins.md](references/plugins.md) |
+| Update a CLI plugin | `mm plugins update` | [plugins.md](references/plugins.md) |
+| Uninstall a CLI plugin | `mm plugins uninstall` | [plugins.md](references/plugins.md) |
+| Remove all user-installed CLI plugins | `mm plugins reset` | [plugins.md](references/plugins.md) |
+| Link a local plugin directory for development | `mm plugins link` | [plugins.md](references/plugins.md) |
+| Enable or disable the plugin beta | `mm config set experimentalPlugins` | [plugins.md](references/plugins.md) |
 | Decode EVM calldata into a human-readable intent | `mm decode` | [decode.md](references/decode.md) |
 | Create a wallet | `mm wallet create` | [wallet.md](references/wallet.md) |
 | List all wallets | `mm wallet list` | [wallet.md](references/wallet.md) |
@@ -154,6 +162,8 @@ Every `mm` command accepts these flags:
 
 Always use `--toon` for command output unless the user explicitly requests a different format.
 
+The `mm plugins` commands are the exception. They come from oclif and accept none of these global flags, so `mm plugins --toon` fails with `Nonexistent flag: --toon`. Use `--json` or plain text there. See [plugins.md](references/plugins.md).
+
 ## Preflight
 
 Run these checks before the first CLI operation in a session, in order.
@@ -161,13 +171,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.1.5, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v6.2.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.1.4 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.2.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
@@ -229,6 +239,7 @@ Before constructing any command, validate all user-provided values:
 | `--strategy` | Comma-separated list from: `cost`, `speed`, `impact`, `output` |
 | `--wallet-timeout` | Must be a positive integer between 1 and 600 |
 | `--password` | Must be a non-empty string. Never log, display, or store the value. |
+| Plugin spec for `mm plugins install` | An npm package name, optionally `name@version` or `name@tag`. Reject spaces and shell metacharacters. `file:`, git, and bare `owner/repo` specs are unverified sources and are refused unless the user has enabled dev mode |
 | x402 `asset` | Must be a valid contract address on a network returned by `mm chains list`. The currency choice is the server's offer confirmed by the user; the script keeps no currency allowlist. |
 | x402 `payTo` / authorization `to` | Must match `^0x[0-9a-fA-F]{40}$` and equal the recipient in the `402` |
 | x402 `value` | Atomic-unit integer that exactly equals the offered amount. The `exact` scheme is not a maximum |
@@ -255,6 +266,10 @@ Do not pass unvalidated user input into any command.
 | Predict redeem | Always confirm the target, either condition ID or `--all`, before executing. `--all` redeems every winning position |
 | Earn supply | Always confirm token, amount, chain, vault/protocol, and APY before executing. For cross-chain supply, also confirm source chain and source token |
 | Earn withdraw | Always confirm token, amount or full balance, chain, and vault/protocol before executing |
+| Plugin install, update, or link | Always show package name, version, declared command ids, `dataAccess`, and every requested capability, and name `wallet-submit` and `network-manage` as sensitive. Get explicit approval before installing. Never pass `--accept-permissions` for a manifest the user has not reviewed |
+| Plugin uninstall or reset | Always confirm which packages are affected. `mm plugins reset` removes every user-installed and linked plugin |
+| Enabling the plugin beta or unverified installs | Always confirm before running `mm config set experimentalPlugins true` or `mm config set experimentalAllowUnverifiedInstalls true` |
+| Commands added by a plugin | Treat these as third-party code running with CLI privileges. Apply the same confirmation rules as the equivalent host operation |
 | Cancel-all operations | Always confirm scope and exact destructive effect before executing |
 | Wallet policy changes | Broadening policy changes require MFA approval; non-broadening changes apply immediately |
 | Trading mode changes | Broadening from guard to beast requires MFA approval. Tightening from beast to guard applies immediately |
@@ -303,7 +318,7 @@ When `AWAITING_MFA` appears:
 2. Surface the human instruction from the notice to the user.
 3. If a `pollingId` is present in the notice or command output, tell the user they can track completion with `mm wallet requests watch <polling-id>`.
 4. Do **not** retry the same wallet operation while the job is still pending.
-5. On `mm swap execute` with `--no-wait`, an MFA pause may return `EXECUTE_FAILED` with a message naming the approval wait and the watch command — that is still an MFA pause, not a missing hash.
+5. On `mm swap execute`, `mm earn supply`, or `mm earn withdraw`, an MFA pause with no hash yet may return `EXECUTE_FAILED` with a message naming the approval wait and `mm wallet requests watch <polling-id>` — that is still an MFA pause, not a missing hash.
 
 For approval surfaces and recovery steps, see [troubleshooting.md](workflows/troubleshooting.md).
 
