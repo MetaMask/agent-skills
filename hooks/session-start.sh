@@ -49,7 +49,7 @@ if [ -z "$PLUGIN_ROOT" ]; then
 fi
 
 SKILL_MD="$PLUGIN_ROOT/skills/metamask-agent-wallet/SKILL.md"
-PLUGIN_VERSION="1.1.0"
+PLUGIN_VERSION="1.0.0"
 CLI_VERSION="6.2.0"
 if [ -f "$SKILL_MD" ]; then
   # Prefer metadata.cliVersion / metadata.version from YAML frontmatter.

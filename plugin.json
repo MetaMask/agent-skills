@@ -1,7 +1,7 @@
 {
   "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
   "name": "metamask-agent-wallet",
-  "version": "1.1.0",
+  "version": "1.0.0",
   "description": "MetaMask Agent Wallet skills for the mm CLI — auth, wallets, swaps, bridges, perps, prediction markets, and earn.",
   "author": {
     "name": "MetaMask",
