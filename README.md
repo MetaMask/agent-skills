@@ -1,6 +1,6 @@
 # MetaMask Agent CLI Skills
 
-SKILLs for the MetaMask Agent CLI (`@metamask/agent-wallet` v6.2.0). These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, earn yield on DeFi vaults, and more using the MetaMask Agent Wallet CLI (`mm`).
+SKILLs for the MetaMask Agent CLI (`@metamask/agent-wallet` v7.0.0). These skills enable AI agents to authenticate, manage wallets, swap tokens, bridge across chains, trade perpetual futures, earn yield on DeFi vaults, and more using the MetaMask Agent Wallet CLI (`mm`).
 
 This repository is also packaged as a **plugin** for Claude Code, Cursor, Codex, Antigravity CLI (`agy`), and Grok Build. The plugin ships the same skills plus a session-start hook that checks CLI readiness via `mm doctor` and records local install attribution.
 
@@ -117,7 +117,7 @@ The plugin does not bundle `mm`. After the agent asks and the user consents:
 ```bash
 npm install -g @metamask/agent-wallet@latest
 # or pin to the skill's cliVersion, e.g.:
-npm install -g @metamask/agent-wallet@6.2.0
+npm install -g @metamask/agent-wallet@7.0.0
 ```
 
 Requires a supported Node.js version. Then complete onboarding with `mm login` and `mm init` (see the skill workflows).

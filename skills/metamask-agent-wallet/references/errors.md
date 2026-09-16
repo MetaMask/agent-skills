@@ -81,6 +81,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `PASSWORD_MISMATCH` | Password confirmation does not match |
 | `EMPTY_PASSWORD` | Empty password provided |
 | `WALLET_NOT_FOUND` | Wallet not found |
+| `WALLET_LIMIT_EXCEEDED` | The project already has the maximum of 100 wallets, so `mm wallet create` cannot add another. Run `mm wallet list` to review existing wallets, and select one with `mm wallet select` instead of creating a new one |
 | `WALLET_ERROR` | Wallet provider or wallet operation error. Includes on-chain reverts and network failures from wallet paths |
 | `WALLET_METADATA` | Wallet metadata error |
 | `WALLET_NOT_REGISTERED` | Server-side BYOK wallet registration failed. Re-run `mm init --wallet byok` |
@@ -169,7 +170,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `UNSUPPORTED_ASSET` | Unsupported asset |
 | `UNSUPPORTED_SOURCE_CHAIN` | Unsupported source chain for perps deposit |
 | `INVALID_SYMBOL` | Unknown perpetual market symbol |
-| `INVALID_AMOUNT` | Invalid amount |
+| `INVALID_AMOUNT` | Invalid amount. Uses the shared amount parser — see the Validation Errors entry for accepted formats and the `reason`/hint fields |
 | `INVALID_SIZE` | Invalid position size |
 | `INVALID_LEVERAGE` | Invalid leverage value |
 | `INVALID_PRICE` | Invalid price |

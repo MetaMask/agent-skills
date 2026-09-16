@@ -4,8 +4,8 @@ description: Use when the user asks anything about blockchain wallets, transacti
 license: MIT
 metadata:
   author: metamask
-  version: "7.6.0"
-  cliVersion: "6.2.0"
+  version: "7.7.0"
+  cliVersion: "7.0.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -171,13 +171,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v6.2.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v7.0.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/6.2.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/7.0.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
@@ -223,7 +223,7 @@ Before constructing any command, validate all user-provided values:
 | `--payload` for decode | Must be 0x-prefixed hex calldata, matching `^0x[0-9a-fA-F]+$` |
 | `--token` | Must be a valid hex address or known symbol |
 | `--leverage` | Must be a positive integer (`^\d+$`) |
-| `--size` | Human-readable decimal such as 0.01 or 1. Must match `^\d+\.?\d*$` and be positive |
+| `--size` | Human-readable positive decimal such as 0.01 or 1. Scientific notation and host-locale grouping/decimals are accepted and canonicalized by the CLI. Reject shell metacharacters. Malformed values return `INVALID_AMOUNT` |
 | `--venue` | Must be `hyperliquid` |
 | `--side` for perps | Must be `long` or `short` |
 | `--order-id` | Must be a positive integer (`^\d+$`) |

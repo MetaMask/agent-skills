@@ -10,6 +10,19 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.7.0] — targets CLI v7.0.0
+
+### Added
+
+- **Arc chain support** in `references/chain.md`.
+- **`WALLET_LIMIT_EXCEEDED`** in `references/errors.md`: creating a wallet when the project already has 100 wallets returns this code instead of a generic `WALLET_ERROR`; reuse an existing wallet via `mm wallet list` / `mm wallet select`.
+
+### Changed
+
+- **`INVALID_AMOUNT`**: transfer, swap, earn, perps, and predict now share one amount parser. `references/errors.md` (both the Validation and Perps entries) documents the machine-readable `reason` and format hint, and that plain decimals, scientific notation (`1e3`), and host-locale grouping/decimals (`1,000.50`, `1.000,50`) are accepted while other-locale separators, negatives, and non-numeric values are rejected. `references/transfer.md` gained a matching note.
+- `SKILL.md` input-validation rules for `--amount` and `--size` now allow scientific notation and host-locale grouping (canonicalized by the CLI) instead of the old ASCII-only regex, while still rejecting shell metacharacters.
+- Bumped `cliVersion` to `7.0.0`.
+
 ## [7.6.0] — targets CLI v6.2.0
 
 ### Added

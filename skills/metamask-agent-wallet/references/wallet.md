@@ -29,6 +29,10 @@ mm wallet create --chain-namespace evm --name "Trading"
 mm wallet create --chain-namespace evm --name "Fast Trading" --trading-mode beast
 ```
 
+### Notes
+
+- A project can hold at most 100 wallets. Once that limit is reached, `mm wallet create` returns `WALLET_LIMIT_EXCEEDED`. Run `mm wallet list` and reuse an existing wallet with `mm wallet select` instead.
+
 ## `wallet list` Command
 
 List all wallets associated with the authenticated account.

@@ -27,4 +27,4 @@ mm chains list --toon
 
 | Namespace | Notes |
 | --- | --- |
-| `eip155` | Major EVM chains, such as Ethereum, Polygon, Arbitrum, Optimism, BSC, Monad, HyperEVM, Sei, and MegaETH |
+| `eip155` | Major EVM chains, such as Ethereum, Polygon, Arbitrum, Optimism, BSC, Monad, HyperEVM, Sei, MegaETH, and Arc |
