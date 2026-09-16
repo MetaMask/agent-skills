@@ -10,6 +10,38 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.7.0] — targets CLI v7.0.0
+
+### Added
+
+- **Arc chain support** in `references/chain.md`.
+- **`WALLET_LIMIT_EXCEEDED`** in `references/errors.md`: creating a wallet when the project already has 100 wallets returns this code instead of a generic `WALLET_ERROR`; reuse an existing wallet via `mm wallet list` / `mm wallet select`.
+
+### Changed
+
+- **`INVALID_AMOUNT`**: transfer, swap, earn, perps, and predict now share one amount parser. `references/errors.md` (both the Validation and Perps entries) documents the machine-readable `reason` and format hint, and that plain decimals, scientific notation (`1e3`), and host-locale grouping/decimals (`1,000.50`, `1.000,50`) are accepted while other-locale separators, negatives, and non-numeric values are rejected. `references/transfer.md` gained a matching note.
+- `SKILL.md` input-validation rules for `--amount` and `--size` now allow scientific notation and host-locale grouping (canonicalized by the CLI) instead of the old ASCII-only regex, while still rejecting shell metacharacters.
+- Bumped `cliVersion` to `7.0.0`.
+
+## [7.6.0] — targets CLI v6.2.0
+
+### Added
+
+- New reference `references/plugins.md` for the beta CLI plugin system, covering `mm plugins`, `mm plugins inspect`, `mm plugins install`, `mm plugins update`, `mm plugins link`, `mm plugins uninstall`, `mm plugins reset`, and the `add`, `remove`, and `unlink` aliases. It documents the trust model, the `experimentalPlugins` and `experimentalAllowUnverifiedInstalls` gates, the install consent flow and `--accept-permissions`, the `wallet-read`, `wallet-submit`, and `network-manage` capabilities alongside the `dataAccess` disclosure list, approval records and the repeat consent that a version or manifest hash change triggers, uninstall and reset behavior, and where plugin code and approvals live on disk. It also records that these oclif commands reject the global `--format` and `--toon` flags, and that their help needs the colon form such as `mm plugins:install --help`.
+- Plugin Errors section in `references/errors.md` for `PLUGIN_BETA_DISABLED`, `PLUGIN_UNVERIFIED_SOURCE`, `PLUGIN_METADATA_UNAVAILABLE`, `PLUGIN_NOT_FOUND`, `PLUGIN_MANIFEST_INVALID`, `PLUGIN_CLI_VERSION`, `PLUGIN_ID_COLLISION`, `PLUGIN_HOOKS_FORBIDDEN`, `PLUGIN_MANIFEST_FILE_MISSING`, `PLUGIN_INVALID_BASE`, `PLUGIN_SEALED_OVERRIDE`, and the two plugin cases of `PERMISSION_DENIED`.
+- SKILL.md routing rows for every `mm plugins` subcommand and for the beta toggle, an input validation rule for the plugin spec, confirmation rules for install, update, link, uninstall, reset, enabling the beta, and running a command that a plugin contributed, plus the `--toon` exception. The `description` now also triggers when the user installs or removes a CLI plugin.
+- Rows in `workflows/troubleshooting.md` for `PLUGIN_BETA_DISABLED`, `PLUGIN_UNVERIFIED_SOURCE`, and the plugin form of `PERMISSION_DENIED`. `references/doctor.md` now separates the agent skills install that `skillSource` reports from CLI plugins.
+- `mm config get` / `mm config set` keys `experimentalPlugins` and `experimentalAllowUnverifiedInstalls`.
+- `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS` (Polymarket HTTP 451), distinct from `PREDICT_GEOBLOCKED`.
+- `INVALID_ASSET_ID` guidance for `price spot`, `price history`, and `token assets`.
+
+### Changed
+
+- `mm price spot` documents CAIP-2 native-asset auto-complete (e.g. `eip155:1` → `eip155:1/slip44:60`).
+- `mm price history --asset-type` is optional and defaults to the chain's native asset.
+- **MFA Approval Pauses**: `mm earn supply` and `mm earn withdraw` can return `EXECUTE_FAILED` with an MFA-watch hint when no hash is available yet; treat that as a pause, same as `mm swap execute`.
+- Bumped `cliVersion` to `6.2.0`.
+
 ## [7.5.0] — targets CLI v6.1.5
 
 ### Added

@@ -50,7 +50,7 @@ fi
 
 SKILL_MD="$PLUGIN_ROOT/skills/metamask-agent-wallet/SKILL.md"
 PLUGIN_VERSION="1.0.0"
-CLI_VERSION="6.1.5"
+CLI_VERSION="6.2.0"
 if [ -f "$SKILL_MD" ]; then
   # Prefer metadata.cliVersion / metadata.version from YAML frontmatter.
   extracted_cli=$(sed -n 's/^[[:space:]]*cliVersion:[[:space:]]*"\([^"]*\)".*/\1/p' "$SKILL_MD" | head -n 1)

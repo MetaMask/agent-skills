@@ -807,6 +807,7 @@ mm predict history get 0xABC123... --type redeem
 
 - Before trading, run `mm predict setup --wait` to initialize credentials, deploy the deposit wallet, and set approvals.
 - `mm predict setup` aborts early with `PREDICT_GEOBLOCKED` if your IP resolves to a restricted region, before any wallet interaction. Use `mm predict geoblock` to check region status without running setup.
+- Polymarket HTTP 451 maps to `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS`, not generic `PREDICT_ERROR`. It is distinct from `PREDICT_GEOBLOCKED`.
 - Use `mm predict markets get --market <slug>` to get outcome token IDs required by `quote`, `place`, `book`, and `balance --token-id`.
 - Use `mm predict events`, `mm predict series`, and `mm predict tags` to browse Polymarket content; tag slugs/IDs from `mm predict tags list` feed the `--tag-slug` / `--tag-id` filters on `events` and `markets`.
 - After a market resolves, use `mm predict redeem list` to see winnings and `mm predict redeem <condition-id> --wait` or `--all` to claim them. `mm predict portfolio` shows balance, open positions, and redeemable winnings in one snapshot.
