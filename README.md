@@ -180,7 +180,7 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 
 ## License
 
-MIT
+[MIT](./LICENSE)
 
 ## Marketplace listing
 
