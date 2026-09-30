@@ -21,6 +21,5 @@
     "prediction-markets",
     "agent-wallet"
   ],
-  "skills": "./skills/",
-  "hooks": "./hooks/hooks.json"
+  "skills": "./skills/"
 }

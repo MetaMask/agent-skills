@@ -160,8 +160,7 @@ Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace 
 ├── .antigravity-plugin/        # Antigravity CLI (`agy`)
 │   ├── plugin.json
 │   ├── hooks.json
-│   ├── rules/
-│   └── skills -> ../skills
+│   └── rules/
 ├── .grok-plugin/               # Grok Build
 │   ├── plugin.json
 │   └── marketplace.json
