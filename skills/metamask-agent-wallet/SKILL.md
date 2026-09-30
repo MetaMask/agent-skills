@@ -2,9 +2,10 @@
 name: metamask-agent-wallet
 description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations.
 license: MIT
+compatibility: "Requires the MetaMask Agent Wallet CLI (mm, npm @metamask/agent-wallet 7.x) and Python 3 for the helper scripts. The mm CLI makes network calls to MetaMask services and the chains in use. scripts/x402_pay.py makes HTTPS requests only to the paywalled URL or MCP challenge the user asks to pay. scripts/amount_to_hex.py runs offline."
 metadata:
   author: metamask
-  version: "7.7.1"
+  version: "7.7.2"
   cliVersion: "7.0.0"
 ---
 
@@ -257,7 +258,7 @@ Do not pass unvalidated user input into any command.
 | Message signing | Always show exact message and chain before signing |
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
 | Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address if `--to-address` is set, and the destination gas top-up if `--refuel` is set before executing |
-| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL or MCP tool before signing the authorization — over HTTP with `pay --confirm`, over MCP with `mcp-sign --confirm`. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
+| x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL or MCP tool before signing the authorization — over HTTP with `pay --confirm --approved <approvalId>`, over MCP with `mcp-sign --confirm --approved <approvalId>`. The script refuses to sign if the offer changed after the user approved it. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
 | Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
