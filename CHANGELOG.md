@@ -10,6 +10,17 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.7.2] — targets CLI v7.0.0
+
+### Fixed
+
+- **x402 approval binding.** `inspect` and `mcp-inspect` now print an `approvalId` for each option, a fingerprint of its scheme, network, asset, `payTo`, and amount. `pay` and `mcp-sign` require `--approved <approvalId>` alongside `--confirm`. They refuse to sign if the offer they are about to sign has different terms, so a server that changes its `402` offer after `inspect` can't get a different debit authorized.
+- **x402 settlement reporting.** A paid retry that returns `200` without a decodable receipt now reports `"status": "paid_unverified"` with a note not to pay again, instead of `"settled"` with a null transaction.
+- **x402 chain support.** CAIP-2 networks (`eip155:<id>`) must appear in `mm chains list`, the same as named networks. An unsupported chain is no longer shown as eligible.
+- **MFA notices during x402 signing.** `mm --json` output is parsed object by object, and `_notice` lines such as `AWAITING_MFA` are skipped. Before, a notice line followed by the result was parsed as one invalid document and crashed the payment.
+- **`amount_to_hex.py` precision.** The script rejects amounts with more decimal places than the token supports instead of truncating them. It also rejects negative, non-numeric, and non-finite amounts, and decimals outside 0 to 255.
+- **Secrets in examples.** `references/auth.md` no longer shows `--current`/`--new` password values inline. The password commands are shown in their prompting form. The BYOK `MM_MNEMONIC` and `MM_PASSWORD` examples in `references/auth.md` and `workflows/onboarding.md` use `read -rs`, so the secret isn't echoed or saved to shell history.
+
 ## [7.7.1] — targets CLI v7.0.0
 
 ### Changed
