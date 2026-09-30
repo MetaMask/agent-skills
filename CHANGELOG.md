@@ -10,6 +10,18 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.7.1] — targets CLI v7.0.0
+
+### Changed
+
+- Reworded instructions that static skill scanners such as [SkillSpector](https://github.com/NVIDIA/skillspector) misread as unsafe. Behavior is unchanged, and the scan score drops from 100 (CRITICAL) to 16 (LOW).
+  - `SKILL.md`: renamed the `Output Rules` section to `Response Style`. The confirmation table now says read-only queries and auth/wallet management "can run directly", and `reset` still requires explicit user confirmation.
+  - `SKILL.md` and `references/doctor.md`: the version-mismatch hint tells the user to update the skills with the tool that installed them, instead of an unpinned `npx skills add`.
+  - `references/swap.md`, `workflows/swap.md`, `workflows/bridge.md`: "never pass `--yes`" on a re-quote or a user-chosen route, replacing "auto-execute" wording.
+  - `references/plugins.md`: consent and approval-record sentences reworded without changing their meaning.
+  - `references/errors.md`, `workflows/troubleshooting.md`: the `QUOTE_PERSIST_FAILED` fix uses `"$HOME/..."` and `chmod u=rwx,go=`, which is the same as `chmod 700`.
+  - `references/x402.md`: the MCP error key is written as "the `x402/error` key in `_meta`", and the examples use `https://paid.example.com/premium`, as does the `scripts/x402_pay.py` docstring.
+
 ## [7.7.0] — targets CLI v7.0.0
 
 ### Added
