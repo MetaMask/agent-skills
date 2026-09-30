@@ -28,9 +28,16 @@ Plugin package lives in this repository. Complete these steps after merging the 
    - https://platform.claude.com/plugins/submit
    - or https://claude.ai/admin-settings/directory/submissions/plugins/new
 
-3. In-app submission lists the plugin in the **community** marketplace. The CLI plugin-hint protocol (`<claude-code-hint … value="metamask-agent-wallet@claude-plugins-official" />`) only works for Anthropic’s official marketplace.
+3. The submission validator places these items on **policy hold** for human review. They are expected and need no code change:
+   - **Brand name "MetaMask"** in `name` / `author.name`. The source repo lives in the official `MetaMask` GitHub org, which proves ownership. Submit from a MetaMask-controlled account or organization.
+   - **Credential from the user's machine** and **scripts the validator couldn't follow**. `hooks/session-start.sh` runs `mm doctor --json` (which reads the local `mm` session) and writes `~/.metamask/attribution.json`. It never reads secrets into the model context, never installs software, and always exits 0. A `user_config` option does not fit, because the hook only reports readiness.
+   - The root `plugin.json` (agent-plugins.org format) is informational only. Claude ignores it.
 
-4. **Action for MetaMask partner contact:** ask Anthropic to list `metamask-agent-wallet` under `claude-plugins-official` so the stretch CLI hint (plan B5) can ship later.
+   Keep the repo free of symlinks under plugin paths, keep `hooks/hooks.json` out of the `hooks` field in `.claude-plugin/plugin.json` (it loads automatically), and keep `assets/logo.svg` free of `style`, scripts, and external references. Each of these fails validation.
+
+4. In-app submission lists the plugin in the **community** marketplace. The CLI plugin-hint protocol (`<claude-code-hint … value="metamask-agent-wallet@claude-plugins-official" />`) only works for Anthropic’s official marketplace.
+
+5. **Action for MetaMask partner contact:** ask Anthropic to list `metamask-agent-wallet` under `claude-plugins-official` so the stretch CLI hint (plan B5) can ship later.
 
 ## Cursor
 
