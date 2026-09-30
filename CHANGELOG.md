@@ -19,6 +19,7 @@ and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html)
 - **x402 chain support.** CAIP-2 networks (`eip155:<id>`) must appear in `mm chains list`, the same as named networks. An unsupported chain is no longer shown as eligible.
 - **MFA notices during x402 signing.** `mm --json` output is parsed object by object, and `_notice` lines such as `AWAITING_MFA` are skipped. Before, a notice line followed by the result was parsed as one invalid document and crashed the payment.
 - **`amount_to_hex.py` precision.** The script rejects amounts with more decimal places than the token supports instead of truncating them. It also rejects negative, non-numeric, and non-finite amounts, and decimals outside 0 to 255.
+- **`compatibility` frontmatter.** `SKILL.md` now declares its requirements, the `mm` CLI and Python 3, and which parts make network calls. This uses the Agent Skills `compatibility` field.
 - **Secrets in examples.** `references/auth.md` no longer shows `--current`/`--new` password values inline. The password commands are shown in their prompting form. The BYOK `MM_MNEMONIC` and `MM_PASSWORD` examples in `references/auth.md` and `workflows/onboarding.md` use `read -rs`, so the secret isn't echoed or saved to shell history.
 
 ## [7.7.1] — targets CLI v7.0.0
