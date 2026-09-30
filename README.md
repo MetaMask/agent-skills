@@ -91,6 +91,16 @@ Grok skips plugin-bundled hooks, MCP servers, and skills until you trust the plu
 
 To pick up a newly installed plugin, press `r` in the Plugins tab or start a new session.
 
+### ClawHub (OpenClaw)
+
+The skill is published on [ClawHub](https://clawhub.ai) by the official `@metamask` publisher as [`metamask-agent-wallet`](https://clawhub.ai/metamask/metamask-agent-wallet). ClawHub versions match `metadata.version` in `SKILL.md`.
+
+```bash
+npx clawhub install metamask-agent-wallet
+```
+
+Only install from the `@metamask` publisher; other MetaMask-named listings on ClawHub are not maintained by MetaMask.
+
 ### Skills CLI (legacy / non-plugin hosts)
 
 ```bash
@@ -141,6 +151,7 @@ When `@metamask/agent-wallet` ships a new `major.minor`:
 1. Bump `metadata.cliVersion` (and `metadata.version`) in `skills/metamask-agent-wallet/SKILL.md`.
 2. Bump `version` in `.claude-plugin/plugin.json`, `.claude-plugin/marketplace.json`, `.cursor-plugin/plugin.json`, `.codex-plugin/plugin.json`, `.grok-plugin/plugin.json`, `.grok-plugin/marketplace.json`, and root `plugin.json`.
 3. Ship one PR; Claude Code, Cursor, Codex, Antigravity CLI, and Grok Build auto-pull plugin updates from Git.
+4. On merge to `main`, [`publish-clawhub.yml`](./.github/workflows/publish-clawhub.yml) publishes the new `metadata.version` to ClawHub under `@metamask`, using the matching `CHANGELOG.md` entry as release notes. It skips versions that are already published and needs the `CLAWHUB_TOKEN` repository secret.
 
 Do **not** rename the plugin `name` (`metamask-agent-wallet`) after marketplace listing — it is an immutable slug.
 
