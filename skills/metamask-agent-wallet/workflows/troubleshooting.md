@@ -42,6 +42,8 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `QUOTE_PERSIST_FAILED` on `swap quote` | `~/.metamask/swap-quotes/` is not writable; the CLI already retried once | Run `mkdir -p "$HOME/.metamask/swap-quotes" && chmod u=rwx,go= "$HOME/.metamask/swap-quotes"`, then re-run the quote |
 | `INVALID_DATA` on `price history` | Price API returned an empty or malformed body | Retry once, then check the asset is priced with `mm price spot --asset-ids <chain-id>/<asset-type>` |
 | `INVALID_ASSET_ID` on `price spot` / `price history` / `token assets` | Malformed CAIP-19 id, or a bare chain id where a full asset id is required | Use `eip155:1/slip44:60` (or `erc20:0x…`). On `price spot` only, `eip155:1` expands to the native asset |
+| `TOKEN_UNSUPPORTED_CHAIN` on `token list` / `token assets` / `token rwas` | Chain is a testnet or not indexed by the Token API | Run `mm token networks` and pick a listed chain |
+| `PULSE_AMBIGUOUS` on `pulse asset` | Symbol matched several assets | Retry with `--caip-asset-type <caip19>` or `--hl-perps-market <market>` |
 | `PREDICT_UNAVAILABLE_FOR_LEGAL_REASONS` | Polymarket HTTP 451 | Distinct from `PREDICT_GEOBLOCKED`. Run `mm predict geoblock` and do not retry trading from a restricted region |
 | `REFUEL_UNSUPPORTED_ROUTE` | `--refuel` used on same-chain swap or native-destination bridge | Drop `--refuel` and re-run |
 | `AMOUNT_TOO_LOW` or `AMOUNT_TOO_HIGH` | Amount outside provider's accepted range | Adjust the amount and re-quote |

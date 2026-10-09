@@ -10,6 +10,25 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.8.0] — targets CLI v7.1.0
+
+### Added
+
+- `mm token rwas` in `references/market-data.md`: lists tokenized real-world assets such as stocks, ETFs, and CEFs.
+- `mm pulse`, `mm pulse asset`, and `mm pulse market` in `references/market-data.md` for AI-generated Digest API summaries. 
+- SKILL.md routing rows for `mm token rwas` and the three `mm pulse` commands. The `description` now also triggers on tokenized real-world assets and AI market or asset summaries.
+- Token & Pulse Errors section in `references/errors.md` for `TOKEN_UNSUPPORTED_CHAIN`, `TOKEN_API_ERROR`, `PULSE_NOT_FOUND`, and `PULSE_AMBIGUOUS`, with matching rows in `workflows/troubleshooting.md`.
+- `workflows/market-data.md` sections for browsing RWAs and reading pulse summaries.
+
+### Changed
+
+- `references/market-data.md` and `workflows/market-data.md` note that token discovery commands validate chains against `mm token networks` and reject testnets and other unsupported chains with `TOKEN_UNSUPPORTED_CHAIN`.
+- Bumped `cliVersion` to `7.1.0`.
+
+### Fixed
+
+- `scripts/x402_pay.py` sends `User-Agent: MetaMask-Agent-Wallet-x402` instead of the Python-urllib default, so API gateways that reject the default return the x402 payment challenge.
+
 ## [7.7.1] — targets CLI v7.0.0
 
 ### Changed
