@@ -129,6 +129,15 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_CONFIG_KEY` | Unknown config key passed to `mm config get` or `mm config set` |
 | `INVALID_CONFIG_VALUE` | Invalid value for a config key, such as env not in `prod`, `dev`, or `uat` |
 
+## Token & Pulse Errors
+
+| Code | Meaning |
+| --- | --- |
+| `TOKEN_UNSUPPORTED_CHAIN` | A chain passed to `mm token list ...`, `mm token assets`, or `mm token rwas` is not supported by the Token API. Testnets are never supported. Run `mm token networks` to see supported chains |
+| `TOKEN_API_ERROR` | The Token API returned an unexpected error. Retry, or re-run with `--verbose` for detail |
+| `PULSE_NOT_FOUND` | No Digest summary was found for the requested asset or highlight. Try another asset identifier |
+| `PULSE_AMBIGUOUS` | The `mm pulse asset` identifier matched multiple assets. Retry with `--caip-asset-type <caip19>` or `--hl-perps-market <market>` |
+
 ## Swap & Bridge Errors
 
 | Code | Meaning |

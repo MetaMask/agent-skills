@@ -1,6 +1,8 @@
 # Market Data Commands
 
-Use `price` and `token` commands for read-only token metadata, token discovery, and price data.
+Use `price`, `token`, and `pulse` commands for read-only token metadata, token discovery, tokenized real-world assets, price data, and AI-generated market summaries.
+
+The token discovery commands `token list popular|trending|top-gainer|search`, `token assets`, and `token rwas` check each requested chain against `mm token networks` before querying. A chain outside that list, including every testnet, returns `TOKEN_UNSUPPORTED_CHAIN`.
 
 ## `price spot` Command
 
@@ -193,3 +195,129 @@ mm token assets --asset-ids "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce36
 mm token assets --asset-ids "eip155:1/erc20:0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48" --include-market-data --include-token-security-data --include-labels
 mm token assets --asset-ids "eip155:1/slip44:60" --include-aggregators --include-coingecko-id --include-rwa-data
 ```
+
+## `token rwas` Command
+
+List tokenized real-world assets, or RWAs, such as stocks, ETFs, and closed-end funds.
+
+### Syntax
+
+```bash
+mm token rwas [--chain-ids <chains>] [--active <true|false>] [--custodian <custodian>] [--type <type>] [--industry <industry>] [--sort-by <sort>] [--limit <n>] [--after <cursor>] [--include-token-security-data]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--chain-ids` | No | Comma-separated chain IDs, CAIP-2 IDs, or configured chain keys, such as `1,137`. Omit to list every chain. Run `mm token networks` to see supported chains |
+| `--active` | No | Filter by active status: `true` or `false` |
+| `--custodian` | No | Filter by custodian: `ondo` or `robinhood` |
+| `--type` | No | Filter by underlying asset type: `stock`, `etf`, `cef`, or `unspecified` |
+| `--industry` | No | Filter by industry: `industrials`, `technology`, `healthcare`, `consumer discretionary`, `financials`, `materials`, `utilities`, `energy`, `real estate`, `infrastructure`, `unspecified`, or `unknown`. Quote multi-word values |
+| `--sort-by` | No | Sort order: `price_change_asc`, `price_change_desc`, `volume_asc`, `volume_desc`, `market_cap_asc`, or `market_cap_desc` |
+| `--limit` | No | Maximum results. Must be a positive integer |
+| `--after` | No | Pagination cursor from the `nextCursor` of a previous response |
+| `--include-token-security-data` | No | Include token security signals |
+
+`--custodian`, `--type`, `--industry`, and `--sort-by` are case-insensitive.
+
+### Example
+
+```bash
+mm token rwas --chain-ids 1 --type stock --sort-by market_cap_desc --limit 20
+mm token rwas --custodian ondo --type etf
+mm token rwas --industry technology --active true
+```
+
+### Notes
+
+- Each item includes `symbol`, and when available a CAIP-19 `assetId`, `address`, `chainId`, `name`, `decimals`, `active`, `custodian`, `type`, `industry`, `price`, `marketCap`, and `volume24hUsd`.
+- When `hasNextPage` is `true`, pass `nextCursor` as `--after` to fetch the next page.
+- Use the returned `assetId` with `mm price spot` or `mm token assets`.
+
+## `pulse` Command
+
+Show the featured AI-generated market highlight from the Digest API.
+
+### Syntax
+
+```bash
+mm pulse [--full]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--full` | No | Include full trend details, sources, articles, and related assets. Without it, the output is a brief `headline`, `summary`, and `trends` list |
+
+### Example
+
+```bash
+mm pulse
+mm pulse --full
+```
+
+## `pulse asset` Command
+
+Show an AI-generated summary for a single asset.
+
+### Syntax
+
+```bash
+mm pulse asset <asset> [--full]
+mm pulse asset --caip-asset-type <caip19> [--full]
+mm pulse asset --hl-perps-market <market> [--full]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `<asset>` | One of three | Asset symbol, name, or CAIP-19 id, matched exactly, such as `ETH`. Positional argument; `--asset` is also accepted |
+| `--caip-asset-type` | One of three | CAIP-19 asset type, such as `eip155:1/slip44:60` |
+| `--hl-perps-market` | One of three | Hyperliquid perpetuals market name, such as `BTC` |
+| `--full` | No | Include full trend details, sources, articles, and related assets. Without it, the output is a brief `assetId`, `assetSymbol`, `headline`, `summary`, and `trends` list |
+
+### Example
+
+```bash
+mm pulse asset ETH
+mm pulse asset --caip-asset-type eip155:1/slip44:60
+mm pulse asset --hl-perps-market BTC --full
+```
+
+### Notes
+
+- If a symbol matches several assets, the command returns `PULSE_AMBIGUOUS`. Retry with `--caip-asset-type` or `--hl-perps-market`.
+- If no summary exists for the asset, the command returns `PULSE_NOT_FOUND`. Retry with another identifier type before reporting that no summary exists.
+- For RWAs, prefer `--hl-perps-market` over a bare symbol. The two can return different summaries for the same asset; for example, `NVDA` and `xyz:NVDA` differ.
+- Social posts and their URLs are unverified. Flag lookalike handles and airdrop or "checker" links as possible phishing.
+
+## `pulse market` Command
+
+Show the latest AI-generated market-wide overview.
+
+### Syntax
+
+```bash
+mm pulse market [--full]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--full` | No | Include full trend details, sources, articles, and related assets. Without it, the output is a brief `generatedAt` timestamp and `trends` list |
+
+### Example
+
+```bash
+mm pulse market
+mm pulse market --full
+```
+
+### Notes
+
+- Pulse summaries are AI-generated. Present them as summaries, not as trading advice, and cite `generatedAt` when the user asks how recent they are.
