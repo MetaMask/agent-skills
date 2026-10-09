@@ -54,5 +54,8 @@ the resource body.
 - `error` with "not a standard x402 challenge": the endpoint returned a 402 in a different payment
   scheme (for example pay-first then send a transaction hash). This skill supports the standard
   x402 exact scheme only. Tell the user it is unsupported rather than trying to pay.
+- `error` with "expected HTTP 402, got 403" or another non-402 status: the server or its gateway
+  blocked the request before returning a payment challenge, often because it rejects automated
+  clients. Tell the user the endpoint is not reachable from the agent. Do not retry.
 - Encrypted BYOK mnemonic: set `MM_PASSWORD` so signing is non-interactive.
 - Unknown network: the network is not in `mm chains list`; confirm the chain is supported.

@@ -67,6 +67,9 @@ from urllib.parse import urlparse
 
 ADDRESS_RE = re.compile(r"^0x[0-9a-fA-F]{40}$")
 LOOPBACK_HOSTS = {"127.0.0.1", "localhost", "::1"}
+# Sent instead of the Python-urllib default, which some API gateways reject before
+# the x402 challenge reaches the application.
+USER_AGENT = "MetaMask-Agent-Wallet-x402"
 
 
 class CeremonyError(Exception):
@@ -103,9 +106,7 @@ def _check_url(url):
 def http(url, method="GET", headers=None, body=None):
     """Make a request. Returns (status, headers, body_bytes); no raise on 4xx/5xx."""
     _check_url(url)
-    # Avoid the Python-urllib default, which some API gateways reject before
-    # the x402 challenge reaches the application.
-    request_headers = {"User-Agent": "MetaMask-Agent-Wallet-x402"}
+    request_headers = {"User-Agent": USER_AGENT}
     request_headers.update(headers or {})
     req = urllib.request.Request(url, data=body, method=method, headers=request_headers)
     try:
