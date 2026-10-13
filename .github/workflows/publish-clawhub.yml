@@ -1,0 +1,104 @@
+name: Publish to ClawHub
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - skills/metamask-agent-wallet/**
+      - CHANGELOG.md
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-clawhub
+  cancel-in-progress: false
+
+env:
+  CLAWHUB_CLI_VERSION: 0.23.3
+  SKILL_DIR: skills/metamask-agent-wallet
+  SKILL_SLUG: metamask-agent-wallet
+  SKILL_NAME: MetaMask Agent Wallet
+  SKILL_OWNER: metamask
+  SKILL_TOPICS: metamask,wallet,defi,ethereum,x402
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Install ClawHub CLI
+        run: npm install -g "clawhub@${CLAWHUB_CLI_VERSION}"
+
+      - name: Read skill version
+        id: meta
+        run: |
+          set -euo pipefail
+          version=$(sed -n 's/^  version: "\(.*\)"$/\1/p' "${SKILL_DIR}/SKILL.md" | head -n1)
+          if [ -z "$version" ]; then
+            echo "Could not read metadata.version from ${SKILL_DIR}/SKILL.md" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to ClawHub
+        env:
+          CLAWHUB_TOKEN: ${{ secrets.CLAWHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CLAWHUB_TOKEN}" ]; then
+            echo "CLAWHUB_TOKEN secret is not set" >&2
+            exit 1
+          fi
+          clawhub login --token "${CLAWHUB_TOKEN}" --no-browser
+          clawhub whoami
+
+      - name: Check whether version is already published
+        id: check
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          if clawhub inspect "${SKILL_SLUG}" --version "${VERSION}" --json >/dev/null 2>&1; then
+            echo "${SKILL_SLUG}@${VERSION} is already on ClawHub; skipping."
+            echo "published=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish skill
+        if: steps.check.outputs.published == 'false'
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          set -euo pipefail
+          notes=$(awk -v v="$VERSION" '
+            index($0, "## [" v "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md | sed '/./,$!d')
+          changelog="Official MetaMask release ${VERSION}."
+          if [ -n "$notes" ]; then
+            changelog="${changelog}"$'\n\n'"${notes}"
+          fi
+          changelog="${changelog}"$'\n\n'"Full changelog: https://github.com/${GITHUB_REPOSITORY}/blob/${GITHUB_SHA}/CHANGELOG.md"
+
+          clawhub skill publish "./${SKILL_DIR}" \
+            --slug "${SKILL_SLUG}" \
+            --name "${SKILL_NAME}" \
+            --owner "${SKILL_OWNER}" \
+            --version "${VERSION}" \
+            --changelog "${changelog}" \
+            --tags latest \
+            --topics "${SKILL_TOPICS}" \
+            --source-repo "${GITHUB_REPOSITORY}" \
+            --source-commit "${GITHUB_SHA}" \
+            --source-ref "${GITHUB_REF_NAME}" \
+            --source-path "${SKILL_DIR}" \
+            --json
