@@ -10,6 +10,20 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.9.0] — targets CLI v7.2.0
+
+### Added
+
+- `mm perps funding` in `references/perps.md`: lists the account's funding payments with `--symbol`, `--start-time`, and `--end-time` in Unix milliseconds, a 30-day default window, and a 365-day maximum.
+- `mm perps funding-rates` in `references/perps.md`: shows hourly market funding rates for one symbol over a required `--window` of `1h`, `8h`, or `1d`.
+- `--funding` on `mm perps positions`, which adds the current market `fundingRate` to each position.
+- SKILL.md routing rows for `mm perps funding` and `mm perps funding-rates`. The `description` now also triggers on perps funding rates.
+- `INVALID_WINDOW` in the Validation Errors section of `references/errors.md`.
+
+### Changed
+
+- Bumped `cliVersion` to `7.2.0`.
+
 ## [7.8.0] — targets CLI v7.1.0
 
 ### Added

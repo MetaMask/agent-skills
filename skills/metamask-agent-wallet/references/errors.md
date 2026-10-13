@@ -58,6 +58,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_MNEMONIC` | BYOK mnemonic is invalid |
 | `INVALID_VENUE` | Invalid perpetual venue value |
 | `INVALID_NETWORK` | Invalid network value. Must be `mainnet` or `testnet` |
+| `INVALID_WINDOW` | Invalid `--window` on `mm perps funding-rates`. Must be `1h`, `8h`, or `1d` |
 | `INVALID_ASSET` | Invalid asset value |
 | `INVALID_SIDE` | Invalid side value. Must be `long`/`short` or `buy`/`sell` |
 | `INVALID_ORDER_TYPE` | Invalid order type value |
