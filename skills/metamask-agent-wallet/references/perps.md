@@ -73,10 +73,13 @@ mm perps balance --venue hyperliquid --all-dexes
 
 List open positions for the connected wallet on a venue.
 
+With `--funding`, each position also carries `fundingRate`, the current hourly market rate in the same units as `mm perps markets`. The field is omitted when the markets request fails; the positions still return.
+
+
 ### Syntax
 
 ```bash
-mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes]
+mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes] [--funding]
 ```
 
 ### Supported Flags
@@ -87,6 +90,7 @@ mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
 | `--dex` | No | HIP-3 DEX name. Omit to query only the main Hyperliquid DEX. Run `mm perps dexs` to see options |
 | `--all-dexes` | No | Aggregate positions across all DEXs. Mutually exclusive with `--dex` |
+| `--funding` | No | Also fetch the current market funding rate for each open position. Without it, the extra markets request is skipped |
 
 ### Example
 
@@ -94,6 +98,61 @@ mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-
 mm perps positions --venue hyperliquid
 mm perps positions --venue hyperliquid --network testnet
 mm perps positions --venue hyperliquid --all-dexes
+mm perps positions --venue hyperliquid --funding
+```
+
+## `perps funding` Command
+
+List funding payments for the connected wallet on a venue. Each row is one funding credit or debit from the account ledger. For market funding rates, use `mm perps funding-rates`.
+
+### Syntax
+
+```bash
+mm perps funding [--venue <venue>] [--network <network>] [--symbol <symbol>] [--start-time <ms>] [--end-time <ms>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--symbol` | No | Filter to one market symbol such as BTC. Omit to list every funding payment in the window |
+| `--start-time` | No | Window start as a whole Unix timestamp in milliseconds, not seconds or an ISO date. Any other format, or a start later than `--end-time`, returns `INVALID_INPUT`. Defaults to 30 days before the end of the window. The window cannot exceed 365 days; a longer one returns `HYPERLIQUID_ERROR` |
+| `--end-time` | No | Window end as a whole Unix timestamp in milliseconds, not seconds or an ISO date. Any other format returns `INVALID_INPUT`. Defaults to now |
+
+### Example
+
+```bash
+mm perps funding --venue hyperliquid
+mm perps funding --venue hyperliquid --symbol BTC
+mm perps funding --venue hyperliquid --start-time 1760000000000 --end-time 1760600000000
+```
+
+## `perps funding-rates` Command
+
+Show hourly market funding rates for one symbol over a lookback window. This is public market history, not the connected account's funding payments.
+
+### Syntax
+
+```bash
+mm perps funding-rates [--venue <venue>] --symbol <symbol> --window <window> [--network <network>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--symbol` | Yes | Market symbol such as BTC. HIP-3 markets use the prefixed symbol such as `xyz:XYZ100` |
+| `--window` | Yes | Lookback window: `1h`, `8h`, or `1d`. Any other value returns `INVALID_WINDOW` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+
+### Example
+
+```bash
+mm perps funding-rates --venue hyperliquid --symbol BTC --window 8h
+mm perps funding-rates --venue hyperliquid --symbol ETH --window 1d
 ```
 
 ## `perps quote` Command
@@ -436,3 +495,4 @@ mm perps dexs --venue hyperliquid
 ## Notes
 
 - If the user does not mention a token symbol, use `mm perps markets` to list available markets and confirm the symbol with the user before proceeding.
+- To answer "how much funding have I paid or earned", use `mm perps funding` for the payment ledger or the `funding` object from `mm perps positions` for running totals. To answer "what is the funding rate", use `mm perps funding-rates` for history or `mm perps positions --funding` and `mm perps markets` for the current rate.

@@ -1,11 +1,11 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, prediction markets, token swaps, cross-chain bridges, market data, token discovery, tokenized real-world assets, RWAs, AI-generated market and asset summaries via pulse, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations. Financial operations are protected by server-enforced access controls including MFA approval, configurable wallet policies, and trading-mode guards (guard/beast) that restrict operation scope independently of the agent.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading and funding rates, prediction markets, token swaps, cross-chain bridges, market data, token discovery, tokenized real-world assets, RWAs, AI-generated market and asset summaries via pulse, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations. Financial operations are protected by server-enforced access controls including MFA approval, configurable wallet policies, and trading-mode guards (guard/beast) that restrict operation scope independently of the agent.
 license: MIT
 metadata:
   author: metamask
-  version: "7.8.0"
-  cliVersion: "7.1.0"
+  version: "7.9.0"
+  cliVersion: "7.2.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -72,6 +72,8 @@ Match the user's intent to a command and reference file, then read the reference
 | List perpetual markets | `mm perps markets` | [perps.md](references/perps.md) |
 | Check perps account balance | `mm perps balance` | [perps.md](references/perps.md) |
 | List open perpetual positions | `mm perps positions` | [perps.md](references/perps.md) |
+| List funding payments for the account | `mm perps funding` | [perps.md](references/perps.md) |
+| Show market funding rate history | `mm perps funding-rates` | [perps.md](references/perps.md) |
 | Get a quote for a perpetual order | `mm perps quote` | [perps.md](references/perps.md) |
 | List resting perpetual orders | `mm perps orders` | [perps.md](references/perps.md) |
 | Open a perpetual position | `mm perps open` | [perps.md](references/perps.md) |
@@ -175,13 +177,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v7.1.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v7.2.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/7.1.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/7.2.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
