@@ -91,6 +91,10 @@ For limit orders, include `--type limit --limit-px <price>`.
 
 `--max-slippage-bps` is the slippage cap in basis points for IOC market pricing.
 
+For a post-only limit order that must rest on the book, add `--tif alo` to both the quote and the open. `gtc` and `alo` need `--type limit`.
+
+To only shrink or close an existing position, for example a take-profit style exit placed as a limit order, add `--reduce-only` and use the side opposite the position.
+
 ## Open
 
 Remove `--dry-run` only after explicit user confirmation:
