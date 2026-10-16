@@ -61,6 +61,10 @@ If `auth status` reports anything other than authenticated, fix authentication b
 | `AUTH_FAILED` after a working session | Session token expired during operation | Run `mm login` to re-authenticate |
 | `RELAY_TIMEOUT` on swap execute | Gasless relay MFA/signing timed out | Run `mm wallet requests watch <polling-id>` — the job may still complete. Do not re-run execute while the job is pending |
 | `RATE_LIMITED` on perps commands | Hyperliquid rate limit (HTTP 429) | Wait briefly and retry |
+| `INVALID_TIF` on `perps open` or `perps quote` | `--tif gtc` or `--tif alo` without a limit order | Add `--type limit --limit-px <price>`, or use `--tif ioc` |
+| `REDUCE_ONLY_REJECTED` on `perps open` | The reduce-only order would grow or flip the position | Check `mm perps positions` and match the opposite side and a size no larger than the position |
+| `UNSUPPORTED_ROUTE` on `perps vault withdraw` | Deposited vault equity is still locked | Show the unlock time from `lockedUntilTimestamp` in `mm perps vault list` and retry after it |
+| `INSUFFICIENT_BALANCE` on `perps vault deposit` | Perp spendable USDC is below the amount | In standard mode, move spot USDC to perp with `mm perps transfer`, or lower `--amount` |
 | `ALREADY_LOGGED_OUT` on logout | No active session to sign out of | Run `mm login` to authenticate |
 | `INVALID_EVM_ADDRESS` on transfer | Malformed recipient address | Check the `--to` address is a valid `0x`-prefixed 40-hex-char EVM address |
 

@@ -10,6 +10,24 @@ catch up if you are on an older skill version — apply the entries above yours 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and the skills follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [7.10.0] — targets CLI v7.3.0
+
+### Added
+
+- `mm perps vault list`, `mm perps vault info`, `mm perps vault deposit`, and `mm perps vault withdraw` in `references/perps.md` for Hyperliquid vaults. The docs cover the 1 USDC minimum, the deposit lock period and `lockedUntilTimestamp`, and that `--dry-run` only validates flags.
+- `mm perps account mode get` and `mm perps account mode set` in `references/perps.md` for switching between standard and unified Hyperliquid accounts. `set` has no `--dry-run` and changes the whole Hyperliquid account.
+- `--vault <address>` on `mm perps open`, `close`, `modify`, `cancel`, `positions`, `orders`, and `balance` to trade or read on behalf of a vault. Deposits, withdrawals, and spot to perp transfers are not available with `--vault`.
+- `--tif` with `gtc`, `ioc`, or `alo` on `mm perps open` and `mm perps quote`. `gtc` and `alo` need a limit order.
+- `--reduce-only` on `mm perps open`, with matching guidance in `workflows/perps-open-position.md`.
+- `INVALID_TIF`, `REDUCE_ONLY_REJECTED`, and `ALREADY_SET_ACCOUNT_MODE` in `references/errors.md`, and troubleshooting rows for those plus vault lock and vault deposit balance failures.
+- SKILL.md routing rows for the vault and account mode commands, input validation rules for `--vault`, `--tif`, and `--mode`, and confirmation rules for vault deposits and withdrawals and account mode changes. The `description` now also triggers on Hyperliquid vaults.
+
+### Changed
+
+- The SKILL.md perps trading confirmation rule now also covers `--tif`, `--reduce-only`, and `--vault`.
+- `UNSUPPORTED_ROUTE` in `references/errors.md` also covers locked vault equity and `--vault` combined with deposits, withdrawals, or transfers.
+- Bumped `cliVersion` to `7.3.0`.
+
 ## [7.9.0] — targets CLI v7.2.0
 
 ### Added

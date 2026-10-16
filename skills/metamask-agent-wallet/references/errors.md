@@ -58,6 +58,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `INVALID_MNEMONIC` | BYOK mnemonic is invalid |
 | `INVALID_VENUE` | Invalid perpetual venue value |
 | `INVALID_NETWORK` | Invalid network value. Must be `mainnet` or `testnet` |
+| `INVALID_TIF` | Invalid `--tif` on `mm perps open` or `mm perps quote`. Must be `gtc`, `ioc`, or `alo`, and `gtc` or `alo` need `--type limit` with `--limit-px` |
 | `INVALID_WINDOW` | Invalid `--window` on `mm perps funding-rates`. Must be `1h`, `8h`, or `1d` |
 | `INVALID_ASSET` | Invalid asset value |
 | `INVALID_SIDE` | Invalid side value. Must be `long`/`short` or `buy`/`sell` |
@@ -176,7 +177,7 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | --- | --- |
 | `UNSUPPORTED_VENUE` | Unsupported perpetual venue |
 | `UNSUPPORTED_NETWORK` | Unsupported network for perps |
-| `UNSUPPORTED_ROUTE` | Unsupported deposit or withdraw route |
+| `UNSUPPORTED_ROUTE` | Unsupported deposit or withdraw route. Also returned when vault equity is still locked on `mm perps vault withdraw`, and when `--vault` is combined with a deposit, withdrawal, or spot to perp transfer |
 | `UNSUPPORTED_ASSET` | Unsupported asset |
 | `UNSUPPORTED_SOURCE_CHAIN` | Unsupported source chain for perps deposit |
 | `INVALID_SYMBOL` | Unknown perpetual market symbol |
@@ -190,6 +191,8 @@ This reference lists error codes the CLI actually emits. SDK-only or remapped co
 | `POSITION_NOT_FOUND` | Position not found |
 | `QUOTE_FAILED` | Quote generation failed |
 | `ORDER_REJECTED` | Order rejected |
+| `REDUCE_ONLY_REJECTED` | A `--reduce-only` order on `mm perps open` would increase or flip the position. Check `mm perps positions`, or drop `--reduce-only` if the user wants to add to the position |
+| `ALREADY_SET_ACCOUNT_MODE` | `mm perps account mode set` target matches the current mode. Nothing changed |
 | `CANCEL_FAILED` | Order cancellation failed |
 | `SIGNING_FAILED` | Signing operation failed |
 | `WITHDRAW_FAILED` | Withdrawal failed |
