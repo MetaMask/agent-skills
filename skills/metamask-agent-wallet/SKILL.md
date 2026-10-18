@@ -1,11 +1,11 @@
 ---
 name: metamask-agent-wallet
-description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading and funding rates, prediction markets, token swaps, cross-chain bridges, market data, token discovery, tokenized real-world assets, RWAs, AI-generated market and asset summaries via pulse, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations. Financial operations are protected by server-enforced access controls including MFA approval, configurable wallet policies, and trading-mode guards (guard/beast) that restrict operation scope independently of the agent.
+description: Use when the user asks anything about blockchain wallets, transactions, signing, token transfers, supported chains, wallet balances, perpetual futures trading, funding rates, and Hyperliquid vaults, prediction markets, token swaps, cross-chain bridges, market data, token discovery, tokenized real-world assets, RWAs, AI-generated market and asset summaries via pulse, decoding EVM calldata, DeFi earn/yield vaults, installing or removing third-party `mm` CLI plugins, or authentication via the MetaMask Agentic CLI; also when an HTTP request returns 402 Payment Required / x402, when an MCP tool call returns an x402 payment-required result, or the agent needs to pay for a paywalled API, endpoint, file, tool, or resource. Single entry point for all mm CLI operations. Financial operations are protected by server-enforced access controls including MFA approval, configurable wallet policies, and trading-mode guards (guard/beast) that restrict operation scope independently of the agent.
 license: MIT
 metadata:
   author: metamask
-  version: "7.9.0"
-  cliVersion: "7.2.0"
+  version: "7.10.0"
+  cliVersion: "7.3.0"
 ---
 
 # MetaMask Agentic CLI Skill
@@ -85,6 +85,12 @@ Match the user's intent to a command and reference file, then read the reference
 | Transfer USDC between spot and perp accounts | `mm perps transfer` | [perps.md](references/perps.md) |
 | List perpetual futures venues | `mm perps list-venues` | [perps.md](references/perps.md) |
 | List available DEXs for a venue | `mm perps dexs` | [perps.md](references/perps.md) |
+| List vault equities for the wallet | `mm perps vault list` | [perps.md](references/perps.md) |
+| Show Hyperliquid vault details | `mm perps vault info` | [perps.md](references/perps.md) |
+| Deposit USDC into a Hyperliquid vault | `mm perps vault deposit` | [perps.md](references/perps.md) |
+| Withdraw USDC from a Hyperliquid vault | `mm perps vault withdraw` | [perps.md](references/perps.md) |
+| Show Hyperliquid account mode | `mm perps account mode get` | [perps.md](references/perps.md) |
+| Switch Hyperliquid account mode | `mm perps account mode set` | [perps.md](references/perps.md) |
 | Set Predict trading mode | `mm predict mode` | [predict.md](references/predict.md) |
 | One-time Predict setup | `mm predict setup` | [predict.md](references/predict.md) |
 | Create or refresh Predict credentials | `mm predict auth` | [predict.md](references/predict.md) |
@@ -177,13 +183,13 @@ Run these checks before the first CLI operation in a session, in order.
 ### 1. Version compatibility
 
 
-This skill is written for `@metamask/agent-wallet` v7.2.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
+This skill is written for `@metamask/agent-wallet` v7.3.0, as specified by `cliVersion` in the frontmatter. The CLI requires Node.js 22.18 or later; on an older runtime every command exits 1 with `UNSUPPORTED_NODE` before the CLI loads. Check the installed version:
 
 ```bash
 mm --version
 ```
 
-The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/7.2.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
+The installed version is the value after `@metamask/agent-wallet/`, such as `@metamask/agent-wallet/7.3.0 darwin-arm64 node-v22.18.0`. Compare its `major.minor` against the pinned `cliVersion`. Optionally check the latest published version (best-effort, skip silently on network failure):
 
 ```bash
 npm view @metamask/agent-wallet version
@@ -222,7 +228,7 @@ Before constructing any command, validate all user-provided values:
 
 | Flag | Validation rule |
 | --- | --- |
-| `--to`, `--address` | Must match `^0x[0-9a-fA-F]{40}$` |
+| `--to`, `--address`, `--vault` | Must match `^0x[0-9a-fA-F]{40}$` |
 | `--amount` | Human-readable decimal such as 0.5 or 100. Must match `^\d+\.?\d*$`. Reject spaces, semicolons, pipes, backticks, or shell metacharacters |
 | `--chain-id` | Must be a positive integer (`^\d+$`) |
 | `--payload` for send-transaction | Must be valid JSON. No unescaped shell metacharacters outside the JSON structure |
@@ -232,6 +238,8 @@ Before constructing any command, validate all user-provided values:
 | `--size` | Human-readable positive decimal such as 0.01 or 1. Scientific notation and host-locale grouping/decimals are accepted and canonicalized by the CLI. Reject shell metacharacters. Malformed values return `INVALID_AMOUNT` |
 | `--venue` | Must be `hyperliquid` |
 | `--side` for perps | Must be `long` or `short` |
+| `--tif` | Must be `gtc`, `ioc`, or `alo` |
+| `--mode` for perps account | Must be `standard` or `unified` |
 | `--order-id` | Must be a positive integer (`^\d+$`) |
 | `--token-id` | Must be a non-empty outcome token ID string |
 | `--price`, `--limit-price` | Must be a positive number in range `(0, 1]` |
@@ -264,8 +272,10 @@ Do not pass unvalidated user input into any command.
 | Typed-data signing | Always show domain, primary type, chain, verifying contract, and message summary before signing |
 | Swaps / bridges | Always confirm from/to tokens, amount, source/destination chain, slippage, quoted output, recipient address if `--to-address` is set, and the destination gas top-up if `--refuel` is set before executing |
 | x402 payments | Always confirm asset, decimals-correct amount, network, `payTo`, and resource URL or MCP tool before signing the authorization — over HTTP with `pay --confirm`, over MCP with `mcp-sign --confirm`. One payment attempt per resource, never auto-retry a payment. Autonomous auto-pay is not supported. |
-| Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing |
+| Perps trading | Always confirm symbol, side, size, leverage, venue, order type, and limit price if present before executing. Also confirm time in force if `--tif` is set, that the order is reduce-only if `--reduce-only` is set, and the vault address if `--vault` is set |
 | Perps deposit/withdraw | Always confirm amount, asset, venue, network, and destination where applicable before executing |
+| Perps vault deposit/withdraw | Always confirm vault address and name from `mm perps vault info`, amount, venue, and network before executing. For deposits, say that the equity is locked for a period before it can be withdrawn |
+| Perps account mode set | Always show the current mode from `mm perps account mode get` and the target mode, and say that the change applies to the whole Hyperliquid account, before executing |
 | Predict trading | Always confirm token ID, side, size, price, order type, market, and outcome before executing |
 | Predict deposit | Always confirm amount before executing |
 | Predict withdraw | Always confirm amount and recipient before executing. `--to` defaults to owner EOA |

@@ -11,7 +11,9 @@ Most `perps` commands accept these flags (`list-venues` does not):
 | `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
 
-The `--yes` flag skips interactive confirmation on `open`, `close`, `modify`, and `cancel` only. On `deposit`, `transfer`, and `withdraw`, `--yes` is accepted but has no effect because those commands do not prompt. Perps commands do not use `--wait`. In BYOK mode with an encrypted mnemonic, state-changing commands also accept `--password` to unlock the mnemonic. Set `MM_PASSWORD` env var instead of passing inline.
+The `--yes` flag skips interactive confirmation on `open`, `close`, `modify`, and `cancel` only. On `deposit`, `transfer`, and `withdraw`, `--yes` is accepted but has no effect because those commands do not prompt. Perps commands do not use `--wait`.
+
+`open`, `close`, `modify`, `cancel`, `positions`, `orders`, and `balance` accept `--vault <address>` to trade or read on behalf of a Hyperliquid vault instead of the connected wallet. `deposit`, `withdraw`, `transfer`, and vault deposits or withdrawals are not available on behalf of a vault and return `UNSUPPORTED_ROUTE`. In BYOK mode with an encrypted mnemonic, state-changing commands also accept `--password` to unlock the mnemonic. Set `MM_PASSWORD` env var instead of passing inline.
 
 ## `perps markets` Command
 
@@ -49,7 +51,7 @@ Show the connected wallet's perpetual account balances for a venue.
 ### Syntax
 
 ```bash
-mm perps balance [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes]
+mm perps balance [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes] [--vault <address>]
 ```
 
 ### Supported Flags
@@ -60,6 +62,7 @@ mm perps balance [--venue <venue>] [--network <network>] [--dex <dex>] [--all-de
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
 | `--dex` | No | HIP-3 DEX name. Omit to query only the main Hyperliquid DEX. Run `mm perps dexs` to see options |
 | `--all-dexes` | No | Aggregate balances across all DEXs. Mutually exclusive with `--dex` |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to read the vault's account instead of the connected wallet's. Malformed values return `INVALID_ADDRESS` |
 
 ### Example
 
@@ -79,7 +82,7 @@ With `--funding`, each position also carries `fundingRate`, the current hourly m
 ### Syntax
 
 ```bash
-mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes] [--funding]
+mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-dexes] [--funding] [--vault <address>]
 ```
 
 ### Supported Flags
@@ -91,6 +94,7 @@ mm perps positions [--venue <venue>] [--network <network>] [--dex <dex>] [--all-
 | `--dex` | No | HIP-3 DEX name. Omit to query only the main Hyperliquid DEX. Run `mm perps dexs` to see options |
 | `--all-dexes` | No | Aggregate positions across all DEXs. Mutually exclusive with `--dex` |
 | `--funding` | No | Also fetch the current market funding rate for each open position. Without it, the extra markets request is skipped |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to read the vault's account instead of the connected wallet's. Malformed values return `INVALID_ADDRESS` |
 
 ### Example
 
@@ -162,7 +166,7 @@ Estimate entry price, notional, fees, and liquidation price without placing an o
 ### Syntax
 
 ```bash
-mm perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--network <network>]
+mm perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--tif <tif>] [--network <network>]
 ```
 
 ### Supported Flags
@@ -176,6 +180,7 @@ mm perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> -
 | `--leverage` | Yes | Leverage multiplier as a positive integer such as 5 or 10 |
 | `--type` | No | Order type: `market` or `limit`. Defaults to `market` |
 | `--limit-px` | If `--type limit` | Limit price, human-readable such as 60000 for BTC |
+| `--tif` | No | Time in force: `gtc`, `ioc`, or `alo`. `alo` is post-only. `gtc` and `alo` require `--type limit` and `--limit-px`; `ioc` works with any order type. Omit to keep the defaults: `ioc` for market and `gtc` for limit. Invalid values or combinations return `INVALID_TIF` |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
 
 ### Example
@@ -183,6 +188,7 @@ mm perps quote [--venue <venue>] --symbol <symbol> --side <side> --size <size> -
 ```bash
 mm perps quote --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
 mm perps quote --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
+mm perps quote --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500 --tif alo
 ```
 
 ## `perps open` Command
@@ -192,7 +198,7 @@ Open a new perpetual position by placing an order.
 ### Syntax
 
 ```bash
-mm perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+mm perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --leverage <leverage> [--type <type>] [--limit-px <price>] [--tif <tif>] [--max-slippage-bps <bps>] [--reduce-only] [--network <network>] [--vault <address>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -206,8 +212,11 @@ mm perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --
 | `--leverage` | Yes | Leverage multiplier as a positive integer such as 5 or 10 |
 | `--type` | No | Order type: `market` or `limit`. Defaults to `market` |
 | `--limit-px` | If `--type limit` | Limit price; required when `--type` is `limit` such as 60000 for BTC |
+| `--tif` | No | Time in force: `gtc`, `ioc`, or `alo`. `alo` is post-only. `gtc` and `alo` require `--type limit` and `--limit-px`; `ioc` works with any order type. Omit to keep the defaults: `ioc` for market and `gtc` for limit. Invalid values or combinations return `INVALID_TIF` |
 | `--max-slippage-bps` | No | Slippage cap in basis points for IOC market pricing such as 50 |
+| `--reduce-only` | No | Submit an order that can only reduce or close the existing position. If it would increase or flip the position, the venue rejects it with `REDUCE_ONLY_REJECTED` |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to trade on behalf of a vault you lead. Malformed values return `INVALID_ADDRESS` |
 | `--dry-run` | No | Validate and preview the order without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
@@ -219,6 +228,8 @@ mm perps open [--venue <venue>] --symbol <symbol> --side <side> --size <size> --
 mm perps open --venue hyperliquid --symbol BTC --side long --size 0.01 --leverage 5
 mm perps open --venue hyperliquid --symbol ETH --side short --size 1 --leverage 10 --type limit --limit-px 2500
 mm perps open --venue hyperliquid --symbol BTC --side long --size 0.05 --leverage 3 --dry-run
+mm perps open --venue hyperliquid --symbol BTC --side short --size 0.01 --leverage 5 --reduce-only
+mm perps open --venue hyperliquid --symbol ETH --side long --size 1 --leverage 5 --type limit --limit-px 2400 --tif alo
 ```
 
 ## `perps orders` Command
@@ -228,7 +239,7 @@ List resting orders for the connected wallet on a venue.
 ### Syntax
 
 ```bash
-mm perps orders [--venue <venue>] [--network <network>] [--dex <dex>]
+mm perps orders [--venue <venue>] [--network <network>] [--dex <dex>] [--vault <address>]
 ```
 
 ### Supported Flags
@@ -238,6 +249,7 @@ mm perps orders [--venue <venue>] [--network <network>] [--dex <dex>]
 | `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
 | `--dex` | No | HIP-3 DEX name. Omit to query only the main Hyperliquid DEX. Run `mm perps dexs` to see options |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to read the vault's account instead of the connected wallet's. Malformed values return `INVALID_ADDRESS` |
 
 ### Example
 
@@ -254,7 +266,7 @@ Close one position, part of a position, or all open positions.
 ### Syntax
 
 ```bash
-mm perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+mm perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--max-slippage-bps <bps>] [--network <network>] [--vault <address>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -267,6 +279,7 @@ mm perps close [--venue <venue>] [--symbol <symbol>] [--size <size>] [--all] [--
 | `--all` | No | Close all open positions; mutually exclusive with `--symbol` |
 | `--max-slippage-bps` | No | Slippage cap in basis points for IOC pricing such as 50 |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to trade on behalf of a vault you lead. Malformed values return `INVALID_ADDRESS` |
 | `--dry-run` | No | Preview the close action without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
@@ -292,7 +305,7 @@ Modify leverage, take-profit, or stop-loss for an existing position.
 ### Syntax
 
 ```bash
-mm perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+mm perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--tp <price>] [--sl <price>] [--network <network>] [--vault <address>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -305,6 +318,7 @@ mm perps modify [--venue <venue>] --symbol <symbol> [--leverage <leverage>] [--t
 | `--tp` | No | Take-profit trigger price, human-readable such as 3000 or 2500.50 |
 | `--sl` | No | Stop-loss trigger price, human-readable such as 2000 or 1800.75 |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to trade on behalf of a vault you lead. Malformed values return `INVALID_ADDRESS` |
 | `--dry-run` | No | Preview the modify action without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
@@ -329,7 +343,7 @@ Cancel a resting perps order.
 ### Syntax
 
 ```bash
-mm perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+mm perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network <network>] [--vault <address>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
 ```
 
 ### Supported Flags
@@ -340,6 +354,7 @@ mm perps cancel [--venue <venue>] --order-id <id> [--symbol <symbol>] [--network
 | `--order-id` | Yes | Venue order ID to cancel. Must be a positive integer |
 | `--symbol` | No | Market symbol, speeds up cancel by avoiding an open-order lookup. For example BTC or ETH |
 | `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--vault` | No | Hyperliquid vault address, 0x-prefixed hex, to trade on behalf of a vault you lead. Malformed values return `INVALID_ADDRESS` |
 | `--dry-run` | No | Preview the cancel action without signing or submitting |
 | `--yes` | No | Skip interactive confirmation |
 | `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
@@ -490,6 +505,168 @@ mm perps dexs [--venue <venue>] [--network <network>]
 
 ```bash
 mm perps dexs --venue hyperliquid
+```
+
+## `perps vault list` Command
+
+List the connected wallet's equity in Hyperliquid vaults.
+
+### Syntax
+
+```bash
+mm perps vault list [--venue <venue>] [--network <network>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+
+### Example
+
+```bash
+mm perps vault list --venue hyperliquid
+```
+
+## `perps vault info` Command
+
+Show metadata for a Hyperliquid vault.
+
+### Syntax
+
+```bash
+mm perps vault info [--venue <venue>] --vault <address> [--network <network>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--vault` | Yes | Hyperliquid vault address, 0x-prefixed hex. Malformed values return `INVALID_ADDRESS`, and an address with no vault returns `INVALID_INPUT` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+
+### Example
+
+```bash
+mm perps vault info --venue hyperliquid --vault 0xdfc24b077bc1425ad1dea75bcb6f8158e10df303
+```
+
+## `perps vault deposit` Command
+
+Deposit USDC from the connected wallet's perp balance into a Hyperliquid vault. Creating a vault is not supported.
+
+### Syntax
+
+```bash
+mm perps vault deposit [--venue <venue>] --vault <address> --amount <amount> [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--vault` | Yes | Hyperliquid vault address, 0x-prefixed hex. Malformed values return `INVALID_ADDRESS` |
+| `--amount` | Yes | Human-readable USDC amount such as 100. The minimum is 1 USDC. The amount must fit in the perp spendable balance, otherwise `INSUFFICIENT_BALANCE`. In standard account mode, move spot USDC to perp first with `mm perps transfer`; unified accounts already include free spot USDC |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--dry-run` | No | Validate the flags and return a `prepared` status without signing. Balance, minimum, and vault checks only run on a live deposit |
+| `--yes` | No | Skip interactive confirmation |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
+
+### Example
+
+```bash
+mm perps vault deposit --venue hyperliquid --vault 0xdfc24b077bc1425ad1dea75bcb6f8158e10df303 --amount 100 --dry-run
+mm perps vault deposit --venue hyperliquid --vault 0xdfc24b077bc1425ad1dea75bcb6f8158e10df303 --amount 100
+```
+
+## `perps vault withdraw` Command
+
+Withdraw USDC from a Hyperliquid vault back to the connected wallet's perp balance.
+
+### Syntax
+
+```bash
+mm perps vault withdraw [--venue <venue>] --vault <address> --amount <amount> [--network <network>] [--dry-run] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--vault` | Yes | Hyperliquid vault address, 0x-prefixed hex. Malformed values return `INVALID_ADDRESS` |
+| `--amount` | Yes | Human-readable USDC amount such as 50. The minimum is 1 USDC, and the amount cannot exceed your equity in the vault, otherwise `INSUFFICIENT_BALANCE`. Equity still inside its lock period returns `UNSUPPORTED_ROUTE` with the unlock time |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--dry-run` | No | Validate the flags and return a `prepared` status without signing. Equity, minimum, and lock checks only run on a live withdrawal |
+| `--yes` | No | Skip interactive confirmation |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
+
+### Example
+
+```bash
+mm perps vault withdraw --venue hyperliquid --vault 0xdfc24b077bc1425ad1dea75bcb6f8158e10df303 --amount 50
+```
+
+## `perps account mode get` Command
+
+Show the Hyperliquid account abstraction mode for the connected wallet. In `standard` mode spot and perp balances are separate; in `unified` mode they are pooled.
+
+### Syntax
+
+```bash
+mm perps account mode get [--venue <venue>] [--network <network>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+
+### Example
+
+```bash
+mm perps account mode get --venue hyperliquid
+```
+
+## `perps account mode set` Command
+
+Switch the Hyperliquid account abstraction mode for the connected wallet. This changes how spot and perp balances are pooled for the whole Hyperliquid account, not only for one command.
+
+### Syntax
+
+```bash
+mm perps account mode set [--venue <venue>] --mode <mode> [--network <network>] [--yes] [--password <password>] [--wallet-timeout <seconds>]
+```
+
+### Supported Flags
+
+| Name | Required | Description |
+| --- | --- | --- |
+| `--venue` | No | Perpetual venue. Defaults to `hyperliquid` |
+| `--mode` | Yes | Target mode: `standard` for separate spot and perp balances, or `unified` for pooled balances. If the account is already in that mode, the command returns `ALREADY_SET_ACCOUNT_MODE` |
+| `--network` | No | Target network: `mainnet` or `testnet`. Defaults to `mainnet` |
+| `--yes` | No | Skip interactive confirmation |
+| `--password` | No | Password to unlock the BYOK mnemonic. Only applies to BYOK mode. Set `MM_PASSWORD` env var instead of passing inline |
+| `--wallet-timeout` | No | Seconds to wait per wallet job including MFA and signing, max 600. Overrides config `walletTimeoutSeconds` |
+
+There is no `--dry-run`. Run `mm perps account mode get` first to show the user the current mode.
+
+### Output
+
+`venue`, `network`, `previousRawState`, `rawState`, `mode`, and `changed`. The CLI reads the mode back after switching and returns `HYPERLIQUID_ERROR` if the change did not take effect.
+
+### Example
+
+```bash
+mm perps account mode set --venue hyperliquid --mode unified
 ```
 
 ## Notes
