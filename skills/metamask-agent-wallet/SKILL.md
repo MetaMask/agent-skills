@@ -312,6 +312,7 @@ When raw calldata is unfamiliar or was not constructed by you, run `mm decode --
 In both server-wallet and BYOK mode, signing and transaction commands go through a job-polling loop and return a `pollingId`. Handle this consistently:
 
 1. Prefer `--wait` to block until complete.
+   Swap commands (`swap quote`, `swap execute`, `swap status`) do not support `--wait`; use `swap status --quote-id` to poll progress instead.
 2. If not using `--wait`, inform the user of the `pollingId` and how to track it:
    - `mm wallet requests list`
    - `mm wallet requests watch <polling-id>`

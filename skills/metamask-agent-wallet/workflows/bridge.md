@@ -11,6 +11,7 @@ Reference command syntax in `references/swap.md`. The CLI uses the same `swap` c
 3. Execute and track status.
 
 Don't skip the quote review step. The user needs to see output amount, fees, route, and slippage before executing.
+Don't add `--yes` unless the user explicitly asked for unattended execution.
 
 ## Quote
 

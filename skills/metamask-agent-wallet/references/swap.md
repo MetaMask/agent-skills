@@ -191,6 +191,8 @@ When the user has chosen a specific route, such as "use Across", and the origina
 
 ## Notes
 
+- Swap commands do not support `--wait`. Track progress with `mm swap status --quote-id <id>` after execution.
+- Don't add `--yes` unless the user explicitly asked for unattended execution. The default flow is quote → user review → execute by quote ID.
 - If the chain is not mentioned by the user, ask for the chain.
 - Use `mm chains list` to discover supported chain IDs.
 - Same-chain swap: omit `--to-chain-id`, which defaults to `--from-chain-id`.
